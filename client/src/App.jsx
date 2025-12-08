@@ -6,8 +6,10 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import RegisterCase from './pages/RegisterCase';
 import ManageCases from './pages/ManageCases';
+import CaseDetail from './pages/CaseDetail';
 import EditProfile from './pages/EditProfile';
 import ManageSubscription from './pages/ManageSubscription';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
@@ -41,6 +43,14 @@ function App() {
             }
           />
           <Route
+            path="/case/:caseId"
+            element={
+              <ProtectedRoute>
+                <CaseDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/edit-profile"
             element={
               <ProtectedRoute>
@@ -56,6 +66,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+          {/* Catch-all route for 404 */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>
     </Router>
