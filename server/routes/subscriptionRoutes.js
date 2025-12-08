@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import * as subscriptionController from '../controllers/subscriptionController.js';
+
 const router = express.Router();
-const subscriptionController = require('../controllers/subscriptionController');
 
 // Get active subscription
 router.get('/:userId/active', subscriptionController.getActiveSubscription);
@@ -20,4 +21,4 @@ router.post('/verify-payment', subscriptionController.verifyPayment);
 // Handle payment failure
 router.post('/payment-failure', subscriptionController.handlePaymentFailure);
 
-module.exports = router;
+export default router;

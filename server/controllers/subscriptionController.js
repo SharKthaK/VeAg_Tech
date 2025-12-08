@@ -1,13 +1,19 @@
-const Subscription = require('../models/Subscription');
-const Transaction = require('../models/Transaction');
-const Razorpay = require('razorpay');
-const crypto = require('crypto');
+import Subscription from '../models/Subscription.js';
+import Transaction from '../models/Transaction.js';
+import Razorpay from 'razorpay';
+import crypto from 'crypto';
 
-// Initialize Razorpay instance
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET
-});
+// Lazy initialization of Razorpay instance
+let razorpayInstance = null;
+const getRazorpay = () => {
+  if (!razorpayInstance) {
+    razorpayInstance = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET
+    });
+  }
+  return razorpayInstance;
+};
 
 // Plan pricing configuration
 const PLAN_CONFIG = {
@@ -19,7 +25,7 @@ const PLAN_CONFIG = {
 };
 
 // Get user's active subscription
-exports.getActiveSubscription = async (req, res) => {
+export const getActiveSubscription = async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -59,7 +65,7 @@ exports.getActiveSubscription = async (req, res) => {
 };
 
 // Get all subscriptions (plan history)
-exports.getSubscriptionHistory = async (req, res) => {
+export const getSubscriptionHistory = async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -80,7 +86,7 @@ exports.getSubscriptionHistory = async (req, res) => {
 };
 
 // Get all transactions
-exports.getTransactionHistory = async (req, res) => {
+export const getTransactionHistory = async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -95,7 +101,7 @@ exports.getTransactionHistory = async (req, res) => {
 };
 
 // Create Razorpay order
-exports.createOrder = async (req, res) => {
+export const createOrder = async (req, res) => {
   try {
     const { userId, userEmail, months } = req.body;
 
@@ -113,6 +119,7 @@ exports.createOrder = async (req, res) => {
     const orderId = `ORD_${Date.now()}_${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
     // Create Razorpay order
+    const razorpay = getRazorpay();
     const razorpayOrder = await razorpay.orders.create({
       amount,
       currency: 'INR',
@@ -156,7 +163,7 @@ exports.createOrder = async (req, res) => {
 };
 
 // Verify payment and create/extend subscription
-exports.verifyPayment = async (req, res) => {
+export const verifyPayment = async (req, res) => {
   try {
     const {
       razorpay_order_id,
@@ -186,6 +193,7 @@ exports.verifyPayment = async (req, res) => {
     }
 
     // Fetch payment details from Razorpay
+    const razorpay = getRazorpay();
     const payment = await razorpay.payments.fetch(razorpay_payment_id);
 
     // Find transaction
@@ -280,7 +288,7 @@ exports.verifyPayment = async (req, res) => {
 };
 
 // Handle payment failure
-exports.handlePaymentFailure = async (req, res) => {
+export const handlePaymentFailure = async (req, res) => {
   try {
     const { razorpay_order_id, error } = req.body;
 

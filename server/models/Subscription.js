@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const subscriptionSchema = new mongoose.Schema({
   userId: {
@@ -66,4 +66,4 @@ subscriptionSchema.methods.getDaysRemaining = function() {
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 };
 
-module.exports = mongoose.model('Subscription', subscriptionSchema);
+export default mongoose.model('Subscription', subscriptionSchema);
