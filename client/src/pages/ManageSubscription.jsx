@@ -197,10 +197,37 @@ function ManageSubscription() {
       <Header currentUser={currentUser} logout={logout} navigate={navigate} />
 
       <div className="container mx-auto px-4 py-8">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate('/dashboard')}
+          className="mb-6 flex items-center gap-2 text-veag-green hover:text-veag-dark-green font-semibold transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+          </svg>
+          Back to Dashboard
+        </button>
+
+        {/* Subscription Days Banner - Only show if active */}
+        {hasActivePlan && daysRemaining > 0 && (
+          <div className="bg-veag-green text-white rounded-lg p-4 mb-6 flex items-center justify-between shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+              <span className="font-semibold text-lg">
+                ✨ Active Premium Subscription
+              </span>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold">{daysRemaining}</div>
+              <div className="text-sm opacity-90">Days Remaining</div>
+            </div>
+          </div>
+        )}
+
         {/* Active Subscription Status */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
           <h2 className="text-2xl font-bold text-veag-dark-green mb-4">Current Subscription Status</h2>
-          {hasActivePlan ? (
+          {hasActivePlan && daysRemaining > 0 ? (
             <div className="bg-veag-light-green rounded-lg p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -286,7 +313,31 @@ function ManageSubscription() {
 
         {/* Transaction History */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-bold text-veag-dark-green mb-4">Transaction History</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-veag-dark-green">Transaction History</h2>
+            <button
+              onClick={() => {
+                setLoadingHistory(true);
+                fetchTransactionHistory();
+              }}
+              disabled={loadingHistory}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
+                loadingHistory
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-veag-green text-white hover:bg-veag-dark-green'
+              }`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className={`h-5 w-5 ${loadingHistory ? 'animate-spin' : ''}`}
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+              </svg>
+              {loadingHistory ? 'Refreshing...' : 'Refresh'}
+            </button>
+          </div>
           {loadingHistory ? (
             <div className="text-center py-8">
               <div className="inline-block w-8 h-8 border-4 border-veag-green border-t-transparent rounded-full animate-spin"></div>
