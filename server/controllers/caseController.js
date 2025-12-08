@@ -1,5 +1,7 @@
 import Case from '../models/Case.js';
+import CaseResult from '../models/CaseResult.js';
 import cloudinary from '../config/cloudinary.js';
+import gradioService from '../services/gradioService.js';
 import { Readable } from 'stream';
 
 // Generate unique numeric case ID
@@ -145,6 +147,123 @@ export const getCaseById = async (req, res) => {
     res.status(500).json({ 
       success: false,
       error: 'Failed to fetch case'
+    });
+  }
+};
+
+// Process case with Gradio AI model
+export const processCase = async (req, res) => {
+  const startTime = Date.now();
+  
+  try {
+    const { caseId } = req.params;
+
+    // Find the case
+    const caseData = await Case.findOne({ caseId });
+
+    if (!caseData) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Case not found'
+      });
+    }
+
+    // Check if case is already processing or completed
+    if (caseData.status === 'processing') {
+      return res.status(400).json({
+        success: false,
+        error: 'Case is already being processed'
+      });
+    }
+
+    if (caseData.status === 'completed') {
+      return res.status(400).json({
+        success: false,
+        error: 'Case has already been processed'
+      });
+    }
+
+    // Update status to processing
+    caseData.status = 'processing';
+    await caseData.save();
+
+    // Send immediate response that processing has started
+    res.json({
+      success: true,
+      message: 'Processing started',
+      caseId: caseData.caseId
+    });
+
+    // Process in background
+    (async () => {
+      try {
+        // Process with Gradio
+        const result = await gradioService.processCase(caseData.images);
+
+        if (result.success) {
+          const processingTime = Date.now() - startTime;
+
+          // Save result to CaseResult collection
+          await CaseResult.create({
+            caseId: caseData.caseId,
+            userId: caseData.userId,
+            cropName: caseData.cropName,
+            diseaseStatus: result.diseaseStatus,
+            modelResponse: result.fullResponse,
+            processingTime
+          });
+
+          // Update case status to completed
+          caseData.status = 'completed';
+          await caseData.save();
+
+          console.log(`Case ${caseId} processed successfully`);
+        } else {
+          // Update case status to failed with error
+          caseData.status = 'failed';
+          await caseData.save();
+
+          console.error(`Case ${caseId} processing failed:`, result.error);
+        }
+      } catch (error) {
+        console.error(`Background processing error for case ${caseId}:`, error);
+        caseData.status = 'failed';
+        await caseData.save();
+      }
+    })();
+
+  } catch (error) {
+    console.error('Error processing case:', error);
+    res.status(500).json({ 
+      success: false,
+      error: error.message || 'Failed to process case'
+    });
+  }
+};
+
+// Get case result
+export const getCaseResult = async (req, res) => {
+  try {
+    const { caseId } = req.params;
+
+    const result = await CaseResult.findOne({ caseId });
+
+    if (!result) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Result not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      result
+    });
+  } catch (error) {
+    console.error('Error fetching result:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to fetch result'
     });
   }
 };

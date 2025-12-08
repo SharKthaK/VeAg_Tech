@@ -10,41 +10,98 @@ const CaseDetail = ({ daysRemaining }) => {
   const { caseId } = useParams();
   const { currentUser, logout } = useAuth();
   const [caseData, setCaseData] = useState(null);
+  const [caseResult, setCaseResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [unauthorized, setUnauthorized] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [processing, setProcessing] = useState(false);
+  const [processingError, setProcessingError] = useState(null);
+  const [autoRefresh, setAutoRefresh] = useState(false);
+
+  const fetchCaseDetail = async () => {
+    if (!currentUser?.userId) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await axios.get(`http://localhost:5000/api/cases/${caseId}`);
+      
+      // Security check: Verify case belongs to current user
+      if (response.data.case.userId !== currentUser.userId) {
+        console.warn('Unauthorized access attempt to case:', caseId);
+        setUnauthorized(true);
+      } else {
+        setCaseData(response.data.case);
+        setSelectedImage(response.data.case.images[0]?.url || null);
+
+        // If completed, fetch result
+        if (response.data.case.status === 'completed') {
+          try {
+            const resultResponse = await axios.get(`http://localhost:5000/api/cases/${caseId}/result`);
+            setCaseResult(resultResponse.data.result);
+          } catch (err) {
+            console.error('Error fetching result:', err);
+          }
+        }
+
+        // Auto refresh if processing
+        if (response.data.case.status === 'processing' && !autoRefresh) {
+          setAutoRefresh(true);
+        } else if (response.data.case.status !== 'processing' && autoRefresh) {
+          setAutoRefresh(false);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching case:', err);
+      if (err.response?.status === 404) {
+        setUnauthorized(true);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchCaseDetail = async () => {
-      if (!currentUser?.userId) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const response = await axios.get(`http://localhost:5000/api/cases/${caseId}`);
-        
-        // Security check: Verify case belongs to current user
-        if (response.data.case.userId !== currentUser.userId) {
-          console.warn('Unauthorized access attempt to case:', caseId);
-          setUnauthorized(true);
-        } else {
-          setCaseData(response.data.case);
-          setSelectedImage(response.data.case.images[0]?.url || null);
-        }
-      } catch (err) {
-        console.error('Error fetching case:', err);
-        if (err.response?.status === 404) {
-          setUnauthorized(true);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchCaseDetail();
   }, [caseId, currentUser]);
+
+  // Auto-refresh when processing
+  useEffect(() => {
+    if (autoRefresh) {
+      const interval = setInterval(() => {
+        fetchCaseDetail();
+      }, 10000); // Refresh every 10 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [autoRefresh]);
+
+  const handleProcessCase = async () => {
+    try {
+      setProcessing(true);
+      setProcessingError(null);
+
+      const response = await axios.post(`http://localhost:5000/api/cases/${caseId}/process`);
+
+      if (response.data.success) {
+        // Start auto-refresh
+        setAutoRefresh(true);
+        // Refresh immediately
+        fetchCaseDetail();
+      }
+    } catch (err) {
+      console.error('Error processing case:', err);
+      setProcessingError(err.response?.data?.error || 'Failed to start processing');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    fetchCaseDetail();
+  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -151,6 +208,16 @@ const CaseDetail = ({ daysRemaining }) => {
             </div>
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
               {getStatusBadge(caseData.status)}
+              <button
+                onClick={handleRefresh}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
+                title="Refresh case status"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Refresh
+              </button>
               <div className="bg-veag-light-green px-4 py-2 rounded-lg">
                 <span className="text-sm text-veag-dark-green font-semibold">
                   Plan: {daysRemaining} days left
@@ -201,6 +268,120 @@ const CaseDetail = ({ daysRemaining }) => {
                 ))}
               </div>
             </div>
+
+            {/* Process Button */}
+            {(caseData.status === 'pending' || caseData.status === 'failed') && (
+              <div className="mt-6">
+                <button
+                  onClick={handleProcessCase}
+                  disabled={processing}
+                  className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-orange-500 text-white font-bold text-lg rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all transform hover:scale-105"
+                >
+                  {processing ? (
+                    <>
+                      <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Starting Process...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                      </svg>
+                      <span>{caseData.status === 'failed' ? 'Retry Processing' : 'Process with AI'}</span>
+                    </>
+                  )}
+                </button>
+                {processingError && (
+                  <div className="mt-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+                    {processingError}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Processing Status */}
+            {caseData.status === 'processing' && (
+              <div className="mt-6 bg-blue-50 border-2 border-blue-400 rounded-lg p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                  <div>
+                    <h4 className="font-bold text-blue-800">Processing in Progress</h4>
+                    <p className="text-sm text-blue-600">AI model is analyzing your images...</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-blue-700">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <span>Downloading images</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-blue-700">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <span>Running AI analysis</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-blue-700">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <span>Saving results</span>
+                  </div>
+                </div>
+                <p className="text-xs text-blue-600 mt-4">
+                  ⏱️ Auto-refreshing every 10 seconds...
+                </p>
+              </div>
+            )}
+
+            {/* Disease Detection Result */}
+            {caseData.status === 'completed' && caseResult && (
+              <div className="mt-6 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-400 rounded-lg p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-green-800 text-lg">Analysis Complete</h4>
+                    <p className="text-sm text-green-600">AI Detection Results</p>
+                  </div>
+                </div>
+                
+                <div className="bg-white rounded-lg p-4 mb-4">
+                  <h5 className="text-sm font-semibold text-gray-600 mb-2">Disease Detected:</h5>
+                  <p className="text-xl font-bold text-green-800">{caseResult.diseaseStatus}</p>
+                </div>
+
+                <div className="text-xs text-gray-600 space-y-1">
+                  <p>⏱️ Processing Time: {(caseResult.processingTime / 1000).toFixed(2)}s</p>
+                  <p>📅 Completed: {formatDate(caseResult.processedAt)}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Error Display */}
+            {caseData.status === 'failed' && (
+              <div className="mt-6 bg-red-50 border-2 border-red-400 rounded-lg p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-red-800">Processing Failed</h4>
+                    <p className="text-sm text-red-600">An error occurred during analysis</p>
+                  </div>
+                </div>
+                <p className="text-sm text-red-700 mb-4">
+                  The AI model encountered an error while processing your images. Please try again.
+                </p>
+                <button
+                  onClick={handleProcessCase}
+                  disabled={processing}
+                  className="w-full px-4 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 disabled:bg-gray-400 transition-colors"
+                >
+                  {processing ? 'Retrying...' : 'Retry Processing'}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Right Column - Case Information */}
