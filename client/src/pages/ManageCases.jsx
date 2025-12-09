@@ -5,6 +5,8 @@ import Header from '../components/Header';
 import withSubscription from '../components/withSubscription';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
 const ManageCases = ({ daysRemaining }) => {
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
@@ -23,7 +25,7 @@ const ManageCases = ({ daysRemaining }) => {
       try {
         console.log('Fetching cases for user:', currentUser.userId);
         setLoading(true);
-        const response = await axios.get(`http://localhost:5000/api/cases/user/${currentUser.userId}`);
+        const response = await axios.get(`${API_BASE_URL}/cases/user/${currentUser.userId}`);
         console.log('Cases response:', response.data);
         setCases(response.data.cases || []);
         setError(null);

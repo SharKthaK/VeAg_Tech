@@ -5,6 +5,8 @@ import Header from '../components/Header';
 import withSubscription from '../components/withSubscription';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
 const CaseDetail = ({ daysRemaining }) => {
   const navigate = useNavigate();
   const { caseId } = useParams();
@@ -26,7 +28,7 @@ const CaseDetail = ({ daysRemaining }) => {
 
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/cases/${caseId}`);
+      const response = await axios.get(`${API_BASE_URL}/cases/${caseId}`);
       
       // Security check: Verify case belongs to current user
       if (response.data.case.userId !== currentUser.userId) {
@@ -39,7 +41,7 @@ const CaseDetail = ({ daysRemaining }) => {
         // If completed, fetch result
         if (response.data.case.status === 'completed') {
           try {
-            const resultResponse = await axios.get(`http://localhost:5000/api/cases/${caseId}/result`);
+            const resultResponse = await axios.get(`${API_BASE_URL}/cases/${caseId}/result`);
             setCaseResult(resultResponse.data.result);
           } catch (err) {
             console.error('Error fetching result:', err);
@@ -83,7 +85,7 @@ const CaseDetail = ({ daysRemaining }) => {
       setProcessing(true);
       setProcessingError(null);
 
-      const response = await axios.post(`http://localhost:5000/api/cases/${caseId}/process`);
+      const response = await axios.post(`${API_BASE_URL}/cases/${caseId}/process`);
 
       if (response.data.success) {
         // Start auto-refresh
