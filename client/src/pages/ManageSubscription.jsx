@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
-import Header from '../components/Header';
+import { motion } from 'framer-motion';
+import { ArrowLeft, HelpCircle, CreditCard, Calendar, History, CheckCircle, XCircle } from 'lucide-react';
+import veagLogo from '../assets/veag_logo.svg';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
@@ -23,6 +25,18 @@ function ManageSubscription() {
   const [transactions, setTransactions] = useState([]);
   const [subscriptionHistory, setSubscriptionHistory] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  
+  // UI State
+  const [showSupport, setShowSupport] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
+  
+  // Payment notification state
+  const [paymentNotification, setPaymentNotification] = useState({
+    show: false,
+    type: '', // 'success', 'failed', 'cancelled'
+    message: '',
+    details: null
+  });
 
   // Plan configuration
   const PLAN = {
@@ -54,6 +68,11 @@ function ManageSubscription() {
       fetchSubscriptionHistory();
     }
   }, [currentUser]);
+  
+  // Page loading
+  useEffect(() => {
+    setTimeout(() => setPageLoading(false), 800);
+  }, []);
 
   const fetchActiveSubscription = async () => {
     try {
@@ -127,7 +146,17 @@ function ManageSubscription() {
             });
 
             if (verifyResponse.data.success) {
-              alert('Payment successful! Your subscription has been activated.');
+              setPaymentNotification({
+                show: true,
+                type: 'success',
+                message: 'Payment Successful!',
+                details: {
+                  orderId: response.razorpay_order_id,
+                  paymentId: response.razorpay_payment_id,
+                  months: selectedMonths,
+                  amount: amount / 100
+                }
+              });
               // Refresh data
               fetchActiveSubscription();
               fetchTransactionHistory();
@@ -136,7 +165,15 @@ function ManageSubscription() {
             }
           } catch (error) {
             console.error('Payment verification failed:', error);
-            alert('Payment verification failed. Please contact support.');
+            setPaymentNotification({
+              show: true,
+              type: 'failed',
+              message: 'Payment Verification Failed',
+              details: {
+                error: 'Unable to verify payment. Please contact support.',
+                orderId: response.razorpay_order_id
+              }
+            });
           } finally {
             setIsProcessing(false);
           }
@@ -151,9 +188,22 @@ function ManageSubscription() {
         modal: {
           ondismiss: async () => {
             // Handle payment cancellation
-            await axios.post(`${API_BASE_URL}/subscriptions/payment-failure`, {
-              razorpay_order_id: orderId,
-              error: { description: 'Payment cancelled by user' }
+            try {
+              await axios.post(`${API_BASE_URL}/subscriptions/payment-failure`, {
+                razorpay_order_id: orderId,
+                error: { description: 'Payment cancelled by user' }
+              });
+            } catch (err) {
+              console.error('Error logging cancellation:', err);
+            }
+            setPaymentNotification({
+              show: true,
+              type: 'cancelled',
+              message: 'Payment Cancelled',
+              details: {
+                info: 'You have cancelled the payment process.',
+                orderId: orderId
+              }
             });
             setIsProcessing(false);
           }
@@ -164,7 +214,15 @@ function ManageSubscription() {
       razorpay.open();
     } catch (error) {
       console.error('Error initiating payment:', error);
-      alert('Failed to initiate payment. Please try again.');
+      setPaymentNotification({
+        show: true,
+        type: 'failed',
+        message: 'Failed to Initiate Payment',
+        details: {
+          error: error.response?.data?.message || 'Unable to start payment process. Please try again.',
+          info: 'Check your internet connection and try again.'
+        }
+      });
       setIsProcessing(false);
     }
   };
@@ -179,26 +237,275 @@ function ManageSubscription() {
     });
   };
 
-  const getStatusBadgeColor = (status) => {
+  const getStatusBadgeClass = (status) => {
     switch (status) {
       case 'success':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-500/20 text-green-100 border-green-400/50';
       case 'failed':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-500/20 text-red-100 border-red-400/50';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-500/20 text-yellow-100 border-yellow-400/50';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-white/10 text-white/70 border-white/30';
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-veag-light-green via-white to-veag-light-green">
-      <Header currentUser={currentUser} logout={logout} navigate={navigate} />
+  if (pageLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-orange-300 via-orange-200 to-yellow-100 flex items-center justify-center relative overflow-hidden">
+        {/* Mountains */}
+        <svg className="absolute bottom-0 w-full" viewBox="0 0 1440 320" preserveAspectRatio="none">
+          <path fill="#a0522d" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,149.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+          <path fill="#d97706" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,208C672,213,768,203,864,186.7C960,171,1056,149,1152,154.7C1248,160,1344,192,1392,208L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+        
+        {/* Grass */}
+        <div className="absolute bottom-0 w-full h-24 bg-gradient-to-b from-green-600 to-green-700"></div>
+        
+        {/* Loader */}
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="relative w-20 h-20">
+            <motion.div
+              className="absolute inset-0 border-4 border-transparent border-t-white rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            />
+            <motion.div
+              className="absolute inset-2 border-4 border-transparent border-t-orange-400 rounded-full"
+              animate={{ rotate: -360 }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+            />
+            <motion.div
+              className="absolute inset-4 border-4 border-transparent border-t-green-600 rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            />
+          </div>
+          <p className="mt-6 text-white text-lg font-semibold">Loading Subscription...</p>
+        </div>
+      </div>
+    );
+  }
 
-      <div className="container mx-auto px-4 py-8">
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-orange-300 via-orange-200 to-yellow-100 relative overflow-hidden">
+      {/* Mountains */}
+      <svg className="fixed bottom-0 w-full z-0" viewBox="0 0 1440 320" preserveAspectRatio="none">
+        <path fill="#a0522d" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,149.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        <path fill="#d97706" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,208C672,213,768,203,864,186.7C960,171,1056,149,1152,154.7C1248,160,1344,192,1392,208L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+      </svg>
+      
+      {/* Grass */}
+      <div className="fixed bottom-0 w-full h-24 bg-gradient-to-b from-green-600 to-green-700 z-0"></div>
+      
+      {/* Clouds */}
+      <motion.div
+        className="fixed top-20 left-10 w-24 h-12 bg-white/30 rounded-full blur-sm z-0"
+        animate={{ x: [0, 30, 0] }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="fixed top-40 right-20 w-32 h-14 bg-white/20 rounded-full blur-sm z-0"
+        animate={{ x: [0, -40, 0] }}
+        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Header */}
+      <header className="relative z-10 bg-black/30 backdrop-blur-2xl border-b border-white/20">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+            >
+              <ArrowLeft className="w-6 h-6 text-white" />
+            </button>
+            <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-xl border-2 border-white flex items-center justify-center overflow-hidden">
+              <img src={veagLogo} alt="VeAg" className="w-10 h-10 rounded-full" />
+            </div>
+            <span className="text-2xl font-bold text-white">VeAg</span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setShowSupport(!showSupport)}
+              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+            >
+              <HelpCircle className="w-6 h-6 text-white" />
+            </button>
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white">
+              <img 
+                src={currentUser?.photoURL} 
+                alt={currentUser?.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Support Popup */}
+      {showSupport && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="fixed top-20 right-6 z-50 bg-black/40 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 shadow-2xl w-80"
+        >
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-xl font-bold text-white">Need Help?</h3>
+            <button
+              onClick={() => setShowSupport(false)}
+              className="text-white/70 hover:text-white transition-colors"
+            >
+              ×
+            </button>
+          </div>
+          <p className="text-white/90 mb-4">
+            Have questions or need assistance? We're here to help!
+          </p>
+          <a
+            href="mailto:sarthak@vacantvectors.com"
+            className="block w-full bg-white/20 hover:bg-white/30 text-white text-center py-3 rounded-xl transition-colors border border-white/30"
+          >
+            Contact Support
+          </a>
+        </motion.div>
+      )}
+
+      {/* Payment Notification Popup */}
+      {paymentNotification.show && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.9 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => setPaymentNotification({ show: false, type: '', message: '', details: null })}
+        >
+          <motion.div
+            initial={{ y: -50 }}
+            animate={{ y: 0 }}
+            className={`bg-black/40 backdrop-blur-2xl border rounded-2xl p-8 shadow-2xl max-w-md w-full mx-4 ${
+              paymentNotification.type === 'success' ? 'border-green-400/50' :
+              paymentNotification.type === 'cancelled' ? 'border-yellow-400/50' :
+              'border-red-400/50'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Icon */}
+            <div className="flex justify-center mb-6">
+              {paymentNotification.type === 'success' ? (
+                <div className="w-20 h-20 rounded-full bg-green-600/20 border-2 border-green-400/50 flex items-center justify-center backdrop-blur-xl">
+                  <CheckCircle className="w-12 h-12 text-green-400" />
+                </div>
+              ) : paymentNotification.type === 'cancelled' ? (
+                <div className="w-20 h-20 rounded-full bg-yellow-600/20 border-2 border-yellow-400/50 flex items-center justify-center backdrop-blur-xl">
+                  <XCircle className="w-12 h-12 text-yellow-400" />
+                </div>
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-red-600/20 border-2 border-red-400/50 flex items-center justify-center backdrop-blur-xl">
+                  <XCircle className="w-12 h-12 text-red-400" />
+                </div>
+              )}
+            </div>
+
+            {/* Message */}
+            <h3 className="text-2xl font-bold text-white text-center mb-4">
+              {paymentNotification.message}
+            </h3>
+
+            {/* Details */}
+            <div className="space-y-3 mb-6">
+              {paymentNotification.type === 'success' && paymentNotification.details && (
+                <>
+                  <div className="bg-white/10 backdrop-blur-xl rounded-lg p-4 border border-white/20">
+                    <p className="text-white/70 text-sm mb-1">Payment ID</p>
+                    <p className="text-white font-mono text-xs break-all">{paymentNotification.details.paymentId}</p>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-xl rounded-lg p-4 border border-white/20">
+                    <p className="text-white/70 text-sm mb-1">Order ID</p>
+                    <p className="text-white font-mono text-xs break-all">{paymentNotification.details.orderId}</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-1 bg-green-600/20 backdrop-blur-xl rounded-lg p-4 border border-green-400/30">
+                      <p className="text-white/70 text-sm mb-1">Duration</p>
+                      <p className="text-white font-bold">{paymentNotification.details.months} Month{paymentNotification.details.months > 1 ? 's' : ''}</p>
+                    </div>
+                    <div className="flex-1 bg-green-600/20 backdrop-blur-xl rounded-lg p-4 border border-green-400/30">
+                      <p className="text-white/70 text-sm mb-1">Amount</p>
+                      <p className="text-green-400 font-bold">₹{paymentNotification.details.amount}</p>
+                    </div>
+                  </div>
+                  <div className="bg-green-600/10 backdrop-blur-xl rounded-lg p-3 border border-green-400/20">
+                    <p className="text-green-400 text-sm text-center">
+                      ✓ Your subscription has been activated successfully!
+                    </p>
+                  </div>
+                </>
+              )}
+
+              {paymentNotification.type === 'cancelled' && paymentNotification.details && (
+                <>
+                  <div className="bg-white/10 backdrop-blur-xl rounded-lg p-4 border border-white/20">
+                    <p className="text-white/70 text-sm mb-1">Order ID</p>
+                    <p className="text-white font-mono text-xs break-all">{paymentNotification.details.orderId}</p>
+                  </div>
+                  <div className="bg-yellow-600/10 backdrop-blur-xl rounded-lg p-3 border border-yellow-400/20">
+                    <p className="text-yellow-400 text-sm text-center">
+                      {paymentNotification.details.info}
+                    </p>
+                  </div>
+                  <p className="text-white/70 text-sm text-center">
+                    No charges were made to your account.
+                  </p>
+                </>
+              )}
+
+              {paymentNotification.type === 'failed' && paymentNotification.details && (
+                <>
+                  {paymentNotification.details.orderId && (
+                    <div className="bg-white/10 backdrop-blur-xl rounded-lg p-4 border border-white/20">
+                      <p className="text-white/70 text-sm mb-1">Order ID</p>
+                      <p className="text-white font-mono text-xs break-all">{paymentNotification.details.orderId}</p>
+                    </div>
+                  )}
+                  <div className="bg-red-600/10 backdrop-blur-xl rounded-lg p-3 border border-red-400/20">
+                    <p className="text-red-400 text-sm">
+                      {paymentNotification.details.error}
+                    </p>
+                  </div>
+                  {paymentNotification.details.info && (
+                    <p className="text-white/70 text-sm text-center">
+                      {paymentNotification.details.info}
+                    </p>
+                  )}
+                  <p className="text-white/70 text-sm text-center">
+                    If amount was deducted, it will be refunded within 5-7 business days.
+                  </p>
+                </>
+              )}
+            </div>
+
+            {/* Close Button */}
+            <button
+              onClick={() => setPaymentNotification({ show: false, type: '', message: '', details: null })}
+              className={`w-full py-3 rounded-lg font-semibold text-white transition-colors backdrop-blur-xl ${
+                paymentNotification.type === 'success' 
+                  ? 'bg-green-600/80 hover:bg-green-600 border border-green-400/50' 
+                  : paymentNotification.type === 'cancelled'
+                  ? 'bg-white/20 hover:bg-white/30 border border-white/40'
+                  : 'bg-white/20 hover:bg-white/30 border border-white/40'
+              }`}
+            >
+              {paymentNotification.type === 'success' ? 'Continue' : 'Close'}
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
+
+      <div className="relative z-10 container mx-auto px-4 py-8">
         {/* Back Button */}
-        <button
+        {/* <button
           onClick={() => navigate('/dashboard')}
           className="mb-6 flex items-center gap-2 text-veag-green hover:text-veag-dark-green font-semibold transition-colors"
         >
@@ -206,15 +513,16 @@ function ManageSubscription() {
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
           Back to Dashboard
-        </button>
+        </button> */}
 
         {/* Subscription Days Banner - Only show if active */}
         {hasActivePlan && daysRemaining > 0 && (
-          <div className="bg-veag-green text-white rounded-lg p-4 mb-6 flex items-center justify-between shadow-lg">
+          <div className="bg-green-600/80 backdrop-blur-xl text-white rounded-lg p-4 mb-6 flex items-center justify-between shadow-lg border border-green-400/50">
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
-              <span className="font-semibold text-lg">
-                ✨ Active Premium Subscription
+              <span className="font-semibold text-lg flex items-center gap-2">
+                <CheckCircle className="w-5 h-5" />
+                Active Premium Subscription
               </span>
             </div>
             <div className="text-right">
@@ -225,61 +533,68 @@ function ManageSubscription() {
         )}
 
         {/* Active Subscription Status */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-bold text-veag-dark-green mb-4">Current Subscription Status</h2>
+        <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6 mb-8">
+          <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+            <CreditCard className="w-6 h-6" />
+            Current Subscription Status
+          </h2>
           {hasActivePlan && daysRemaining > 0 ? (
-            <div className="bg-veag-light-green rounded-lg p-6">
+            <div className="bg-white/10 backdrop-blur-xl rounded-lg p-6 border border-white/30">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-xl font-bold text-veag-dark-green">{PLAN.name}</h3>
-                  <p className="text-veag-dark-green">Active Subscription</p>
+                  <h3 className="text-xl font-bold text-white">{PLAN.name}</h3>
+                  <p className="text-white/70">Active Subscription</p>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-veag-green">{daysRemaining}</div>
-                  <div className="text-sm text-veag-dark-green">Days Remaining</div>
+                  <div className="text-3xl font-bold text-green-400">{daysRemaining}</div>
+                  <div className="text-sm text-white/70">Days Remaining</div>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-veag-dark-green font-semibold">Start Date:</span>
-                  <span className="ml-2">{formatDate(activeSubscription.startDate)}</span>
+                  <span className="text-white font-semibold">Start Date:</span>
+                  <span className="ml-2 text-white/70">{formatDate(activeSubscription.startDate)}</span>
                 </div>
                 <div>
-                  <span className="text-veag-dark-green font-semibold">End Date:</span>
-                  <span className="ml-2">{formatDate(activeSubscription.endDate)}</span>
+                  <span className="text-white font-semibold">End Date:</span>
+                  <span className="ml-2 text-white/70">{formatDate(activeSubscription.endDate)}</span>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="bg-gray-100 rounded-lg p-6 text-center">
-              <p className="text-gray-600 mb-2">No active subscription</p>
-              <p className="text-sm text-gray-500">Purchase a plan to get started</p>
+            <div className="bg-white/10 backdrop-blur-xl rounded-lg p-6 text-center border border-white/30">
+              <div className="text-white/40 mb-2">
+                <XCircle className="h-16 w-16 mx-auto" />
+              </div>
+              <p className="text-white mb-2">No active subscription</p>
+              <p className="text-sm text-white/70">Purchase a plan to get started</p>
             </div>
           )}
         </div>
 
         {/* Purchase Plan */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-bold text-veag-dark-green mb-4">
+        <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6 mb-8">
+          <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+            <Calendar className="w-6 h-6" />
             {hasActivePlan ? 'Extend Your Plan' : 'Purchase Premium Plan'}
           </h2>
           
-          <div className="bg-veag-light-green rounded-lg p-6 mb-6">
+          <div className="bg-gradient-to-br from-green-600/80 to-green-700/80 backdrop-blur-xl rounded-lg p-6 mb-6 border border-green-400/50">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-xl font-bold text-veag-dark-green">{PLAN.name}</h3>
-                <p className="text-veag-dark-green">Unlimited access to all features</p>
+                <h3 className="text-xl font-bold text-white">{PLAN.name}</h3>
+                <p className="text-white/90">Unlimited access to all features</p>
               </div>
               <div className="text-right">
-                <div className="text-sm text-gray-500 line-through">₹{PLAN.basePrice}/month</div>
-                <div className="text-2xl font-bold text-veag-green">₹{PLAN.finalPrice}/month</div>
-                <div className="text-xs text-veag-dark-green">{PLAN.discount}% OFF</div>
+                <div className="text-sm text-white/60 line-through">₹{PLAN.basePrice}/month</div>
+                <div className="text-2xl font-bold text-white">₹{PLAN.finalPrice}/month</div>
+                <div className="text-xs text-white/90 bg-white/20 px-2 py-1 rounded-full inline-block">{PLAN.discount}% OFF</div>
               </div>
             </div>
           </div>
 
           <div className="mb-6">
-            <label className="block text-veag-dark-green font-semibold mb-2">
+            <label className="block text-white font-semibold mb-2">
               Select Duration (1-{PLAN.maxMonths} months)
             </label>
             <div className="flex items-center gap-4">
@@ -289,11 +604,11 @@ function ManageSubscription() {
                 max={PLAN.maxMonths}
                 value={selectedMonths}
                 onChange={(e) => setSelectedMonths(Math.max(PLAN.minMonths, Math.min(PLAN.maxMonths, parseInt(e.target.value) || PLAN.minMonths)))}
-                className="w-32 px-4 py-2 border-2 border-veag-green rounded-lg focus:outline-none focus:ring-2 focus:ring-veag-green"
+                className="w-32 px-4 py-2 bg-white/10 border-2 border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/50 backdrop-blur-xl"
               />
               <div className="flex-1 text-right">
-                <div className="text-sm text-gray-600">Total Amount</div>
-                <div className="text-3xl font-bold text-veag-green">₹{calculateTotal()}</div>
+                <div className="text-sm text-white/70">Total Amount</div>
+                <div className="text-3xl font-bold text-green-400">₹{calculateTotal()}</div>
               </div>
             </div>
           </div>
@@ -301,10 +616,10 @@ function ManageSubscription() {
           <button
             onClick={handlePurchase}
             disabled={isProcessing}
-            className={`w-full py-3 rounded-lg font-semibold text-white transition-colors ${
+            className={`w-full py-3 rounded-lg font-semibold text-white transition-colors backdrop-blur-xl ${
               isProcessing
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-veag-green hover:bg-veag-dark-green'
+                ? 'bg-white/10 cursor-not-allowed border border-white/20'
+                : 'bg-green-600/80 hover:bg-green-600 border border-green-400/50'
             }`}
           >
             {isProcessing ? 'Processing...' : hasActivePlan ? 'Extend Plan' : 'Purchase Plan'}
@@ -312,61 +627,73 @@ function ManageSubscription() {
         </div>
 
         {/* Transaction History */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-veag-dark-green">Transaction History</h2>
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <History className="w-6 h-6" />
+              Transaction History
+            </h2>
             <button
               onClick={() => {
                 setLoadingHistory(true);
                 fetchTransactionHistory();
               }}
               disabled={loadingHistory}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors backdrop-blur-xl ${
                 loadingHistory
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-veag-green text-white hover:bg-veag-dark-green'
+                  ? 'bg-white/10 text-white/50 cursor-not-allowed border border-white/20'
+                  : 'bg-white/20 text-white hover:bg-white/30 border border-white/40'
               }`}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className={`h-5 w-5 ${loadingHistory ? 'animate-spin' : ''}`}
-                viewBox="0 0 20 20"
-                fill="currentColor"
+              <motion.div
+                animate={loadingHistory ? { rotate: 360 } : {}}
+                transition={loadingHistory ? { duration: 1, repeat: Infinity, ease: "linear" } : {}}
               >
-                <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-              </svg>
+                <History className="h-5 w-5" />
+              </motion.div>
               {loadingHistory ? 'Refreshing...' : 'Refresh'}
             </button>
           </div>
           {loadingHistory ? (
             <div className="text-center py-8">
-              <div className="inline-block w-8 h-8 border-4 border-veag-green border-t-transparent rounded-full animate-spin"></div>
+              <div className="relative w-16 h-16 mx-auto">
+                <motion.div
+                  className="absolute inset-0 border-4 border-transparent border-t-white rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
+                <motion.div
+                  className="absolute inset-2 border-4 border-transparent border-t-green-400 rounded-full"
+                  animate={{ rotate: -360 }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                />
+              </div>
             </div>
           ) : transactions.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-veag-light-green">
+                <thead className="bg-white/10 backdrop-blur-xl">
                   <tr>
-                    <th className="px-4 py-3 text-left text-veag-dark-green font-semibold">Date & Time</th>
-                    <th className="px-4 py-3 text-left text-veag-dark-green font-semibold">Order ID</th>
-                    <th className="px-4 py-3 text-left text-veag-dark-green font-semibold">Transaction ID</th>
-                    <th className="px-4 py-3 text-left text-veag-dark-green font-semibold">Months</th>
-                    <th className="px-4 py-3 text-left text-veag-dark-green font-semibold">Amount</th>
-                    <th className="px-4 py-3 text-left text-veag-dark-green font-semibold">Status</th>
+                    <th className="px-4 py-3 text-left text-white font-semibold">Date & Time</th>
+                    <th className="px-4 py-3 text-left text-white font-semibold">Order ID</th>
+                    <th className="px-4 py-3 text-left text-white font-semibold">Transaction ID</th>
+                    <th className="px-4 py-3 text-left text-white font-semibold">Months</th>
+                    <th className="px-4 py-3 text-left text-white font-semibold">Amount</th>
+                    <th className="px-4 py-3 text-left text-white font-semibold">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-white/10">
                   {transactions.map((transaction) => (
-                    <tr key={transaction._id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm">{formatDate(transaction.createdAt)}</td>
-                      <td className="px-4 py-3 font-mono text-xs">{transaction.orderId}</td>
-                      <td className="px-4 py-3 font-mono text-xs">
+                    <tr key={transaction._id} className="hover:bg-white/5">
+                      <td className="px-4 py-3 text-sm text-white/90">{formatDate(transaction.createdAt)}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-white/70">{transaction.orderId}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-white/70">
                         {transaction.razorpayPaymentId || 'N/A'}
                       </td>
-                      <td className="px-4 py-3 text-sm">{transaction.monthsPurchased}</td>
-                      <td className="px-4 py-3 text-sm font-semibold">₹{transaction.amount}</td>
+                      <td className="px-4 py-3 text-sm text-white/90">{transaction.monthsPurchased}</td>
+                      <td className="px-4 py-3 text-sm font-semibold text-green-400">₹{transaction.amount}</td>
                       <td className="px-4 py-3">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadgeColor(transaction.status)}`}>
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusBadgeClass(transaction.status)}`}>
                           {transaction.status.toUpperCase()}
                         </span>
                       </td>
@@ -376,71 +703,81 @@ function ManageSubscription() {
               </table>
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-white/70">
               No transactions found
             </div>
           )}
         </div>
 
         {/* Plan History Timeline */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold text-veag-dark-green mb-4">Plan History</h2>
+        <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6">
+          <h2 className="text-2xl font-bold text-white mb-4">Plan History</h2>
           {subscriptionHistory.length > 0 ? (
             <div className="relative">
               {/* Timeline line */}
-              <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-veag-green"></div>
+              <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-green-400"></div>
               
               <div className="space-y-6">
                 {subscriptionHistory.map((sub, index) => (
                   <div key={sub._id} className="relative pl-16">
                     {/* Timeline dot */}
                     <div className={`absolute left-4 w-5 h-5 rounded-full border-4 ${
-                      sub.isActive ? 'bg-veag-green border-veag-green' : 'bg-white border-veag-green'
+                      sub.isActive ? 'bg-green-400 border-green-400' : 'bg-white/20 border-green-400'
                     }`}></div>
                     
                     {/* Content card */}
-                    <div className={`rounded-lg p-4 ${
-                      sub.isActive ? 'bg-veag-light-green border-2 border-veag-green' : 'bg-gray-50'
+                    <div className={`rounded-lg p-4 backdrop-blur-xl ${
+                      sub.isActive ? 'bg-green-600/20 border-2 border-green-400/50' : 'bg-white/5 border border-white/20'
                     }`}>
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          <h3 className="font-bold text-veag-dark-green">
-                            {sub.purchaseType === 'new' ? '🎉 New Plan Purchased' : '⏱️ Plan Extended'}
+                          <h3 className="font-bold text-white flex items-center gap-2">
+                            {sub.purchaseType === 'new' ? (
+                              <>
+                                <CheckCircle className="w-5 h-5 text-green-400" />
+                                New Plan Purchased
+                              </>
+                            ) : (
+                              <>
+                                <Calendar className="w-5 h-5 text-orange-400" />
+                                Plan Extended
+                              </>
+                            )}
                           </h3>
-                          <p className="text-sm text-gray-600">{formatDate(sub.createdAt)}</p>
+                          <p className="text-sm text-white/70">{formatDate(sub.createdAt)}</p>
                         </div>
                         {sub.isActive && !sub.isExpired && (
-                          <span className="px-3 py-1 bg-veag-green text-white text-xs font-semibold rounded-full">
+                          <span className="px-3 py-1 bg-green-600/80 text-white text-xs font-semibold rounded-full border border-green-400/50">
                             ACTIVE
                           </span>
                         )}
                         {sub.isExpired && (
-                          <span className="px-3 py-1 bg-gray-400 text-white text-xs font-semibold rounded-full">
+                          <span className="px-3 py-1 bg-white/10 text-white/70 text-xs font-semibold rounded-full border border-white/30">
                             EXPIRED
                           </span>
                         )}
                       </div>
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <div>
-                          <span className="text-gray-600">Duration:</span>
-                          <span className="ml-2 font-semibold">{sub.monthsPurchased} month{sub.monthsPurchased > 1 ? 's' : ''}</span>
+                          <span className="text-white/70">Duration:</span>
+                          <span className="ml-2 font-semibold text-white">{sub.monthsPurchased} month{sub.monthsPurchased > 1 ? 's' : ''}</span>
                         </div>
                         <div>
-                          <span className="text-gray-600">Amount:</span>
-                          <span className="ml-2 font-semibold">₹{sub.amountPaid}</span>
+                          <span className="text-white/70">Amount:</span>
+                          <span className="ml-2 font-semibold text-green-400">₹{sub.amountPaid}</span>
                         </div>
                         <div>
-                          <span className="text-gray-600">Start:</span>
-                          <span className="ml-2">{new Date(sub.startDate).toLocaleDateString('en-IN')}</span>
+                          <span className="text-white/70">Start:</span>
+                          <span className="ml-2 text-white/90">{new Date(sub.startDate).toLocaleDateString('en-IN')}</span>
                         </div>
                         <div>
-                          <span className="text-gray-600">End:</span>
-                          <span className="ml-2">{new Date(sub.endDate).toLocaleDateString('en-IN')}</span>
+                          <span className="text-white/70">End:</span>
+                          <span className="ml-2 text-white/90">{new Date(sub.endDate).toLocaleDateString('en-IN')}</span>
                         </div>
                       </div>
                       {sub.isActive && !sub.isExpired && (
                         <div className="mt-2 pt-2 border-t border-veag-green">
-                          <span className="text-sm font-semibold text-veag-dark-green">
+                          <span className="text-sm font-semibold text-white">
                             {sub.daysRemaining} days remaining
                           </span>
                         </div>
@@ -452,9 +789,11 @@ function ManageSubscription() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <div className="text-6xl mb-4">📋</div>
-              <p className="text-gray-600 mb-2">No plan history found</p>
-              <p className="text-sm text-gray-500">Purchase your first plan to get started</p>
+              <div className="text-white/40 mb-4">
+                <History className="w-16 h-16 mx-auto" />
+              </div>
+              <p className="text-white mb-2">No plan history found</p>
+              <p className="text-sm text-white/70">Purchase your first plan to get started</p>
             </div>
           )}
         </div>

@@ -2,7 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import Header from '../components/Header';
+import { motion } from 'framer-motion';
+import { ArrowLeft, HelpCircle } from 'lucide-react';
+import veagLogo from '../assets/veag_logo.svg';
 
 const EditProfile = () => {
   const navigate = useNavigate();
@@ -14,9 +16,13 @@ const EditProfile = () => {
   const [nameHistory, setNameHistory] = useState([]);
   const [profileImageLoaded, setProfileImageLoaded] = useState(false);
   const [profileImageError, setProfileImageError] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
 
   useEffect(() => {
     fetchNameHistory();
+    // Simulate page load
+    setTimeout(() => setPageLoading(false), 800);
   }, []);
 
   useEffect(() => {
@@ -81,22 +87,141 @@ const EditProfile = () => {
     setMessage('');
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-veag-light-green via-white to-veag-light-green">
-      <Header />
+  if (pageLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-orange-300 via-orange-200 to-yellow-100 flex items-center justify-center relative overflow-hidden">
+        {/* Mountains */}
+        <svg className="absolute bottom-0 w-full" viewBox="0 0 1440 320" preserveAspectRatio="none">
+          <path fill="#a0522d" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,149.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+          <path fill="#d97706" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,208C672,213,768,203,864,186.7C960,171,1056,149,1152,154.7C1248,160,1344,192,1392,208L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+        
+        {/* Grass */}
+        <div className="absolute bottom-0 w-full h-24 bg-gradient-to-b from-green-600 to-green-700"></div>
+        
+        {/* Loader */}
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="relative w-20 h-20">
+            <motion.div
+              className="absolute inset-0 border-4 border-transparent border-t-white rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            />
+            <motion.div
+              className="absolute inset-2 border-4 border-transparent border-t-orange-400 rounded-full"
+              animate={{ rotate: -360 }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+            />
+            <motion.div
+              className="absolute inset-4 border-4 border-transparent border-t-green-600 rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            />
+          </div>
+          <p className="mt-6 text-white text-lg font-semibold">Loading Profile...</p>
+        </div>
+      </div>
+    );
+  }
 
-      <div className="container mx-auto px-6 py-12">
-        <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-xl">
-          <button
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-orange-300 via-orange-200 to-yellow-100 relative overflow-hidden">
+      {/* Mountains */}
+      <svg className="fixed bottom-0 w-full z-0" viewBox="0 0 1440 320" preserveAspectRatio="none">
+        <path fill="#a0522d" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,149.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        <path fill="#d97706" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,208C672,213,768,203,864,186.7C960,171,1056,149,1152,154.7C1248,160,1344,192,1392,208L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+      </svg>
+      
+      {/* Grass */}
+      <div className="fixed bottom-0 w-full h-24 bg-gradient-to-b from-green-600 to-green-700 z-0"></div>
+      
+      {/* Clouds */}
+      <motion.div
+        className="fixed top-20 left-10 w-24 h-12 bg-white/30 rounded-full blur-sm z-0"
+        animate={{ x: [0, 30, 0] }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="fixed top-40 right-20 w-32 h-14 bg-white/20 rounded-full blur-sm z-0"
+        animate={{ x: [0, -40, 0] }}
+        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Header */}
+      <header className="relative z-10 bg-black/30 backdrop-blur-2xl border-b border-white/20">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+            >
+              <ArrowLeft className="w-6 h-6 text-white" />
+            </button>
+            <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-xl border-2 border-white flex items-center justify-center overflow-hidden">
+              <img src={veagLogo} alt="VeAg" className="w-10 h-10 rounded-full" />
+            </div>
+            <span className="text-2xl font-bold text-white">VeAg</span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setShowSupport(!showSupport)}
+              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+            >
+              <HelpCircle className="w-6 h-6 text-white" />
+            </button>
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white">
+              <img 
+                src={currentUser?.photoURL} 
+                alt={currentUser?.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Support Popup */}
+      {showSupport && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="fixed top-20 right-6 z-50 bg-black/40 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 shadow-2xl w-80"
+        >
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-xl font-bold text-white">Need Help?</h3>
+            <button
+              onClick={() => setShowSupport(false)}
+              className="text-white/70 hover:text-white transition-colors"
+            >
+              ×
+            </button>
+          </div>
+          <p className="text-white/90 mb-4">
+            Have questions or need assistance? We're here to help!
+          </p>
+          <a
+            href="mailto:sarthak@vacantvectors.com"
+            className="block w-full bg-white/20 hover:bg-white/30 text-white text-center py-3 rounded-xl transition-colors border border-white/30"
+          >
+            Contact Support
+          </a>
+        </motion.div>
+      )}
+
+      <div className="relative z-10 container mx-auto px-6 py-12">
+        <div className="max-w-2xl mx-auto bg-black/30 backdrop-blur-2xl p-8 rounded-2xl shadow-xl border border-white/40">
+          {/* <button
             onClick={() => navigate('/dashboard')}
             className="mb-6 text-veag-green hover:text-veag-dark-green flex items-center gap-2"
           >
             ← Back to Dashboard
-          </button>
-          <h2 className="text-3xl font-bold text-veag-dark-green mb-6">Edit Profile</h2>
+          </button> */}
+          <h2 className="text-3xl font-bold text-white mb-6">Edit Profile</h2>
           
           {message && (
-            <div className={`mb-4 p-3 rounded-lg ${message.includes('success') ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+            <div className={`mb-4 p-3 rounded-lg border ${message.includes('success') ? 'bg-green-500/20 border-green-400/50 text-green-100' : 'bg-yellow-500/20 border-yellow-400/50 text-yellow-100'}`}>
               {message}
             </div>
           )}
@@ -106,8 +231,19 @@ const EditProfile = () => {
               {currentUser?.photoURL && !profileImageError ? (
                 <div className="relative w-32 h-32">
                   {!profileImageLoaded && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-veag-light-green rounded-full">
-                      <div className="w-16 h-16 border-4 border-veag-green border-t-transparent rounded-full animate-spin"></div>
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-xl rounded-full border border-white/30">
+                      <div className="relative w-16 h-16">
+                        <motion.div
+                          className="absolute inset-0 border-4 border-transparent border-t-white rounded-full"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        />
+                        <motion.div
+                          className="absolute inset-2 border-4 border-transparent border-t-orange-400 rounded-full"
+                          animate={{ rotate: -360 }}
+                          transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                        />
+                      </div>
                     </div>
                   )}
                   <img 
@@ -115,34 +251,34 @@ const EditProfile = () => {
                     alt="Profile" 
                     crossOrigin="anonymous"
                     referrerPolicy="no-referrer"
-                    className={`w-32 h-32 rounded-full border-4 border-veag-green object-cover transition-opacity duration-200 ${profileImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                    className={`w-32 h-32 rounded-full border-4 border-white object-cover transition-opacity duration-200 ${profileImageLoaded ? 'opacity-100' : 'opacity-0'}`}
                     onLoad={() => setProfileImageLoaded(true)}
                     onError={() => setProfileImageError(true)}
                   />
                 </div>
               ) : (
-                <div className="w-32 h-32 rounded-full border-4 border-veag-green bg-white flex items-center justify-center">
-                  <span className="text-veag-dark-green font-bold text-5xl">{currentUser?.name?.charAt(0).toUpperCase()}</span>
+                <div className="w-32 h-32 rounded-full border-4 border-white bg-white/20 backdrop-blur-xl flex items-center justify-center">
+                  <span className="text-white font-bold text-5xl">{currentUser?.name?.charAt(0).toUpperCase()}</span>
                 </div>
               )}
             </div>
             
             <form onSubmit={handleUpdateName}>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                <label className="block text-sm font-medium text-white mb-2">Name</label>
                 <div className="flex gap-2">
                   <input 
                     type="text" 
                     value={name} 
                     onChange={(e) => setName(e.target.value)}
                     disabled={!isEditing || loading}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-veag-green focus:border-transparent disabled:bg-gray-50"
+                    className="flex-1 px-4 py-2 bg-white/10 border border-white/30 rounded-lg text-white placeholder-white/50 focus:ring-2 focus:ring-white/50 focus:border-white/50 disabled:bg-white/5"
                   />
                   {!isEditing ? (
                     <button
                       type="button"
                       onClick={() => setIsEditing(true)}
-                      className="px-6 py-2 bg-veag-green text-white font-semibold rounded-lg hover:bg-veag-dark-green transition-all duration-300"
+                      className="px-6 py-2 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-all duration-300 border border-white/30 backdrop-blur-xl"
                     >
                       Edit
                     </button>
@@ -151,7 +287,7 @@ const EditProfile = () => {
                       <button
                         type="submit"
                         disabled={loading}
-                        className="px-6 py-2 bg-veag-green text-white font-semibold rounded-lg hover:bg-veag-dark-green transition-all duration-300 disabled:opacity-50"
+                        className="px-6 py-2 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-all duration-300 disabled:opacity-50 backdrop-blur-xl border border-white/40"
                       >
                         {loading ? 'Saving...' : 'Save'}
                       </button>
@@ -159,7 +295,7 @@ const EditProfile = () => {
                         type="button"
                         onClick={handleCancel}
                         disabled={loading}
-                        className="px-6 py-2 bg-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-400 transition-all duration-300 disabled:opacity-50"
+                        className="px-6 py-2 bg-white/10 text-white font-semibold rounded-lg hover:bg-white/20 transition-all duration-300 disabled:opacity-50 backdrop-blur-xl border border-white/30"
                       >
                         Cancel
                       </button>
@@ -170,41 +306,41 @@ const EditProfile = () => {
             </form>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+              <label className="block text-sm font-medium text-white mb-2">Email</label>
               <input 
                 type="email" 
                 value={currentUser?.email || ''} 
                 readOnly
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                className="w-full px-4 py-2 bg-white/10 border border-white/30 rounded-lg text-white/70"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">User ID</label>
+              <label className="block text-sm font-medium text-white mb-2">User ID</label>
               <input 
                 type="text" 
                 value={currentUser?.userId || ''} 
                 readOnly
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                className="w-full px-4 py-2 bg-white/10 border border-white/30 rounded-lg text-white/70"
               />
             </div>
             
             {nameHistory.length > 0 && (
               <div className="mt-8">
-                <h3 className="text-xl font-semibold text-veag-dark-green mb-4">Name Change History</h3>
+                <h3 className="text-xl font-semibold text-white mb-4">Name Change History</h3>
                 <div className="space-y-3">
                   {nameHistory.map((history, index) => (
-                    <div key={index} className="p-4 bg-veag-light-green rounded-lg">
+                    <div key={index} className="p-4 bg-white/10 backdrop-blur-xl rounded-lg border border-white/30">
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-white/90">
                             <span className="font-medium">From:</span> {history.oldName}
                           </p>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-white/90">
                             <span className="font-medium">To:</span> {history.newName}
                           </p>
                         </div>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-white/70">
                           {new Date(history.changedAt).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
