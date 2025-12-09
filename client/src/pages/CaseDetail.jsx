@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import Header from '../components/Header';
 import withSubscription from '../components/withSubscription';
 import axios from 'axios';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, HelpCircle, RefreshCw, CheckCircle, XCircle, Zap, Lock } from 'lucide-react';
+import veagLogo from '../assets/veag_logo.svg';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
@@ -19,6 +21,13 @@ const CaseDetail = ({ daysRemaining }) => {
   const [processing, setProcessing] = useState(false);
   const [processingError, setProcessingError] = useState(null);
   const [autoRefresh, setAutoRefresh] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setPageLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   const fetchCaseDetail = async () => {
     if (!currentUser?.userId) {
@@ -118,31 +127,80 @@ const CaseDetail = ({ daysRemaining }) => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Pending' },
-      processing: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Processing' },
-      completed: { bg: 'bg-green-100', text: 'text-green-800', label: 'Completed' },
-      failed: { bg: 'bg-red-100', text: 'text-red-800', label: 'Failed' }
+      pending: { bg: 'bg-yellow-600/80 border-yellow-400/50', text: 'text-white', label: 'Pending' },
+      processing: { bg: 'bg-blue-600/80 border-blue-400/50', text: 'text-white', label: 'Processing' },
+      completed: { bg: 'bg-green-600/80 border-green-400/50', text: 'text-white', label: 'Completed' },
+      failed: { bg: 'bg-red-600/80 border-red-400/50', text: 'text-white', label: 'Failed' }
     };
 
     const config = statusConfig[status] || statusConfig.pending;
 
     return (
-      <span className={`px-4 py-2 rounded-full text-sm font-semibold ${config.bg} ${config.text}`}>
+      <span className={`px-4 py-2 rounded-full text-sm font-semibold border backdrop-blur-xl ${config.bg} ${config.text}`}>
         {config.label}
       </span>
     );
   };
 
+  // Page Loading State
+  if (pageLoading) {
+    return (
+      <div className="fixed inset-0 bg-gradient-to-b from-orange-300 via-orange-200 to-yellow-100 flex items-center justify-center z-50">
+        <div className="relative w-24 h-24">
+          <motion.div
+            className="absolute inset-0 border-4 border-transparent border-t-white rounded-full"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
+          <motion.div
+            className="absolute inset-3 border-4 border-transparent border-t-green-400 rounded-full"
+            animate={{ rotate: -360 }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+          />
+          <motion.div
+            className="absolute inset-6 border-4 border-transparent border-t-orange-300 rounded-full"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   // Loading State
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-veag-light-green via-white to-veag-light-green">
-        <Header currentUser={currentUser} logout={logout} navigate={navigate} />
-        <div className="container mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg shadow-lg p-12 text-center">
+      <div className="min-h-screen bg-gradient-to-b from-orange-300 via-orange-200 to-yellow-100 relative overflow-hidden">
+        {/* Background Elements */}
+        <div className="fixed bottom-0 left-0 right-0 pointer-events-none">
+          <svg className="w-full h-64" viewBox="0 0 1200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 250 L300 100 L500 180 L700 80 L900 140 L1200 60 L1200 300 L0 300 Z" fill="#a0522d" opacity="0.3"/>
+            <path d="M0 270 L200 150 L400 200 L600 130 L800 170 L1000 120 L1200 180 L1200 300 L0 300 Z" fill="#d97706" opacity="0.2"/>
+          </svg>
+        </div>
+        <div className="fixed bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-green-600 to-green-700 pointer-events-none"></div>
+        
+        <div className="container mx-auto px-4 py-8 relative z-10 min-h-screen flex items-center justify-center">
+          <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl p-12 text-center shadow-2xl">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-12 h-12 border-4 border-veag-green border-t-transparent rounded-full animate-spin"></div>
-              <p className="text-gray-600">Loading case details...</p>
+              <div className="relative w-16 h-16">
+                <motion.div
+                  className="absolute inset-0 border-4 border-transparent border-t-white rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
+                <motion.div
+                  className="absolute inset-2 border-4 border-transparent border-t-green-400 rounded-full"
+                  animate={{ rotate: -360 }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                />
+                <motion.div
+                  className="absolute inset-4 border-4 border-transparent border-t-orange-300 rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                />
+              </div>
+              <p className="text-white font-semibold text-lg">Loading case details...</p>
             </div>
           </div>
         </div>
@@ -153,29 +211,33 @@ const CaseDetail = ({ daysRemaining }) => {
   // Unauthorized Access
   if (unauthorized) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-50">
-        <Header currentUser={currentUser} logout={logout} navigate={navigate} />
-        <div className="container mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg shadow-lg p-12 text-center">
-            <div className="flex flex-col items-center gap-6">
-              <div className="w-24 h-24 rounded-full bg-red-100 flex items-center justify-center">
-                <svg className="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                </svg>
-              </div>
-              <div>
-                <h2 className="text-3xl font-bold text-red-600 mb-2">Unauthorized Access</h2>
-                <p className="text-gray-600 text-lg mb-6">
-                  You don't have permission to view this case.
-                </p>
-              </div>
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="px-8 py-3 bg-veag-green text-white font-semibold rounded-lg hover:bg-veag-dark-green transition-colors"
-              >
-                Go to Dashboard
-              </button>
+      <div className="min-h-screen bg-gradient-to-b from-orange-300 via-orange-200 to-yellow-100 relative overflow-hidden flex items-center justify-center p-4">
+        {/* Background Elements */}
+        <div className="fixed bottom-0 left-0 right-0 pointer-events-none">
+          <svg className="w-full h-64" viewBox="0 0 1200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 250 L300 100 L500 180 L700 80 L900 140 L1200 60 L1200 300 L0 300 Z" fill="#a0522d" opacity="0.3"/>
+            <path d="M0 270 L200 150 L400 200 L600 130 L800 170 L1000 120 L1200 180 L1200 300 L0 300 Z" fill="#d97706" opacity="0.2"/>
+          </svg>
+        </div>
+        <div className="fixed bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-green-600 to-green-700 pointer-events-none"></div>
+
+        <div className="relative z-10 max-w-md w-full bg-black/40 backdrop-blur-2xl border border-red-400/50 rounded-2xl shadow-2xl p-8 text-center">
+          <div className="flex flex-col items-center gap-6">
+            <div className="w-24 h-24 rounded-full bg-red-600/20 border-2 border-red-400/50 flex items-center justify-center backdrop-blur-xl">
+              <Lock className="w-12 h-12 text-red-400" />
             </div>
+            <div>
+              <h2 className="text-3xl font-bold text-white mb-2">Unauthorized Access</h2>
+              <p className="text-white/80 text-lg mb-6">
+                You don't have permission to view this case.
+              </p>
+            </div>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="w-full px-8 py-3 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl"
+            >
+              Go to Dashboard
+            </button>
           </div>
         </div>
       </div>
@@ -184,44 +246,121 @@ const CaseDetail = ({ daysRemaining }) => {
 
   // Case Detail View
   return (
-    <div className="min-h-screen bg-gradient-to-br from-veag-light-green via-white to-veag-light-green">
-      <Header currentUser={currentUser} logout={logout} navigate={navigate} />
+    <div className="min-h-screen bg-gradient-to-b from-orange-300 via-orange-200 to-yellow-100 relative overflow-hidden">
+      {/* Background Mountains */}
+      <div className="fixed bottom-0 left-0 right-0 pointer-events-none">
+        <svg className="w-full h-64" viewBox="0 0 1200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 250 L300 100 L500 180 L700 80 L900 140 L1200 60 L1200 300 L0 300 Z" fill="#a0522d" opacity="0.3"/>
+          <path d="M0 270 L200 150 L400 200 L600 130 L800 170 L1000 120 L1200 180 L1200 300 L0 300 Z" fill="#d97706" opacity="0.2"/>
+        </svg>
+      </div>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate('/manage-cases')}
-          className="mb-6 flex items-center gap-2 text-veag-green hover:text-veag-dark-green font-semibold transition-colors"
+      {/* Grass Layer */}
+      <div className="fixed bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-green-600 to-green-700 pointer-events-none"></div>
+
+      {/* Animated Clouds */}
+      <motion.div 
+        className="fixed top-20 left-0 w-32 h-16 bg-white/30 rounded-full blur-xl"
+        animate={{ x: [0, 1200] }}
+        transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+      />
+      <motion.div 
+        className="fixed top-40 right-0 w-40 h-20 bg-white/30 rounded-full blur-xl"
+        animate={{ x: [1200, -200] }}
+        transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
+      />
+
+      {/* Header */}
+      <header className="sticky top-0 bg-black/30 backdrop-blur-2xl border-b border-white/20 z-40">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate('/manage-cases')}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              >
+                <ArrowLeft className="w-6 h-6 text-white" />
+              </button>
+              <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-xl border-2 border-white flex items-center justify-center overflow-hidden">
+                <img src={veagLogo} alt="VeAg" className="w-10 h-10 rounded-full" />
+              </div>
+              <span className="text-2xl font-bold text-white">VeAg</span>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setShowSupport(!showSupport)}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              >
+                <HelpCircle className="w-6 h-6 text-white" />
+              </button>
+              {/* <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold border-2 border-white">
+                {currentUser?.name?.charAt(0).toUpperCase() || 'U'}
+              </div> */}
+              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white">
+              <img 
+                src={currentUser?.photoURL} 
+                alt={currentUser?.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Support Popup */}
+      {showSupport && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="fixed top-20 right-6 z-50 bg-black/40 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 shadow-2xl w-80"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-          </svg>
-          Back to Manage Cases
-        </button>
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-xl font-bold text-white">Need Help?</h3>
+            <button
+              onClick={() => setShowSupport(false)}
+              className="text-white/70 hover:text-white transition-colors"
+            >
+              ×
+            </button>
+          </div>
+          <p className="text-white/90 mb-4">
+            Have questions or need assistance? We're here to help!
+          </p>
+          <a
+            href="mailto:sarthak@vacantvectors.com"
+            className="block w-full bg-white/20 hover:bg-white/30 text-white text-center py-3 rounded-xl transition-colors border border-white/30"
+          >
+            Contact Support
+          </a>
+        </motion.div>
+      )}
+
+      <div className="container mx-auto px-4 py-8 relative z-10">
 
         {/* Case Header */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6 mb-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-veag-dark-green mb-2">
+              <h1 className="text-3xl font-bold text-white mb-2">
                 Case #{caseData.caseId}
               </h1>
-              <p className="text-gray-600">{formatDate(caseData.createdAt)}</p>
+              <p className="text-white/70">{formatDate(caseData.createdAt)}</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
               {getStatusBadge(caseData.status)}
               <button
                 onClick={handleRefresh}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
+                className="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors flex items-center gap-2 border border-white/40 backdrop-blur-xl"
                 title="Refresh case status"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
+                <RefreshCw className="w-4 h-4" />
                 Refresh
               </button>
-              <div className="bg-veag-light-green px-4 py-2 rounded-lg">
-                <span className="text-sm text-veag-dark-green font-semibold">
+              <div className="bg-green-600/80 border border-green-400/50 backdrop-blur-xl px-4 py-2 rounded-lg">
+                <span className="text-sm text-white font-semibold">
                   Plan: {daysRemaining} days left
                 </span>
               </div>
@@ -232,12 +371,12 @@ const CaseDetail = ({ daysRemaining }) => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Images */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h2 className="text-2xl font-bold text-veag-dark-green mb-4">Images</h2>
+            <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6">
+              <h2 className="text-2xl font-bold text-white mb-4">Images</h2>
               
               {/* Main Image Display */}
               {selectedImage && (
-                <div className="mb-6 bg-gray-100 rounded-lg overflow-hidden">
+                <div className="mb-6 bg-black/20 backdrop-blur-xl rounded-lg overflow-hidden border border-white/30">
                   <img
                     src={selectedImage}
                     alt="Selected case image"
@@ -254,8 +393,8 @@ const CaseDetail = ({ daysRemaining }) => {
                     onClick={() => setSelectedImage(image.url)}
                     className={`relative cursor-pointer rounded-lg overflow-hidden border-3 transition-all ${
                       selectedImage === image.url
-                        ? 'border-veag-green ring-2 ring-veag-green'
-                        : 'border-gray-200 hover:border-veag-green'
+                        ? 'border-green-400 ring-2 ring-green-400'
+                        : 'border-white/40 hover:border-green-400'
                     }`}
                   >
                     <img
@@ -263,7 +402,7 @@ const CaseDetail = ({ daysRemaining }) => {
                       alt={`Case image ${index + 1}`}
                       className="w-full h-20 object-cover"
                     />
-                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs text-center py-1">
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/70 backdrop-blur-sm text-white text-xs text-center py-1">
                       {index + 1}
                     </div>
                   </div>
@@ -277,24 +416,28 @@ const CaseDetail = ({ daysRemaining }) => {
                 <button
                   onClick={handleProcessCase}
                   disabled={processing}
-                  className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-orange-500 text-white font-bold text-lg rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all transform hover:scale-105"
+                  className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-orange-500/90 border border-orange-400/50 text-white font-bold text-lg rounded-lg hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all backdrop-blur-xl"
                 >
                   {processing ? (
                     <>
-                      <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <div className="relative w-6 h-6">
+                        <motion.div
+                          className="absolute inset-0 border-3 border-transparent border-t-white rounded-full"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        />
+                      </div>
                       <span>Starting Process...</span>
                     </>
                   ) : (
                     <>
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                      </svg>
+                      <Zap className="w-6 h-6" />
                       <span>{caseData.status === 'failed' ? 'Retry Processing' : 'Process with AI'}</span>
                     </>
                   )}
                 </button>
                 {processingError && (
-                  <div className="mt-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+                  <div className="mt-3 p-3 bg-red-600/80 backdrop-blur-xl border border-red-400/50 text-white rounded-lg text-sm">
                     {processingError}
                   </div>
                 )}
@@ -303,29 +446,35 @@ const CaseDetail = ({ daysRemaining }) => {
 
             {/* Processing Status */}
             {caseData.status === 'processing' && (
-              <div className="mt-6 bg-blue-50 border-2 border-blue-400 rounded-lg p-6">
+              <div className="mt-6 bg-blue-600/20 border-2 border-blue-400/50 backdrop-blur-2xl rounded-lg p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="relative w-8 h-8">
+                    <motion.div
+                      className="absolute inset-0 border-4 border-transparent border-t-blue-400 rounded-full"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    />
+                  </div>
                   <div>
-                    <h4 className="font-bold text-blue-800">Processing in Progress</h4>
-                    <p className="text-sm text-blue-600">AI model is analyzing your images...</p>
+                    <h4 className="font-bold text-white">Processing in Progress</h4>
+                    <p className="text-sm text-white/80">AI model is analyzing your images...</p>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-blue-700">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                  <div className="flex items-center gap-2 text-sm text-white/90">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
                     <span>Downloading images</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-blue-700">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                  <div className="flex items-center gap-2 text-sm text-white/90">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
                     <span>Running AI analysis</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-blue-700">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                  <div className="flex items-center gap-2 text-sm text-white/90">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
                     <span>Saving results</span>
                   </div>
                 </div>
-                <p className="text-xs text-blue-600 mt-4">
+                <p className="text-xs text-white/70 mt-4">
                   ⏱️ Auto-refreshing every 10 seconds...
                 </p>
               </div>
@@ -333,25 +482,31 @@ const CaseDetail = ({ daysRemaining }) => {
 
             {/* Disease Detection Result */}
             {caseData.status === 'completed' && caseResult && (
-              <div className="mt-6 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-400 rounded-lg p-6">
+              <div className={`mt-6 border-2 backdrop-blur-2xl rounded-lg p-6 ${
+                caseResult.diseaseStatus.toLowerCase() === 'normal' 
+                  ? 'bg-green-600/20 border-green-400/50' 
+                  : 'bg-gradient-to-br from-red-600/20 to-orange-600/20 border-red-400/50'
+              }`}>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
-                    </svg>
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border ${
+                    caseResult.diseaseStatus.toLowerCase() === 'normal'
+                      ? 'bg-green-500/80 border-green-400/50'
+                      : 'bg-gradient-to-br from-red-500/80 to-orange-500/80 border-red-400/50'
+                  }`}>
+                    <CheckCircle className="w-7 h-7 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-green-800 text-lg">Analysis Complete</h4>
-                    <p className="text-sm text-green-600">AI Detection Results</p>
+                    <h4 className="font-bold text-white text-lg">Analysis Complete</h4>
+                    <p className="text-sm text-white/80">AI Detection Results</p>
                   </div>
                 </div>
                 
-                <div className="bg-white rounded-lg p-4 mb-4">
-                  <h5 className="text-sm font-semibold text-gray-600 mb-2">Disease Detected:</h5>
-                  <p className="text-xl font-bold text-green-800">{caseResult.diseaseStatus}</p>
+                <div className="bg-white/10 backdrop-blur-xl rounded-lg p-4 mb-4 border border-white/30">
+                  <h5 className="text-sm font-semibold text-white/70 mb-2">Disease Detected:</h5>
+                  <p className="text-xl font-bold text-white">{caseResult.diseaseStatus}</p>
                 </div>
 
-                <div className="text-xs text-gray-600 space-y-1">
+                <div className="text-xs text-white/70 space-y-1">
                   <p>⏱️ Processing Time: {(caseResult.processingTime / 1000).toFixed(2)}s</p>
                   <p>📅 Completed: {formatDate(caseResult.processedAt)}</p>
                 </div>
@@ -360,25 +515,23 @@ const CaseDetail = ({ daysRemaining }) => {
 
             {/* Error Display */}
             {caseData.status === 'failed' && (
-              <div className="mt-6 bg-red-50 border-2 border-red-400 rounded-lg p-6">
+              <div className="mt-6 bg-red-600/20 border-2 border-red-400/50 backdrop-blur-2xl rounded-lg p-6">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
+                  <div className="w-10 h-10 bg-red-500/80 rounded-full flex items-center justify-center backdrop-blur-xl border border-red-400/50">
+                    <XCircle className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-red-800">Processing Failed</h4>
-                    <p className="text-sm text-red-600">An error occurred during analysis</p>
+                    <h4 className="font-bold text-white">Processing Failed</h4>
+                    <p className="text-sm text-white/80">An error occurred during analysis</p>
                   </div>
                 </div>
-                <p className="text-sm text-red-700 mb-4">
+                <p className="text-sm text-white/90 mb-4">
                   The AI model encountered an error while processing your images. Please try again.
                 </p>
                 <button
                   onClick={handleProcessCase}
                   disabled={processing}
-                  className="w-full px-4 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 disabled:bg-gray-400 transition-colors"
+                  className="w-full px-4 py-2 bg-red-500/80 text-white font-semibold rounded-lg hover:bg-red-500 disabled:opacity-50 transition-colors border border-red-400/50 backdrop-blur-xl"
                 >
                   {processing ? 'Retrying...' : 'Retry Processing'}
                 </button>
@@ -389,59 +542,59 @@ const CaseDetail = ({ daysRemaining }) => {
           {/* Right Column - Case Information */}
           <div className="lg:col-span-1 space-y-6">
             {/* Crop Information */}
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h3 className="text-xl font-bold text-veag-dark-green mb-4">Crop Information</h3>
-              <div className="flex items-center gap-3 p-4 bg-veag-light-green rounded-lg">
-                <svg className="w-8 h-8 text-veag-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6">
+              <h3 className="text-xl font-bold text-white mb-4">Crop Information</h3>
+              <div className="flex items-center gap-3 p-4 bg-green-600/20 border border-green-400/30 backdrop-blur-xl rounded-lg">
+                <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
                 </svg>
                 <div>
-                  <p className="text-sm text-gray-600">Crop Type</p>
-                  <p className="text-lg font-bold text-veag-dark-green capitalize">{caseData.cropName}</p>
+                  <p className="text-sm text-white/70">Crop Type</p>
+                  <p className="text-lg font-bold text-white capitalize">{caseData.cropName}</p>
                 </div>
               </div>
             </div>
 
             {/* Disease Observation */}
             {caseData.diseaseObservation && (
-              <div className="bg-white rounded-lg shadow-lg p-6">
-                <h3 className="text-xl font-bold text-veag-dark-green mb-4">Observation</h3>
-                <p className="text-gray-700 leading-relaxed">{caseData.diseaseObservation}</p>
+              <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6">
+                <h3 className="text-xl font-bold text-white mb-4">Observation</h3>
+                <p className="text-white/90 leading-relaxed">{caseData.diseaseObservation}</p>
               </div>
             )}
 
             {/* Case Statistics */}
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h3 className="text-xl font-bold text-veag-dark-green mb-4">Case Stats</h3>
+            <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6">
+              <h3 className="text-xl font-bold text-white mb-4">Case Stats</h3>
               <div className="space-y-3">
-                <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                  <span className="text-gray-600">Total Images</span>
-                  <span className="font-semibold text-veag-dark-green">{caseData.images.length}</span>
+                <div className="flex justify-between items-center py-2 border-b border-white/20">
+                  <span className="text-white/70">Total Images</span>
+                  <span className="font-semibold text-white">{caseData.images.length}</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                  <span className="text-gray-600">Status</span>
-                  <span className="font-semibold text-veag-dark-green capitalize">{caseData.status}</span>
+                <div className="flex justify-between items-center py-2 border-b border-white/20">
+                  <span className="text-white/70">Status</span>
+                  <span className="font-semibold text-white capitalize">{caseData.status}</span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-gray-600">Case ID</span>
-                  <span className="font-semibold text-veag-dark-green">{caseData.caseId}</span>
+                  <span className="text-white/70">Case ID</span>
+                  <span className="font-semibold text-white">{caseData.caseId}</span>
                 </div>
               </div>
             </div>
 
             {/* Actions */}
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h3 className="text-xl font-bold text-veag-dark-green mb-4">Actions</h3>
+            <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6">
+              <h3 className="text-xl font-bold text-white mb-4">Actions</h3>
               <div className="space-y-3">
                 <button
                   onClick={() => navigate('/manage-cases')}
-                  className="w-full px-4 py-3 bg-veag-light-green text-veag-dark-green font-semibold rounded-lg hover:bg-veag-green hover:text-white transition-colors"
+                  className="w-full px-4 py-3 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl"
                 >
                   View All Cases
                 </button>
                 <button
                   onClick={() => navigate('/dashboard')}
-                  className="w-full px-4 py-3 border-2 border-veag-green text-veag-green font-semibold rounded-lg hover:bg-veag-green hover:text-white transition-colors"
+                  className="w-full px-4 py-3 bg-green-600/80 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors border border-green-400/50 backdrop-blur-xl"
                 >
                   Go to Dashboard
                 </button>

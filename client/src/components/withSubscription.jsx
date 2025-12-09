@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+import { motion } from 'framer-motion';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
@@ -52,10 +53,38 @@ export const withSubscription = (Component) => {
 
     if (isChecking) {
       return (
-        <div className="min-h-screen bg-gradient-to-br from-veag-light-green via-white to-veag-light-green flex items-center justify-center">
-          <div className="text-center">
-            <div className="inline-block w-16 h-16 border-4 border-veag-green border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p className="text-veag-dark-green font-semibold">Checking subscription...</p>
+        <div className="min-h-screen bg-gradient-to-b from-orange-300 via-orange-200 to-yellow-100 relative overflow-hidden flex items-center justify-center">
+          {/* Background Mountains */}
+          <div className="fixed bottom-0 left-0 right-0 pointer-events-none">
+            <svg className="w-full h-64" viewBox="0 0 1200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0 250 L300 100 L500 180 L700 80 L900 140 L1200 60 L1200 300 L0 300 Z" fill="#a0522d" opacity="0.3"/>
+              <path d="M0 270 L200 150 L400 200 L600 130 L800 170 L1000 120 L1200 180 L1200 300 L0 300 Z" fill="#d97706" opacity="0.2"/>
+            </svg>
+          </div>
+          
+          {/* Grass Layer */}
+          <div className="fixed bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-green-600 to-green-700 pointer-events-none"></div>
+          
+          {/* Loader */}
+          <div className="relative z-10 text-center">
+            <div className="relative w-24 h-24 mx-auto mb-4">
+              <motion.div
+                className="absolute inset-0 border-4 border-transparent border-t-white rounded-full"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              />
+              <motion.div
+                className="absolute inset-3 border-4 border-transparent border-t-green-400 rounded-full"
+                animate={{ rotate: -360 }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+              />
+              <motion.div
+                className="absolute inset-6 border-4 border-transparent border-t-orange-300 rounded-full"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              />
+            </div>
+            <p className="text-white font-semibold text-lg">Checking subscription...</p>
           </div>
         </div>
       );
@@ -63,34 +92,46 @@ export const withSubscription = (Component) => {
 
     if (!hasActiveSubscription) {
       return (
-        <div className="min-h-screen bg-gradient-to-br from-veag-light-green via-white to-veag-light-green flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 text-center">
+        <div className="min-h-screen bg-gradient-to-b from-orange-300 via-orange-200 to-yellow-100 relative overflow-hidden flex items-center justify-center p-4">
+          {/* Background Mountains */}
+          <div className="fixed bottom-0 left-0 right-0 pointer-events-none">
+            <svg className="w-full h-64" viewBox="0 0 1200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0 250 L300 100 L500 180 L700 80 L900 140 L1200 60 L1200 300 L0 300 Z" fill="#a0522d" opacity="0.3"/>
+              <path d="M0 270 L200 150 L400 200 L600 130 L800 170 L1000 120 L1200 180 L1200 300 L0 300 Z" fill="#d97706" opacity="0.2"/>
+            </svg>
+          </div>
+          
+          {/* Grass Layer */}
+          <div className="fixed bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-green-600 to-green-700 pointer-events-none"></div>
+          
+          {/* Content */}
+          <div className="relative z-10 max-w-md w-full bg-black/40 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-8 text-center">
             <div className="text-6xl mb-6">😞</div>
-            <h2 className="text-3xl font-bold text-veag-dark-green mb-4">
+            <h2 className="text-3xl font-bold text-white mb-4">
               Oops! No Active Subscription
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-white/80 mb-6">
               You need an active subscription to access this feature. 
               Please purchase or extend your subscription to continue.
             </p>
-            <div className="bg-veag-light-green rounded-lg p-4 mb-6">
-              <p className="text-veag-dark-green font-semibold">
+            <div className="bg-green-600/80 border border-green-400/50 backdrop-blur-xl rounded-lg p-4 mb-6">
+              <p className="text-white font-semibold">
                 Get Premium Access
               </p>
-              <p className="text-sm text-veag-dark-green">
+              <p className="text-sm text-white/90">
                 Starting at just ₹9/month
               </p>
             </div>
             <div className="flex flex-col gap-3">
               <button
                 onClick={() => navigate('/manage-subscription')}
-                className="w-full bg-veag-green text-white py-3 rounded-lg font-semibold hover:bg-veag-dark-green transition-colors"
+                className="w-full bg-green-600/80 text-white py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors border border-green-400/50 backdrop-blur-xl"
               >
                 Get Subscription
               </button>
               <button
                 onClick={() => navigate('/dashboard')}
-                className="w-full bg-gray-100 text-veag-dark-green py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+                className="w-full bg-white/20 text-white py-3 rounded-lg font-semibold hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl"
               >
                 Back to Dashboard
               </button>

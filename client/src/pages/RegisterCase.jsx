@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
-import Header from '../components/Header';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, HelpCircle, Upload, X, CheckCircle, XCircle, Loader, Camera } from 'lucide-react';
+import veagLogo from '../assets/veag_logo.svg';
 import withSubscription from '../components/withSubscription';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
@@ -25,8 +27,23 @@ const RegisterCase = ({ daysRemaining }) => {
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
   const [submissionError, setSubmissionError] = useState('');
   const [createdCase, setCreatedCase] = useState(null);
+  
+  // UI State
+  const [showSupport, setShowSupport] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [showCaptureModal, setShowCaptureModal] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [stream, setStream] = useState(null);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   console.log('RegisterCase - daysRemaining:', daysRemaining);
+
+  // Page loading
+  useEffect(() => {
+    setTimeout(() => setPageLoading(false), 800);
+  }, []);
 
   // Fetch crops from backend
   useEffect(() => {
@@ -55,6 +72,64 @@ const RegisterCase = ({ daysRemaining }) => {
     
     const imageUrls = files.map(file => URL.createObjectURL(file));
     setUploadedImages(prev => [...prev, ...imageUrls]);
+  };
+
+  const handleAddImageClick = () => {
+    setShowCaptureModal(true);
+  };
+
+  const handleUploadFiles = () => {
+    setShowCaptureModal(false);
+    fileInputRef.current?.click();
+  };
+
+  const handleCaptureNow = async () => {
+    setShowCaptureModal(false);
+    setIsCapturing(true);
+    
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' } 
+      });
+      setStream(mediaStream);
+      
+      // Wait for video element to be ready
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+        }
+      }, 100);
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      alert('Unable to access camera. Please check permissions.');
+      setIsCapturing(false);
+    }
+  };
+
+  const capturePhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      const context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0);
+      
+      canvas.toBlob((blob) => {
+        const imageUrl = URL.createObjectURL(blob);
+        setUploadedImages(prev => [...prev, imageUrl]);
+      }, 'image/jpeg');
+    }
+  };
+
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+    setIsCapturing(false);
   };
 
   const handleRemoveImage = (indexToRemove) => {
@@ -138,58 +213,174 @@ const RegisterCase = ({ daysRemaining }) => {
     setProgressMessage('');
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-veag-light-green via-white to-veag-light-green">
-      <Header currentUser={currentUser} logout={logout} navigate={navigate} />
+  if (pageLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-orange-300 via-orange-200 to-yellow-100 flex items-center justify-center relative overflow-hidden">
+        {/* Mountains */}
+        <svg className="absolute bottom-0 w-full" viewBox="0 0 1440 320" preserveAspectRatio="none">
+          <path fill="#a0522d" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,149.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+          <path fill="#d97706" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,208C672,213,768,203,864,186.7C960,171,1056,149,1152,154.7C1248,160,1344,192,1392,208L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+        
+        {/* Grass */}
+        <div className="absolute bottom-0 w-full h-24 bg-gradient-to-b from-green-600 to-green-700"></div>
+        
+        {/* Loader */}
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="relative w-20 h-20">
+            <motion.div
+              className="absolute inset-0 border-4 border-transparent border-t-white rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            />
+            <motion.div
+              className="absolute inset-2 border-4 border-transparent border-t-orange-400 rounded-full"
+              animate={{ rotate: -360 }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+            />
+            <motion.div
+              className="absolute inset-4 border-4 border-transparent border-t-green-600 rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            />
+          </div>
+          <p className="mt-6 text-white text-lg font-semibold">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="mb-6 flex items-center gap-2 text-veag-green hover:text-veag-dark-green font-semibold transition-colors"
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-orange-300 via-orange-200 to-yellow-100 relative overflow-hidden">
+      {/* Mountains */}
+      <svg className="fixed bottom-0 w-full z-0" viewBox="0 0 1440 320" preserveAspectRatio="none">
+        <path fill="#a0522d" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,149.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        <path fill="#d97706" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,208C672,213,768,203,864,186.7C960,171,1056,149,1152,154.7C1248,160,1344,192,1392,208L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+      </svg>
+      
+      {/* Grass */}
+      <div className="fixed bottom-0 w-full h-24 bg-gradient-to-b from-green-600 to-green-700 z-0"></div>
+      
+      {/* Clouds */}
+      <motion.div
+        className="fixed top-20 left-10 w-24 h-12 bg-white/30 rounded-full blur-sm z-0"
+        animate={{ x: [0, 30, 0] }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="fixed top-40 right-20 w-32 h-14 bg-white/20 rounded-full blur-sm z-0"
+        animate={{ x: [0, -40, 0] }}
+        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Header */}
+      <header className="relative z-10 bg-black/30 backdrop-blur-2xl border-b border-white/20">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+            >
+              <ArrowLeft className="w-6 h-6 text-white" />
+            </button>
+            <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-xl border-2 border-white flex items-center justify-center overflow-hidden">
+              <img src={veagLogo} alt="VeAg" className="w-10 h-10 rounded-full" />
+            </div>
+            <span className="text-2xl font-bold text-white">VeAg</span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setShowSupport(!showSupport)}
+              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+            >
+              <HelpCircle className="w-6 h-6 text-white" />
+            </button>
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white">
+              <img 
+                src={currentUser?.photoURL} 
+                alt={currentUser?.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Support Popup */}
+      {showSupport && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="fixed top-20 right-6 z-50 bg-black/40 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 shadow-2xl w-80"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-          </svg>
-          Back to Dashboard
-        </button>
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-xl font-bold text-white">Need Help?</h3>
+            <button
+              onClick={() => setShowSupport(false)}
+              className="text-white/70 hover:text-white transition-colors"
+            >
+              ×
+            </button>
+          </div>
+          <p className="text-white/90 mb-4">
+            Have questions or need assistance? We're here to help!
+          </p>
+          <a
+            href="mailto:sarthak@vacantvectors.com"
+            className="block w-full bg-white/20 hover:bg-white/30 text-white text-center py-3 rounded-xl transition-colors border border-white/30"
+          >
+            Contact Support
+          </a>
+        </motion.div>
+      )}
+
+      <div className="relative z-10 container mx-auto px-4 py-8">
 
         {/* Subscription Status Banner */}
         {daysRemaining && daysRemaining > 0 && (
-          <div className="bg-veag-light-green border-2 border-veag-green rounded-lg p-4 mb-6 flex items-center justify-between">
+          <div className="bg-green-600/80 backdrop-blur-xl text-white rounded-lg p-4 mb-6 flex items-center justify-between shadow-lg border border-green-400/50">
             <div className="flex items-center gap-3">
-              <div className="w-3 h-3 bg-veag-green rounded-full animate-pulse"></div>
-              <span className="text-veag-dark-green font-semibold">
+              <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+              <span className="font-semibold flex items-center gap-2">
+                <CheckCircle className="w-5 h-5" />
                 Active Subscription: {daysRemaining} days remaining
               </span>
             </div>
           </div>
         )}
 
-        {/* Register Case Form - Placeholder */}
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-3xl font-bold text-veag-dark-green mb-6">Register New Case</h2>
+        {/* Register Case Form */}
+        <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-8">
+          <h2 className="text-3xl font-bold text-white mb-6">Register New Case</h2>
           
           {/* Crop Selection Dropdown */}
           <div className="mb-8">
-            <label className="block text-veag-dark-green font-semibold mb-3 text-lg">
-              Select Crop <span className="text-red-500">*</span>
+            <label className="block text-white font-semibold mb-3 text-lg">
+              Select Crop <span className="text-red-400">*</span>
             </label>
             {loadingCrops ? (
-              <div className="flex items-center gap-3 px-4 py-3 border-2 border-veag-green rounded-lg">
-                <div className="w-5 h-5 border-3 border-veag-green border-t-transparent rounded-full animate-spin"></div>
-                <span className="text-gray-600">Loading crops...</span>
+              <div className="flex items-center gap-3 px-4 py-3 bg-white/10 backdrop-blur-xl border border-white/30 rounded-lg">
+                <div className="relative w-5 h-5">
+                  <motion.div
+                    className="absolute inset-0 border-3 border-transparent border-t-white rounded-full"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  />
+                </div>
+                <span className="text-white/70">Loading crops...</span>
               </div>
             ) : (
               <select
                 value={selectedCrop}
                 onChange={(e) => setSelectedCrop(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-veag-green rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-veag-green bg-white"
+                className="w-full px-4 py-3 bg-white/10 backdrop-blur-xl border border-white/30 rounded-lg text-lg text-white focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50"
                 required
               >
-                <option value="">-- Select a crop --</option>
+                <option value="" className="bg-gray-800">-- Select a crop --</option>
                 {crops.map((crop) => (
-                  <option key={crop._id} value={crop.name}>
+                  <option key={crop._id} value={crop.name} className="bg-gray-800">
                     {crop.displayName}
                   </option>
                 ))}
@@ -203,47 +394,48 @@ const RegisterCase = ({ daysRemaining }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 {/* Left Column: Image Upload */}
                 <div className="flex flex-col items-center space-y-4">
-                  <h3 className="text-lg font-semibold text-veag-dark-green self-start">
-                    Upload Plant Images <span className="text-red-500">*</span>
-                    <span className="text-sm text-gray-600 ml-2">({uploadedImages.length}/10)</span>
+                  <h3 className="text-lg font-semibold text-white self-start">
+                    Upload Plant Images <span className="text-red-400">*</span>
+                    <span className="text-sm text-white/70 ml-2">({uploadedImages.length}/10)</span>
                   </h3>
                   
                   {/* Horizontal Scrollable Image Previews */}
                   <div className="w-full overflow-x-auto flex space-x-2 py-2">
                     {uploadedImages.length > 0 ? uploadedImages.map((src, index) => (
-                      <div key={index} className="relative flex-shrink-0 w-20 h-20 border-2 border-veag-green rounded-lg bg-gray-50 flex items-center justify-center group">
+                      <div key={index} className="relative flex-shrink-0 w-20 h-20 border-2 border-white/40 rounded-lg bg-white/10 backdrop-blur-xl flex items-center justify-center group">
                         <img src={src} alt={`preview ${index}`} className="h-full w-full object-cover rounded-md" />
                         {/* Delete button on hover */}
                         <button
                           onClick={() => handleRemoveImage(index)}
-                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500/90 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600 backdrop-blur-xl"
                           type="button"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
+                          <X className="w-4 h-4" />
                         </button>
                       </div>
                     )) : (
                       <div className="flex justify-center gap-2 w-full">
                         {Array(3).fill(null).map((_, index) => (
-                          <div key={index} className="w-20 h-20 border-2 border-veag-green rounded-lg bg-veag-light-green flex items-center justify-center">
-                            <span className="text-veag-dark-green text-xs">Empty</span>
+                          <div key={index} className="w-20 h-20 border-2 border-white/30 rounded-lg bg-white/10 backdrop-blur-xl flex items-center justify-center">
+                            <span className="text-white/50 text-xs">Empty</span>
                           </div>
                         ))}
                       </div>
                     )}
                   </div>
                 
-                  <label htmlFor="photo-upload" className="w-full h-48 border-2 border-veag-green rounded-lg flex flex-col items-center justify-center text-veag-green cursor-pointer hover:bg-veag-light-green transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                    </svg>
-                    <span className="mt-2 text-lg font-semibold">Upload Photos</span>
-                    <span className="text-sm text-gray-600 mt-1">(Max 10 images)</span>
-                  </label>
+                  <button
+                    type="button"
+                    onClick={handleAddImageClick}
+                    disabled={uploadedImages.length >= 10}
+                    className="w-full h-48 border-2 border-white/40 rounded-lg flex flex-col items-center justify-center text-white cursor-pointer hover:bg-white/10 transition-colors backdrop-blur-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Upload className="h-12 w-12" />
+                    <span className="mt-2 text-lg font-semibold">Add Photos</span>
+                    <span className="text-sm text-white/70 mt-1">(Max 10 images)</span>
+                  </button>
                   <input 
-                    id="photo-upload" 
+                    ref={fileInputRef}
                     type="file" 
                     multiple 
                     accept="image/*" 
@@ -255,14 +447,14 @@ const RegisterCase = ({ daysRemaining }) => {
 
                 {/* Right Column: Symptom Description */}
                 <div className="flex flex-col h-full">
-                  <h3 className="text-lg font-semibold text-veag-dark-green mb-4">
+                  <h3 className="text-lg font-semibold text-white mb-4">
                     Disease Observation (Optional)
                   </h3>
                   <textarea
                     value={symptomDescription}
                     onChange={(e) => setSymptomDescription(e.target.value)}
                     placeholder="Describe any symptoms or problems you've observed in your crop..."
-                    className="w-full flex-grow px-4 py-3 border-2 border-veag-green rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-veag-green resize-none"
+                    className="w-full flex-grow px-4 py-3 bg-white/10 backdrop-blur-xl border border-white/30 rounded-lg text-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 resize-none"
                     rows="10"
                   />
                 </div>
@@ -274,10 +466,10 @@ const RegisterCase = ({ daysRemaining }) => {
                   type="button"
                   onClick={handleSubmit}
                   disabled={!selectedCrop || uploadedImages.length === 0}
-                  className={`px-10 py-3 font-bold text-lg rounded-lg transition-colors ${
+                  className={`px-10 py-3 font-bold text-lg rounded-lg transition-colors backdrop-blur-xl ${
                     selectedCrop && uploadedImages.length > 0
-                      ? 'bg-veag-green text-white hover:bg-veag-dark-green'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      ? 'bg-green-600/80 text-white hover:bg-green-600 border border-green-400/50'
+                      : 'bg-white/10 text-white/50 cursor-not-allowed border border-white/20'
                   }`}
                 >
                   Submit Case
@@ -288,7 +480,7 @@ const RegisterCase = ({ daysRemaining }) => {
 
           {/* Message when no crop selected */}
           {!selectedCrop && !loadingCrops && (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-white/70">
               <p className="text-lg">Please select a crop to continue</p>
             </div>
           )}
@@ -296,51 +488,81 @@ const RegisterCase = ({ daysRemaining }) => {
 
         {/* Progress Modal */}
         {isSubmitting && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-black/40 backdrop-blur-2xl border border-white/40 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl"
+            >
               <div className="flex flex-col items-center">
-                <div className="w-16 h-16 border-4 border-veag-green border-t-transparent rounded-full animate-spin mb-4"></div>
-                <h3 className="text-xl font-bold text-veag-dark-green mb-2">Submitting Case</h3>
-                <p className="text-gray-600 mb-4 text-center">{progressMessage}</p>
-                <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
-                  <div 
-                    className="bg-veag-green h-2.5 rounded-full transition-all duration-300"
-                    style={{ width: `${uploadProgress}%` }}
-                  ></div>
+                <div className="relative w-16 h-16 mb-4">
+                  <motion.div
+                    className="absolute inset-0 border-4 border-transparent border-t-white rounded-full"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  />
+                  <motion.div
+                    className="absolute inset-2 border-4 border-transparent border-t-green-400 rounded-full"
+                    animate={{ rotate: -360 }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                  />
                 </div>
-                <span className="text-sm text-gray-500">{uploadProgress}%</span>
+                <h3 className="text-xl font-bold text-white mb-2">Submitting Case</h3>
+                <p className="text-white/70 mb-4 text-center">{progressMessage}</p>
+                <div className="w-full bg-white/10 backdrop-blur-xl rounded-full h-2.5 mb-2">
+                  <motion.div 
+                    className="bg-green-400 h-2.5 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${uploadProgress}%` }}
+                    transition={{ duration: 0.3 }}
+                  ></motion.div>
+                </div>
+                <span className="text-sm text-white/70">{uploadProgress}%</span>
               </div>
-            </div>
+            </motion.div>
           </div>
         )}
 
         {/* Success Modal */}
+        <AnimatePresence>
         {submissionSuccess && createdCase && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-black/40 backdrop-blur-2xl border border-green-400/50 rounded-2xl p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+            >
               {/* Green Checkmark Animation */}
               <div className="flex flex-col items-center mb-6">
-                <div className="relative">
-                  <div className="w-20 h-20 rounded-full bg-veag-green flex items-center justify-center animate-bounce">
-                    <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
-                    </svg>
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", duration: 0.5 }}
+                >
+                  <div className="w-20 h-20 rounded-full bg-green-600/20 border-2 border-green-400/50 flex items-center justify-center backdrop-blur-xl">
+                    <CheckCircle className="w-12 h-12 text-green-400" />
                   </div>
-                </div>
-                <h2 className="text-3xl font-bold text-veag-dark-green mt-4 mb-2">Case Submitted Successfully!</h2>
-                <p className="text-lg text-gray-600">Your case has been registered</p>
+                </motion.div>
+                <h2 className="text-3xl font-bold text-white mt-4 mb-2">Case Submitted Successfully!</h2>
+                <p className="text-lg text-white/70">Your case has been registered</p>
               </div>
 
               {/* Case Details */}
-              <div className="bg-veag-light-green rounded-lg p-6 mb-6">
+              <div className="bg-white/10 backdrop-blur-xl rounded-lg p-6 mb-6 border border-white/30">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-semibold text-veag-dark-green">Case ID</label>
-                    <p className="text-xl font-bold text-veag-green">{createdCase.caseId}</p>
+                    <label className="text-sm font-semibold text-white/70">Case ID</label>
+                    <p className="text-xl font-bold text-green-400">{createdCase.caseId}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-veag-dark-green">Crop</label>
-                    <p className="text-lg font-semibold text-gray-800">
+                    <label className="text-sm font-semibold text-white/70">Crop</label>
+                    <p className="text-lg font-semibold text-white">
                       {createdCase.cropName
                         ? createdCase.cropName.charAt(0).toUpperCase() + createdCase.cropName.slice(1)
                         : ""
@@ -349,8 +571,8 @@ const RegisterCase = ({ daysRemaining }) => {
                   </div>
                   {createdCase.diseaseObservation && (
                     <div className="md:col-span-2">
-                      <label className="text-sm font-semibold text-veag-dark-green">Disease Observation</label>
-                      <p className="text-gray-700 mt-1">{createdCase.diseaseObservation}</p>
+                      <label className="text-sm font-semibold text-white/70">Disease Observation</label>
+                      <p className="text-white/90 mt-1">{createdCase.diseaseObservation}</p>
                     </div>
                   )}
                 </div>
@@ -358,7 +580,7 @@ const RegisterCase = ({ daysRemaining }) => {
 
               {/* Uploaded Images */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-veag-dark-green mb-3">
+                <h3 className="text-lg font-semibold text-white mb-3">
                   Uploaded Images ({createdCase.images.length})
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -367,7 +589,7 @@ const RegisterCase = ({ daysRemaining }) => {
                       <img
                         src={image.url}
                         alt={`Case image ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg border-2 border-veag-green"
+                        className="w-full h-32 object-cover rounded-lg border-2 border-white/40"
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity rounded-lg"></div>
                     </div>
@@ -379,43 +601,149 @@ const RegisterCase = ({ daysRemaining }) => {
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={() => navigate('/dashboard')}
-                  className="flex-1 px-6 py-3 bg-veag-green text-white font-semibold rounded-lg hover:bg-veag-dark-green transition-colors"
+                  className="flex-1 px-6 py-3 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl"
                 >
                   Go to Dashboard
                 </button>
                 <button
                   onClick={() => navigate('/manage-cases')}
-                  className="flex-1 px-6 py-3 bg-veag-dark-green text-white font-semibold rounded-lg hover:bg-opacity-90 transition-colors"
+                  className="flex-1 px-6 py-3 bg-green-600/80 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors border border-green-400/50 backdrop-blur-xl"
                 >
                   View All Cases
                 </button>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
+        </AnimatePresence>
 
         {/* Error Modal */}
+        <AnimatePresence>
         {submissionError && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-8 max-w-md w-full">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          >
+            <motion.div 
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              className="bg-black/40 backdrop-blur-2xl border border-red-400/50 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+            >
               <div className="flex flex-col items-center">
-                <div className="w-20 h-20 rounded-full bg-red-500 flex items-center justify-center mb-4">
-                  <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
+                <div className="w-20 h-20 rounded-full bg-red-600/20 border-2 border-red-400/50 flex items-center justify-center mb-4 backdrop-blur-xl">
+                  <XCircle className="w-12 h-12 text-red-400" />
                 </div>
-                <h2 className="text-2xl font-bold text-red-600 mb-2">Submission Failed</h2>
-                <p className="text-gray-600 text-center mb-6">{submissionError}</p>
+                <h2 className="text-2xl font-bold text-white mb-2">Submission Failed</h2>
+                <p className="text-white/70 text-center mb-6">{submissionError}</p>
                 <button
                   onClick={() => setSubmissionError(null)}
-                  className="px-6 py-3 bg-veag-green text-white font-semibold rounded-lg hover:bg-veag-dark-green transition-colors"
+                  className="px-6 py-3 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl"
                 >
                   Try Again
                 </button>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
+        </AnimatePresence>
+
+        {/* Capture Choice Modal */}
+        <AnimatePresence>
+        {showCaptureModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setShowCaptureModal(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              className="bg-black/40 backdrop-blur-2xl border border-white/40 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-2xl font-bold text-white mb-6 text-center">Add Photos</h3>
+              <div className="space-y-4">
+                <button
+                  onClick={handleCaptureNow}
+                  className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-green-600/80 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors border border-green-400/50 backdrop-blur-xl"
+                >
+                  <Camera className="w-6 h-6" />
+                  Capture Now
+                </button>
+                <button
+                  onClick={handleUploadFiles}
+                  className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl"
+                >
+                  <Upload className="w-6 h-6" />
+                  Upload Files
+                </button>
+                <button
+                  onClick={() => setShowCaptureModal(false)}
+                  className="w-full px-6 py-3 bg-transparent text-white/70 font-semibold rounded-lg hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+        </AnimatePresence>
+
+        {/* Camera View Modal */}
+        <AnimatePresence>
+        {isCapturing && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          >
+            <motion.div 
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              className="bg-black/60 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 max-w-2xl w-full shadow-2xl"
+            >
+              <h3 className="text-2xl font-bold text-white mb-4 text-center">Capture Photo</h3>
+              
+              {/* Video Preview */}
+              <div className="relative mb-4 rounded-lg overflow-hidden bg-black">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  className="w-full h-auto max-h-[60vh] object-contain"
+                />
+                <canvas ref={canvasRef} className="hidden" />
+              </div>
+
+              {/* Camera Controls */}
+              <div className="flex gap-4">
+                <button
+                  onClick={capturePhoto}
+                  disabled={uploadedImages.length >= 10}
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-600/80 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors border border-green-400/50 backdrop-blur-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-600/80"
+                >
+                  <Camera className="w-5 h-5" />
+                  Capture {uploadedImages.length >= 10 ? '(10/10)' : `(${uploadedImages.length}/10)`}
+                </button>
+                <button
+                  onClick={stopCamera}
+                  className="flex-1 px-6 py-3 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl"
+                >
+                  Close Camera
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+        </AnimatePresence>
       </div>
     </div>
   );
