@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../utils/translations';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { ArrowLeft, HelpCircle, CreditCard, Calendar, History, CheckCircle, XCircle } from 'lucide-react';
@@ -11,6 +13,8 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000
 function ManageSubscription() {
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
+  const { language } = useLanguage();
+  const t = translations[language];
 
   // State for subscription data
   const [activeSubscription, setActiveSubscription] = useState(null);
@@ -149,7 +153,7 @@ function ManageSubscription() {
               setPaymentNotification({
                 show: true,
                 type: 'success',
-                message: 'Payment Successful!',
+                message: t.manageSubscription.paymentSuccessful,
                 details: {
                   orderId: response.razorpay_order_id,
                   paymentId: response.razorpay_payment_id,
@@ -168,9 +172,9 @@ function ManageSubscription() {
             setPaymentNotification({
               show: true,
               type: 'failed',
-              message: 'Payment Verification Failed',
+              message: t.manageSubscription.paymentVerificationFailed,
               details: {
-                error: 'Unable to verify payment. Please contact support.',
+                error: t.manageSubscription.errorVerifyPayment,
                 orderId: response.razorpay_order_id
               }
             });
@@ -199,9 +203,9 @@ function ManageSubscription() {
             setPaymentNotification({
               show: true,
               type: 'cancelled',
-              message: 'Payment Cancelled',
+              message: t.manageSubscription.paymentCancelled,
               details: {
-                info: 'You have cancelled the payment process.',
+                info: t.manageSubscription.infoCancelledPayment,
                 orderId: orderId
               }
             });
@@ -217,10 +221,10 @@ function ManageSubscription() {
       setPaymentNotification({
         show: true,
         type: 'failed',
-        message: 'Failed to Initiate Payment',
+        message: t.manageSubscription.failedToInitiatePayment,
         details: {
-          error: error.response?.data?.message || 'Unable to start payment process. Please try again.',
-          info: 'Check your internet connection and try again.'
+          error: error.response?.data?.message || t.manageSubscription.errorStartPayment,
+          info: t.manageSubscription.errorCheckConnection
         }
       });
       setIsProcessing(false);
@@ -281,7 +285,7 @@ function ManageSubscription() {
               transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
             />
           </div>
-          <p className="mt-6 text-white text-lg font-semibold">Loading Subscription...</p>
+          <p className="mt-6 text-white text-lg font-semibold">{t.manageSubscription.loadingSubscription}</p>
         </div>
       </div>
     );
@@ -337,6 +341,8 @@ function ManageSubscription() {
               <img 
                 src={currentUser?.photoURL} 
                 alt={currentUser?.name}
+                crossOrigin="anonymous"
+                referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -353,7 +359,7 @@ function ManageSubscription() {
           className="fixed top-20 right-6 z-50 bg-black/40 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 shadow-2xl w-80"
         >
           <div className="flex justify-between items-start mb-4">
-            <h3 className="text-xl font-bold text-white">Need Help?</h3>
+            <h3 className="text-xl font-bold text-white">{t.manageSubscription.needHelp}</h3>
             <button
               onClick={() => setShowSupport(false)}
               className="text-white/70 hover:text-white transition-colors"
@@ -362,13 +368,13 @@ function ManageSubscription() {
             </button>
           </div>
           <p className="text-white/90 mb-4">
-            Have questions or need assistance? We're here to help!
+            {t.manageSubscription.helpText}
           </p>
           <a
             href="mailto:sarthak@vacantvectors.com"
             className="block w-full bg-white/20 hover:bg-white/30 text-white text-center py-3 rounded-xl transition-colors border border-white/30"
           >
-            Contact Support
+            {t.manageSubscription.contactSupport}
           </a>
         </motion.div>
       )}
@@ -419,26 +425,26 @@ function ManageSubscription() {
               {paymentNotification.type === 'success' && paymentNotification.details && (
                 <>
                   <div className="bg-white/10 backdrop-blur-xl rounded-lg p-4 border border-white/20">
-                    <p className="text-white/70 text-sm mb-1">Payment ID</p>
+                    <p className="text-white/70 text-sm mb-1">{t.manageSubscription.paymentId}</p>
                     <p className="text-white font-mono text-xs break-all">{paymentNotification.details.paymentId}</p>
                   </div>
                   <div className="bg-white/10 backdrop-blur-xl rounded-lg p-4 border border-white/20">
-                    <p className="text-white/70 text-sm mb-1">Order ID</p>
+                    <p className="text-white/70 text-sm mb-1">{t.manageSubscription.orderId}</p>
                     <p className="text-white font-mono text-xs break-all">{paymentNotification.details.orderId}</p>
                   </div>
                   <div className="flex gap-3">
                     <div className="flex-1 bg-green-600/20 backdrop-blur-xl rounded-lg p-4 border border-green-400/30">
-                      <p className="text-white/70 text-sm mb-1">Duration</p>
-                      <p className="text-white font-bold">{paymentNotification.details.months} Month{paymentNotification.details.months > 1 ? 's' : ''}</p>
+                      <p className="text-white/70 text-sm mb-1">{t.manageSubscription.duration}</p>
+                      <p className="text-white font-bold">{paymentNotification.details.months} {paymentNotification.details.months > 1 ? t.manageSubscription.monthPlural : t.manageSubscription.month}</p>
                     </div>
                     <div className="flex-1 bg-green-600/20 backdrop-blur-xl rounded-lg p-4 border border-green-400/30">
-                      <p className="text-white/70 text-sm mb-1">Amount</p>
+                      <p className="text-white/70 text-sm mb-1">{t.manageSubscription.amount}</p>
                       <p className="text-green-400 font-bold">₹{paymentNotification.details.amount}</p>
                     </div>
                   </div>
                   <div className="bg-green-600/10 backdrop-blur-xl rounded-lg p-3 border border-green-400/20">
                     <p className="text-green-400 text-sm text-center">
-                      ✓ Your subscription has been activated successfully!
+                      {t.manageSubscription.subscriptionActivated}
                     </p>
                   </div>
                 </>
@@ -447,7 +453,7 @@ function ManageSubscription() {
               {paymentNotification.type === 'cancelled' && paymentNotification.details && (
                 <>
                   <div className="bg-white/10 backdrop-blur-xl rounded-lg p-4 border border-white/20">
-                    <p className="text-white/70 text-sm mb-1">Order ID</p>
+                    <p className="text-white/70 text-sm mb-1">{t.manageSubscription.orderId}</p>
                     <p className="text-white font-mono text-xs break-all">{paymentNotification.details.orderId}</p>
                   </div>
                   <div className="bg-yellow-600/10 backdrop-blur-xl rounded-lg p-3 border border-yellow-400/20">
@@ -456,7 +462,7 @@ function ManageSubscription() {
                     </p>
                   </div>
                   <p className="text-white/70 text-sm text-center">
-                    No charges were made to your account.
+                    {t.manageSubscription.noChargesMade}
                   </p>
                 </>
               )}
@@ -465,7 +471,7 @@ function ManageSubscription() {
                 <>
                   {paymentNotification.details.orderId && (
                     <div className="bg-white/10 backdrop-blur-xl rounded-lg p-4 border border-white/20">
-                      <p className="text-white/70 text-sm mb-1">Order ID</p>
+                      <p className="text-white/70 text-sm mb-1">{t.manageSubscription.orderId}</p>
                       <p className="text-white font-mono text-xs break-all">{paymentNotification.details.orderId}</p>
                     </div>
                   )}
@@ -480,7 +486,7 @@ function ManageSubscription() {
                     </p>
                   )}
                   <p className="text-white/70 text-sm text-center">
-                    If amount was deducted, it will be refunded within 5-7 business days.
+                    {t.manageSubscription.amountRefund}
                   </p>
                 </>
               )}
@@ -497,7 +503,7 @@ function ManageSubscription() {
                   : 'bg-white/20 hover:bg-white/30 border border-white/40'
               }`}
             >
-              {paymentNotification.type === 'success' ? 'Continue' : 'Close'}
+              {paymentNotification.type === 'success' ? t.manageSubscription.continue : t.manageSubscription.close}
             </button>
           </motion.div>
         </motion.div>
@@ -522,12 +528,12 @@ function ManageSubscription() {
               <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
               <span className="font-semibold text-lg flex items-center gap-2">
                 <CheckCircle className="w-5 h-5" />
-                Active Premium Subscription
+                {t.manageSubscription.activePremiumSubscription}
               </span>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold">{daysRemaining}</div>
-              <div className="text-sm opacity-90">Days Remaining</div>
+              <div className="text-sm opacity-90">{t.manageSubscription.daysRemaining}</div>
             </div>
           </div>
         )}
@@ -536,27 +542,27 @@ function ManageSubscription() {
         <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6 mb-8">
           <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
             <CreditCard className="w-6 h-6" />
-            Current Subscription Status
+            {t.manageSubscription.currentSubscriptionStatus}
           </h2>
           {hasActivePlan && daysRemaining > 0 ? (
             <div className="bg-white/10 backdrop-blur-xl rounded-lg p-6 border border-white/30">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-xl font-bold text-white">{PLAN.name}</h3>
-                  <p className="text-white/70">Active Subscription</p>
+                  <p className="text-white/70">{t.manageSubscription.activeSubscription}</p>
                 </div>
                 <div className="text-right">
                   <div className="text-3xl font-bold text-green-400">{daysRemaining}</div>
-                  <div className="text-sm text-white/70">Days Remaining</div>
+                  <div className="text-sm text-white/70">{t.manageSubscription.daysRemaining}</div>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-white font-semibold">Start Date:</span>
+                  <span className="text-white font-semibold">{t.manageSubscription.startDate}:</span>
                   <span className="ml-2 text-white/70">{formatDate(activeSubscription.startDate)}</span>
                 </div>
                 <div>
-                  <span className="text-white font-semibold">End Date:</span>
+                  <span className="text-white font-semibold">{t.manageSubscription.endDate}:</span>
                   <span className="ml-2 text-white/70">{formatDate(activeSubscription.endDate)}</span>
                 </div>
               </div>
@@ -566,8 +572,8 @@ function ManageSubscription() {
               <div className="text-white/40 mb-2">
                 <XCircle className="h-16 w-16 mx-auto" />
               </div>
-              <p className="text-white mb-2">No active subscription</p>
-              <p className="text-sm text-white/70">Purchase a plan to get started</p>
+              <p className="text-white mb-2">{t.manageSubscription.noActiveSubscription}</p>
+              <p className="text-sm text-white/70">{t.manageSubscription.purchasePlanToStart}</p>
             </div>
           )}
         </div>
@@ -576,14 +582,14 @@ function ManageSubscription() {
         <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6 mb-8">
           <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
             <Calendar className="w-6 h-6" />
-            {hasActivePlan ? 'Extend Your Plan' : 'Purchase Premium Plan'}
+            {hasActivePlan ? t.manageSubscription.extendYourPlan : t.manageSubscription.purchasePremiumPlan}
           </h2>
           
           <div className="bg-gradient-to-br from-green-600/80 to-green-700/80 backdrop-blur-xl rounded-lg p-6 mb-6 border border-green-400/50">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-xl font-bold text-white">{PLAN.name}</h3>
-                <p className="text-white/90">Unlimited access to all features</p>
+                <p className="text-white/90">{t.manageSubscription.unlimitedAccess}</p>
               </div>
               <div className="text-right">
                 <div className="text-sm text-white/60 line-through">₹{PLAN.basePrice}/month</div>
@@ -595,7 +601,7 @@ function ManageSubscription() {
 
           <div className="mb-6">
             <label className="block text-white font-semibold mb-2">
-              Select Duration (1-{PLAN.maxMonths} months)
+              {t.manageSubscription.selectDuration}
             </label>
             <div className="flex items-center gap-4">
               <input
@@ -607,7 +613,7 @@ function ManageSubscription() {
                 className="w-32 px-4 py-2 bg-white/10 border-2 border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/50 backdrop-blur-xl"
               />
               <div className="flex-1 text-right">
-                <div className="text-sm text-white/70">Total Amount</div>
+                <div className="text-sm text-white/70">{t.manageSubscription.totalAmount}</div>
                 <div className="text-3xl font-bold text-green-400">₹{calculateTotal()}</div>
               </div>
             </div>
@@ -622,7 +628,7 @@ function ManageSubscription() {
                 : 'bg-green-600/80 hover:bg-green-600 border border-green-400/50'
             }`}
           >
-            {isProcessing ? 'Processing...' : hasActivePlan ? 'Extend Plan' : 'Purchase Plan'}
+            {isProcessing ? t.manageSubscription.processing : hasActivePlan ? t.manageSubscription.extendPlan : t.manageSubscription.purchasePlan}
           </button>
         </div>
 
@@ -631,7 +637,7 @@ function ManageSubscription() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-white flex items-center gap-2">
               <History className="w-6 h-6" />
-              Transaction History
+              {t.manageSubscription.transactionHistory}
             </h2>
             <button
               onClick={() => {
@@ -651,7 +657,7 @@ function ManageSubscription() {
               >
                 <History className="h-5 w-5" />
               </motion.div>
-              {loadingHistory ? 'Refreshing...' : 'Refresh'}
+              {loadingHistory ? t.manageSubscription.refreshing : t.manageSubscription.refresh}
             </button>
           </div>
           {loadingHistory ? (
@@ -674,12 +680,12 @@ function ManageSubscription() {
               <table className="w-full">
                 <thead className="bg-white/10 backdrop-blur-xl">
                   <tr>
-                    <th className="px-4 py-3 text-left text-white font-semibold">Date & Time</th>
-                    <th className="px-4 py-3 text-left text-white font-semibold">Order ID</th>
-                    <th className="px-4 py-3 text-left text-white font-semibold">Transaction ID</th>
-                    <th className="px-4 py-3 text-left text-white font-semibold">Months</th>
-                    <th className="px-4 py-3 text-left text-white font-semibold">Amount</th>
-                    <th className="px-4 py-3 text-left text-white font-semibold">Status</th>
+                    <th className="px-4 py-3 text-left text-white font-semibold">{t.manageSubscription.dateTime}</th>
+                    <th className="px-4 py-3 text-left text-white font-semibold">{t.manageSubscription.orderId}</th>
+                    <th className="px-4 py-3 text-left text-white font-semibold">{t.manageSubscription.transactionId}</th>
+                    <th className="px-4 py-3 text-left text-white font-semibold">{t.manageSubscription.months}</th>
+                    <th className="px-4 py-3 text-left text-white font-semibold">{t.manageSubscription.amount}</th>
+                    <th className="px-4 py-3 text-left text-white font-semibold">{t.manageSubscription.paymentStatus}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/10">
@@ -704,14 +710,14 @@ function ManageSubscription() {
             </div>
           ) : (
             <div className="text-center py-8 text-white/70">
-              No transactions found
+              {t.manageSubscription.noTransactions}
             </div>
           )}
         </div>
 
         {/* Plan History Timeline */}
         <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6">
-          <h2 className="text-2xl font-bold text-white mb-4">Plan History</h2>
+          <h2 className="text-2xl font-bold text-white mb-4">{t.manageSubscription.planHistory}</h2>
           {subscriptionHistory.length > 0 ? (
             <div className="relative">
               {/* Timeline line */}
@@ -735,12 +741,12 @@ function ManageSubscription() {
                             {sub.purchaseType === 'new' ? (
                               <>
                                 <CheckCircle className="w-5 h-5 text-green-400" />
-                                New Plan Purchased
+                                {t.manageSubscription.newPlanPurchased}
                               </>
                             ) : (
                               <>
                                 <Calendar className="w-5 h-5 text-orange-400" />
-                                Plan Extended
+                                {t.manageSubscription.planExtended}
                               </>
                             )}
                           </h3>
@@ -748,37 +754,37 @@ function ManageSubscription() {
                         </div>
                         {sub.isActive && !sub.isExpired && (
                           <span className="px-3 py-1 bg-green-600/80 text-white text-xs font-semibold rounded-full border border-green-400/50">
-                            ACTIVE
+                            {t.manageSubscription.active.toUpperCase()}
                           </span>
                         )}
                         {sub.isExpired && (
                           <span className="px-3 py-1 bg-white/10 text-white/70 text-xs font-semibold rounded-full border border-white/30">
-                            EXPIRED
+                            {t.manageSubscription.expired}
                           </span>
                         )}
                       </div>
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <div>
-                          <span className="text-white/70">Duration:</span>
-                          <span className="ml-2 font-semibold text-white">{sub.monthsPurchased} month{sub.monthsPurchased > 1 ? 's' : ''}</span>
+                          <span className="text-white/70">{t.manageSubscription.duration}:</span>
+                          <span className="ml-2 font-semibold text-white">{sub.monthsPurchased} {sub.monthsPurchased > 1 ? t.manageSubscription.monthPlural : t.manageSubscription.month}</span>
                         </div>
                         <div>
-                          <span className="text-white/70">Amount:</span>
+                          <span className="text-white/70">{t.manageSubscription.amount}:</span>
                           <span className="ml-2 font-semibold text-green-400">₹{sub.amountPaid}</span>
                         </div>
                         <div>
-                          <span className="text-white/70">Start:</span>
+                          <span className="text-white/70">{t.manageSubscription.start}:</span>
                           <span className="ml-2 text-white/90">{new Date(sub.startDate).toLocaleDateString('en-IN')}</span>
                         </div>
                         <div>
-                          <span className="text-white/70">End:</span>
+                          <span className="text-white/70">{t.manageSubscription.end}:</span>
                           <span className="ml-2 text-white/90">{new Date(sub.endDate).toLocaleDateString('en-IN')}</span>
                         </div>
                       </div>
                       {sub.isActive && !sub.isExpired && (
                         <div className="mt-2 pt-2 border-t border-veag-green">
                           <span className="text-sm font-semibold text-white">
-                            {sub.daysRemaining} days remaining
+                            {sub.daysRemaining} {t.manageSubscription.daysRemainingLower}
                           </span>
                         </div>
                       )}
@@ -792,8 +798,8 @@ function ManageSubscription() {
               <div className="text-white/40 mb-4">
                 <History className="w-16 h-16 mx-auto" />
               </div>
-              <p className="text-white mb-2">No plan history found</p>
-              <p className="text-sm text-white/70">Purchase your first plan to get started</p>
+              <p className="text-white mb-2">{t.manageSubscription.noPlanHistory}</p>
+              <p className="text-sm text-white/70">{t.manageSubscription.purchaseFirstPlan}</p>
             </div>
           )}
         </div>

@@ -6,12 +6,16 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, HelpCircle, FileText, Loader } from 'lucide-react';
 import veagLogo from '../assets/veag_logo.svg';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../utils/translations';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 const ManageCases = ({ daysRemaining }) => {
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
+  const { language } = useLanguage();
+  const t = translations[language];
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -68,9 +72,16 @@ const ManageCases = ({ daysRemaining }) => {
       failed: 'bg-red-600/80 border-red-400/50 text-white'
     };
 
+    const statusLabels = {
+      pending: t.status.pending,
+      processing: t.status.processing,
+      completed: t.status.completed,
+      failed: t.status.failed
+    };
+
     return (
       <span className={`px-3 py-1 rounded-full text-xs font-semibold border backdrop-blur-xl ${statusClasses[status] || statusClasses.pending}`}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+        {statusLabels[status] || statusLabels.pending}
       </span>
     );
   };
@@ -148,16 +159,15 @@ const ManageCases = ({ daysRemaining }) => {
               >
                 <HelpCircle className="w-6 h-6 text-white" />
               </button>
-              {/* <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold border-2 border-white">
-                {currentUser?.name?.charAt(0).toUpperCase() || 'U'}
-              </div> */}
               <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white">
-              <img 
-                src={currentUser?.photoURL} 
-                alt={currentUser?.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
+                <img 
+                  src={currentUser?.photoURL} 
+                  alt={currentUser?.name}
+                  crossOrigin="anonymous"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -172,7 +182,7 @@ const ManageCases = ({ daysRemaining }) => {
           className="fixed top-20 right-6 z-50 bg-black/40 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 shadow-2xl w-80"
         >
           <div className="flex justify-between items-start mb-4">
-            <h3 className="text-xl font-bold text-white">Need Help?</h3>
+            <h3 className="text-xl font-bold text-white">{t.manageCases.needHelp}</h3>
             <button
               onClick={() => setShowSupport(false)}
               className="text-white/70 hover:text-white transition-colors"
@@ -181,13 +191,13 @@ const ManageCases = ({ daysRemaining }) => {
             </button>
           </div>
           <p className="text-white/90 mb-4">
-            Have questions or need assistance? We're here to help!
+            {t.manageCases.supportText}
           </p>
           <a
             href="mailto:sarthak@vacantvectors.com"
             className="block w-full bg-white/20 hover:bg-white/30 text-white text-center py-3 rounded-xl transition-colors border border-white/30"
           >
-            Contact Support
+            {t.manageCases.contactSupport}
           </a>
         </motion.div>
       )}
@@ -196,14 +206,14 @@ const ManageCases = ({ daysRemaining }) => {
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h2 className="text-3xl font-bold text-white mb-2">Manage Cases</h2>
-            <p className="text-white/70">View and manage all your registered cases</p>
+            <h2 className="text-3xl font-bold text-white mb-2">{t.manageCases.title}</h2>
+            <p className="text-white/70">{t.manageCases.subtitle}</p>
           </div>
           <button
             onClick={() => navigate('/register-case')}
             className="px-6 py-2 bg-green-600/80 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors border border-green-400/50 backdrop-blur-xl"
           >
-            + New Case
+            {t.manageCases.newCase}
           </button>
         </div>
 
@@ -213,7 +223,7 @@ const ManageCases = ({ daysRemaining }) => {
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
               <span className="text-white font-semibold">
-                Active Subscription: {daysRemaining} days remaining
+                {t.manageCases.activeSubscription}: {daysRemaining} {t.manageCases.daysRemaining}
               </span>
             </div>
           </div>
@@ -240,7 +250,7 @@ const ManageCases = ({ daysRemaining }) => {
                   transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                 />
               </div>
-              <p className="text-white font-semibold text-lg">Loading cases...</p>
+              <p className="text-white font-semibold text-lg">{t.manageCases.loadingCases}</p>
             </div>
           </div>
         )}
@@ -259,7 +269,7 @@ const ManageCases = ({ daysRemaining }) => {
                 onClick={() => window.location.reload()}
                 className="mt-4 px-6 py-2 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl"
               >
-                Retry
+                {t.manageCases.retry}
               </button>
             </div>
           </div>
@@ -272,13 +282,13 @@ const ManageCases = ({ daysRemaining }) => {
               <div className="w-20 h-20 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center backdrop-blur-xl">
                 <FileText className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-white">No Cases Yet</h3>
-              <p className="text-white/70">You haven't registered any cases. Start by creating your first case!</p>
+              <h3 className="text-2xl font-bold text-white">{t.manageCases.noCases}</h3>
+              <p className="text-white/70">{t.manageCases.noCasesMessage}</p>
               <button
                 onClick={() => navigate('/register-case')}
                 className="mt-4 px-8 py-3 bg-green-600/80 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors border border-green-400/50 backdrop-blur-xl"
               >
-                Register First Case
+                {t.manageCases.registerFirstCase}
               </button>
             </div>
           </div>
@@ -311,7 +321,7 @@ const ManageCases = ({ daysRemaining }) => {
                     {/* Image Count Badge */}
                     {caseItem.images && caseItem.images.length > 1 && (
                       <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-xl text-white px-3 py-1 rounded-full text-sm font-semibold border border-white/30">
-                        {caseItem.images.length} photos
+                        {caseItem.images.length} {t.caseDetail.photos}
                       </div>
                     )}
                   </div>
@@ -350,7 +360,7 @@ const ManageCases = ({ daysRemaining }) => {
                       )}
                     </div>
                     <button className="w-full px-4 py-2 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl">
-                      View Details →
+                      {t.manageCases.viewDetails}
                     </button>
                   </div>
                 </motion.div>
@@ -359,29 +369,29 @@ const ManageCases = ({ daysRemaining }) => {
 
             {/* Cases Summary */}
             <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 shadow-2xl">
-              <h3 className="text-lg font-semibold text-white mb-4">Summary</h3>
+              <h3 className="text-lg font-semibold text-white mb-4">{t.manageCases.summary}</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center">
                   <p className="text-3xl font-bold text-green-400">{cases.length}</p>
-                  <p className="text-sm text-white/70">Total Cases</p>
+                  <p className="text-sm text-white/70">{t.manageCases.totalCases}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-3xl font-bold text-yellow-400">
                     {cases.filter(c => c.status === 'pending').length}
                   </p>
-                  <p className="text-sm text-white/70">Pending</p>
+                  <p className="text-sm text-white/70">{t.status.pending}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-3xl font-bold text-blue-400">
                     {cases.filter(c => c.status === 'processing').length}
                   </p>
-                  <p className="text-sm text-white/70">Processing</p>
+                  <p className="text-sm text-white/70">{t.status.processing}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-3xl font-bold text-green-400">
                     {cases.filter(c => c.status === 'completed').length}
                   </p>
-                  <p className="text-sm text-white/70">Completed</p>
+                  <p className="text-sm text-white/70">{t.status.completed}</p>
                 </div>
               </div>
             </div>

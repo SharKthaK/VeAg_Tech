@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../utils/translations';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
@@ -11,6 +13,8 @@ export const withSubscription = (Component) => {
   return function ProtectedComponent(props) {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
+    const { language } = useLanguage();
+    const t = translations[language];
     const [isChecking, setIsChecking] = useState(true);
     const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
     const [daysRemaining, setDaysRemaining] = useState(0);
@@ -84,7 +88,7 @@ export const withSubscription = (Component) => {
                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
               />
             </div>
-            <p className="text-white font-semibold text-lg">Checking subscription...</p>
+            <p className="text-white font-semibold text-lg">{t.noSubscription.checking}</p>
           </div>
         </div>
       );
@@ -108,18 +112,17 @@ export const withSubscription = (Component) => {
           <div className="relative z-10 max-w-md w-full bg-black/40 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-8 text-center">
             <div className="text-6xl mb-6">😞</div>
             <h2 className="text-3xl font-bold text-white mb-4">
-              Oops! No Active Subscription
+              {t.noSubscription.title}
             </h2>
             <p className="text-white/80 mb-6">
-              You need an active subscription to access this feature. 
-              Please purchase or extend your subscription to continue.
+              {t.noSubscription.message}
             </p>
             <div className="bg-green-600/80 border border-green-400/50 backdrop-blur-xl rounded-lg p-4 mb-6">
               <p className="text-white font-semibold">
-                Get Premium Access
+                {t.noSubscription.getPremium}
               </p>
               <p className="text-sm text-white/90">
-                Starting at just ₹9/month
+                {t.noSubscription.startingAt}
               </p>
             </div>
             <div className="flex flex-col gap-3">
@@ -127,13 +130,13 @@ export const withSubscription = (Component) => {
                 onClick={() => navigate('/manage-subscription')}
                 className="w-full bg-green-600/80 text-white py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors border border-green-400/50 backdrop-blur-xl"
               >
-                Get Subscription
+                {t.noSubscription.getSubscription}
               </button>
               <button
                 onClick={() => navigate('/dashboard')}
                 className="w-full bg-white/20 text-white py-3 rounded-lg font-semibold hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl"
               >
-                Back to Dashboard
+                {t.noSubscription.backToDashboard}
               </button>
             </div>
           </div>

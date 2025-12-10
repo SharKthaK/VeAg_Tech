@@ -1,17 +1,28 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../utils/translations';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HelpCircle, X, FileText, FolderOpen, User, CreditCard } from 'lucide-react';
+import { HelpCircle, X, FileText, FolderOpen, User, CreditCard, Globe } from 'lucide-react';
 import veagLogo from '../assets/veag_logo.svg';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { currentUser, signOut } = useAuth();
+  const { language, changeLanguage } = useLanguage();
+  const t = translations[language];
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showSupportPopup, setShowSupportPopup] = useState(false);
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
+
+  const languages = [
+    { code: 'en', name: 'English', flag: '🇬🇧' },
+    { code: 'hi', name: 'हिंदी', flag: '🇮🇳' },
+    { code: 'bn', name: 'বাংলা', flag: '🇧🇩' }
+  ];
 
   useEffect(() => {
     setImageLoaded(false);
@@ -33,25 +44,25 @@ const Dashboard = () => {
 
   const navigationButtons = [
     {
-      title: 'Register New Case',
+      title: t.dashboard.registerCase,
       path: '/register-case',
       icon: FileText,
       color: 'from-emerald-500/30 to-green-500/30'
     },
     {
-      title: 'Manage Old Cases',
+      title: t.dashboard.manageCases,
       path: '/manage-cases',
       icon: FolderOpen,
       color: 'from-blue-500/30 to-cyan-500/30'
     },
     {
-      title: 'Edit your Profile',
+      title: t.dashboard.editProfile,
       path: '/edit-profile',
       icon: User,
       color: 'from-purple-500/30 to-pink-500/30'
     },
     {
-      title: 'Manage Subscription',
+      title: t.dashboard.manageSubscription,
       path: '/manage-subscription',
       icon: CreditCard,
       color: 'from-orange-500/30 to-red-500/30'
@@ -195,6 +206,57 @@ const Dashboard = () => {
 
             {/* User Info and Actions */}
             <div className="flex items-center gap-3 sm:gap-6">
+              {/* Language Selector */}
+              <div className="relative">
+                <motion.button
+                  onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
+                  className="p-2 sm:p-2.5 bg-black/30 hover:bg-black/40 backdrop-blur-md border border-white/30 hover:border-white/50 rounded-full transition-all duration-300"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  title="Change Language"
+                >
+                  <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                </motion.button>
+
+                {/* Language Dropdown */}
+                <AnimatePresence>
+                  {showLanguageDropdown && (
+                    <>
+                      {/* Backdrop */}
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setShowLanguageDropdown(false)}
+                      />
+                      
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute right-0 top-full mt-2 w-48 bg-black/40 backdrop-blur-2xl border border-white/40 rounded-xl shadow-2xl overflow-hidden z-50"
+                      >
+                        {languages.map((lang) => (
+                          <button
+                            key={lang.code}
+                            onClick={() => {
+                              changeLanguage(lang.code);
+                              setShowLanguageDropdown(false);
+                            }}
+                            className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-white/10 transition-colors ${
+                              language === lang.code ? 'bg-white/20' : ''
+                            }`}
+                          >
+                            <span className="text-white font-medium">{lang.name}</span>
+                            {language === lang.code && (
+                              <span className="ml-auto text-green-400">✓</span>
+                            )}
+                          </button>
+                        ))}
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
+              </div>
+
               {/* Support Button */}
               <motion.button
                 onClick={() => setShowSupportPopup(true)}
@@ -240,7 +302,7 @@ const Dashboard = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Logout
+                {t.logout}
               </motion.button>
             </div>
           </div>
@@ -257,9 +319,9 @@ const Dashboard = () => {
           className="mb-8 sm:mb-12"
         >
           <h2 className="text-3xl sm:text-4xl font-bold text-white drop-shadow-lg text-center">
-            Welcome, {currentUser?.name?.split(' ')[0]}!
+            {t.dashboard.welcome}, {currentUser?.name?.split(' ')[0]}!
           </h2>
-          <p className="text-white/80 text-center mt-2 drop-shadow-md">Manage your crop disease cases efficiently</p>
+          <p className="text-white/80 text-center mt-2 drop-shadow-md">{t.dashboard.title}</p>
         </motion.div>
 
         {/* Navigation Grid */}
@@ -340,9 +402,9 @@ const Dashboard = () => {
               {/* Content */}
               <div className="text-center">
                 <HelpCircle className="w-12 h-12 text-white mx-auto mb-4 drop-shadow-lg" />
-                <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg">Need Help?</h3>
+                <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg">{t.dashboard.needHelp}</h3>
                 <p className="text-white/80 mb-8 drop-shadow-md">
-                  Have a question or issue? We're here to help!
+                  {t.dashboard.helpDesc}
                 </p>
 
                 {/* Support Email Link */}
@@ -352,7 +414,7 @@ const Dashboard = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <span className="drop-shadow-md">Contact Support</span>
+                  <span className="drop-shadow-md">{t.dashboard.contactSupport}</span>
                 </motion.a>
               </div>
             </motion.div>

@@ -5,10 +5,14 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { ArrowLeft, HelpCircle } from 'lucide-react';
 import veagLogo from '../assets/veag_logo.svg';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../utils/translations';
 
 const EditProfile = () => {
   const navigate = useNavigate();
   const { currentUser, updateUserName } = useAuth();
+  const { language } = useLanguage();
+  const t = translations[language];
   const [name, setName] = useState(currentUser?.name || '');
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -45,12 +49,12 @@ const EditProfile = () => {
     e.preventDefault();
     
     if (name.trim() === currentUser?.name) {
-      setMessage('No changes made');
+      setMessage(t.editProfile.noChanges || 'No changes made');
       return;
     }
 
     if (name.trim().length < 2) {
-      setMessage('Name must be at least 2 characters');
+      setMessage(t.editProfile.nameTooShort || 'Name must be at least 2 characters');
       return;
     }
 
@@ -68,7 +72,7 @@ const EditProfile = () => {
         updateUserName(name.trim());
       }
 
-      setMessage('Name updated successfully!');
+      setMessage(t.editProfile.profileUpdated);
       setIsEditing(false);
       
       // Refresh name history
@@ -118,7 +122,7 @@ const EditProfile = () => {
               transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
             />
           </div>
-          <p className="mt-6 text-white text-lg font-semibold">Loading Profile...</p>
+          <p className="mt-6 text-white text-lg font-semibold">{t.editProfile.loadingProfile}</p>
         </div>
       </div>
     );
@@ -174,6 +178,8 @@ const EditProfile = () => {
               <img 
                 src={currentUser?.photoURL} 
                 alt={currentUser?.name}
+                crossOrigin="anonymous"
+                referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -190,7 +196,7 @@ const EditProfile = () => {
           className="fixed top-20 right-6 z-50 bg-black/40 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 shadow-2xl w-80"
         >
           <div className="flex justify-between items-start mb-4">
-            <h3 className="text-xl font-bold text-white">Need Help?</h3>
+            <h3 className="text-xl font-bold text-white">{t.editProfile.needHelp}</h3>
             <button
               onClick={() => setShowSupport(false)}
               className="text-white/70 hover:text-white transition-colors"
@@ -199,13 +205,13 @@ const EditProfile = () => {
             </button>
           </div>
           <p className="text-white/90 mb-4">
-            Have questions or need assistance? We're here to help!
+            {t.editProfile.supportText}
           </p>
           <a
             href="mailto:sarthak@vacantvectors.com"
             className="block w-full bg-white/20 hover:bg-white/30 text-white text-center py-3 rounded-xl transition-colors border border-white/30"
           >
-            Contact Support
+            {t.editProfile.contactSupport}
           </a>
         </motion.div>
       )}
@@ -218,7 +224,7 @@ const EditProfile = () => {
           >
             ← Back to Dashboard
           </button> */}
-          <h2 className="text-3xl font-bold text-white mb-6">Edit Profile</h2>
+          <h2 className="text-3xl font-bold text-white mb-6">{t.editProfile.title}</h2>
           
           {message && (
             <div className={`mb-4 p-3 rounded-lg border ${message.includes('success') ? 'bg-green-500/20 border-green-400/50 text-green-100' : 'bg-yellow-500/20 border-yellow-400/50 text-yellow-100'}`}>
@@ -265,7 +271,7 @@ const EditProfile = () => {
             
             <form onSubmit={handleUpdateName}>
               <div>
-                <label className="block text-sm font-medium text-white mb-2">Name</label>
+                <label className="block text-sm font-medium text-white mb-2">{t.editProfile.name}</label>
                 <div className="flex gap-2">
                   <input 
                     type="text" 
@@ -280,7 +286,7 @@ const EditProfile = () => {
                       onClick={() => setIsEditing(true)}
                       className="px-6 py-2 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-all duration-300 border border-white/30 backdrop-blur-xl"
                     >
-                      Edit
+                      {t.editProfile.edit}
                     </button>
                   ) : (
                     <>
@@ -289,7 +295,7 @@ const EditProfile = () => {
                         disabled={loading}
                         className="px-6 py-2 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-all duration-300 disabled:opacity-50 backdrop-blur-xl border border-white/40"
                       >
-                        {loading ? 'Saving...' : 'Save'}
+                        {loading ? t.editProfile.saving : t.editProfile.save}
                       </button>
                       <button
                         type="button"
@@ -297,7 +303,7 @@ const EditProfile = () => {
                         disabled={loading}
                         className="px-6 py-2 bg-white/10 text-white font-semibold rounded-lg hover:bg-white/20 transition-all duration-300 disabled:opacity-50 backdrop-blur-xl border border-white/30"
                       >
-                        Cancel
+                        {t.editProfile.cancel}
                       </button>
                     </>
                   )}
@@ -306,7 +312,7 @@ const EditProfile = () => {
             </form>
             
             <div>
-              <label className="block text-sm font-medium text-white mb-2">Email</label>
+              <label className="block text-sm font-medium text-white mb-2">{t.editProfile.email}</label>
               <input 
                 type="email" 
                 value={currentUser?.email || ''} 
@@ -316,7 +322,7 @@ const EditProfile = () => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-white mb-2">User ID</label>
+              <label className="block text-sm font-medium text-white mb-2">{t.editProfile.userId}</label>
               <input 
                 type="text" 
                 value={currentUser?.userId || ''} 
@@ -327,17 +333,17 @@ const EditProfile = () => {
             
             {nameHistory.length > 0 && (
               <div className="mt-8">
-                <h3 className="text-xl font-semibold text-white mb-4">Name Change History</h3>
+                <h3 className="text-xl font-semibold text-white mb-4">{t.editProfile.nameHistory}</h3>
                 <div className="space-y-3">
                   {nameHistory.map((history, index) => (
                     <div key={index} className="p-4 bg-white/10 backdrop-blur-xl rounded-lg border border-white/30">
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="text-sm text-white/90">
-                            <span className="font-medium">From:</span> {history.oldName}
+                            <span className="font-medium">{t.editProfile.from}:</span> {history.oldName}
                           </p>
                           <p className="text-sm text-white/90">
-                            <span className="font-medium">To:</span> {history.newName}
+                            <span className="font-medium">{t.editProfile.to}:</span> {history.newName}
                           </p>
                         </div>
                         <p className="text-xs text-white/70">

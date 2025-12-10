@@ -1,0 +1,1245 @@
+// Translation data for all components
+export const translations = {
+  en: {
+    // Common
+    veag: "VeAg",
+    loading: "Loading...",
+    logout: "Logout",
+    goBack: "Go Back",
+    
+    // Landing Page
+    landing: {
+      getStarted: "Get Started",
+      hero: {
+        title: "AI-Powered Crop Disease Detection",
+        subtitle: "Protect your crops with intelligent disease detection. Upload images and get instant AI-powered diagnosis.",
+        cta: "Start Detection",
+        learnMore: "Learn More"
+      },
+      features: {
+        title: "Why Choose VeAg?",
+        subtitle: "Advanced AI technology meets agricultural expertise",
+        feature1: {
+          title: "AI-Powered Analysis",
+          description: "Our advanced AI model analyzes crop images and identifies diseases with high accuracy."
+        },
+        feature2: {
+          title: "Instant Results",
+          description: "Get detailed disease detection results within minutes, not days."
+        },
+        feature3: {
+          title: "Multiple Crops",
+          description: "Support for various crops including Rice, and many more coming soon."
+        }
+      },
+      howItWorks: {
+        title: "How It Works",
+        subtitle: "Simple process to protect your crops",
+        step1: {
+          title: "Sign Up",
+          description: "Create your account with Google in seconds"
+        },
+        step2: {
+          title: "Upload Images",
+          description: "Take photos of affected plants and upload up to 10 images"
+        },
+        step3: {
+          title: "AI Analysis",
+          description: "Our AI model processes your images and detects diseases"
+        },
+        step4: {
+          title: "Get Results",
+          description: "Receive detailed diagnosis and treatment recommendations (coming soon)"
+        }
+      },
+      faq: {
+        title: "Frequently Asked Questions",
+        subtitle: "Everything you need to know about VeAg",
+        q1: "What crops does VeAg support?",
+        a1: "VeAg currently supports multiple crops including Rice, and many more coming soon.",
+        q2: "How accurate is the AI detection?",
+        a2: "Our AI model has been trained on thousands of images and achieves high accuracy in detecting common crop diseases. However, we recommend consulting with agricultural experts for critical decisions.",
+        q3: "How many images can I upload?",
+        a3: "You can upload up to 10 images per case. We recommend capturing multiple angles of the affected plant for better analysis.",
+        q4: "How long does the analysis take?",
+        a4: "Analysis typically takes 2-5 minutes depending on the number of images. You'll receive real-time updates on the processing status.",
+        q5: "Is my data secure?",
+        a5: "Absolutely! We use industry-standard encryption and secure cloud storage. Your data is never shared with third parties.",
+        q6: "What payment methods do you accept?",
+        a6: "We accept all major payment methods through Razorpay, including credit/debit cards, UPI, and net banking."
+      },
+      contact: {
+        title: "Get In Touch",
+        subtitle: "Have questions? We're here to help",
+        general: {
+          title: "General Inquiries",
+          email: "sarthak@vacantvectors.com",
+          description: "For support and general questions"
+        },
+        payment: {
+          title: "Payment Related",
+          email: "sarthak@vacantvectors.com",
+          description: "For billing and subscription queries"
+        }
+      },
+      footer: {
+        tagline: "Protecting crops with artificial intelligence",
+        rights: "All rights reserved"
+      }
+    },
+    
+    // Login Page
+    login: {
+      welcome: "Welcome to VeAg",
+      subtitle: "AI-Powered Crop Disease Detection",
+      signInGoogle: "Sign In with Google",
+      signingIn: "Signing in...",
+      secureAccount: "We use Google to keep your account secure",
+      errorSignIn: "Failed to sign in with Google. Please try again."
+    },
+    
+    // Dashboard
+    dashboard: {
+      title: "Dashboard",
+      welcome: "Welcome",
+      quickActions: "Quick Actions",
+      registerCase: "Register New Case",
+      registerDesc: "Upload images for disease detection",
+      manageCases: "Manage Cases",
+      manageDesc: "View and track your cases",
+      editProfile: "Edit Profile",
+      editDesc: "Update your information",
+      manageSubscription: "Manage Subscription",
+      manageDesc2: "View and manage your plan",
+      recentCases: "Recent Cases",
+      viewAll: "View All",
+      case: "Case",
+      status: "Status",
+      crop: "Crop",
+      date: "Date",
+      viewDetails: "View Details",
+      noCases: "No cases found",
+      noCasesDesc: "You haven't registered any cases yet. Click 'Register New Case' to get started.",
+      subscriptionStatus: "Subscription Status",
+      active: "Active",
+      daysLeft: "days left",
+      needHelp: "Need Help?",
+      helpDesc: "Have questions or need assistance? We're here to help!",
+      contactSupport: "Contact Support"
+    },
+    
+    // Status
+    status: {
+      pending: "Pending",
+      processing: "Processing",
+      completed: "Completed",
+      failed: "Failed"
+    },
+    
+    // Register Case
+    registerCase: {
+      title: "Register New Case",
+      selectCrop: "Select Crop Type",
+      chooseCrop: "Choose a crop",
+      uploadImages: "Upload Images",
+      uploadDesc: "Upload images of the affected plant (Max 5 images)",
+      dragDrop: "Drag and drop images here, or click to select",
+      imageCount: "images selected",
+      observation: "Disease Observation (Optional)",
+      observationPlaceholder: "Describe what you observe about the plant...",
+      submitting: "Submitting...",
+      submitCase: "Submit Case",
+      enterDetails: "Please enter case details",
+      selectCropFirst: "Please select a crop type",
+      uploadImagesFirst: "Please upload at least one image",
+      caseRegistered: "Case Registered Successfully!",
+      caseId: "Case ID",
+      goToCases: "Go to My Cases",
+      goToDashboard: "Go to Dashboard",
+      needHelp: "Need Help?",
+      supportText: "Have questions or need assistance? We're here to help!",
+      contactSupport: "Contact Support",
+      activeSubscription: "Active Premium Subscription",
+      daysRemaining: "days remaining",
+      loadingCrops: "Loading crops...",
+      empty: "Empty",
+      addPhotos: "Add Photos",
+      maxImages: "Max 10 images",
+      diseaseObservation: "Disease Observation (Optional)",
+      selectCropMessage: "Please select a crop type to begin",
+      submittingCase: "Submitting Case",
+      successTitle: "Success!",
+      successMessage: "Your case has been registered successfully",
+      crop: "Crop",
+      uploadedImages: "Uploaded Images",
+      viewAllCases: "View All Cases",
+      submissionFailed: "Submission Failed",
+      tryAgain: "Try Again",
+      captureNow: "Capture Now",
+      uploadFiles: "Upload Files",
+      cancel: "Cancel",
+      capturePhoto: "Capture Photo",
+      capture: "Capture",
+      closeCamera: "Close Camera",
+      maxImagesAlert: "Maximum 10 images can be uploaded",
+      cameraError: "Unable to access camera. Please check permissions.",
+      uploadingCloud: "Uploading to cloud storage...",
+      caseCreated: "Case created successfully!"
+    },
+    
+    // Manage Cases
+    manageCases: {
+      title: "My Cases",
+      allCases: "All Cases",
+      search: "Search by Case ID or Crop",
+      filter: "Filter by Status",
+      all: "All",
+      totalCases: "Total Cases",
+      noCases: "No cases found",
+      tryDifferent: "Try a different search term or filter",
+      loadingCases: "Loading cases...",
+      error: "Error Loading Cases",
+      tryAgain: "Try Again",
+      noCasesYet: "No Cases Yet",
+      registerFirst: "You haven't registered any cases yet. Start by registering your first case!",
+      registerCase: "Register New Case",
+      viewCase: "View Case",
+      needHelp: "Need Help?",
+      supportText: "Have questions or need assistance? We're here to help!",
+      contactSupport: "Contact Support",
+      subtitle: "View and manage all your registered cases",
+      newCase: "New Case",
+      activeSubscription: "Active Premium Subscription",
+      daysRemaining: "days remaining",
+      retry: "Try Again",
+      noCasesMessage: "You haven't registered any cases yet. Start by registering your first case!",
+      viewDetails: "View Details",
+      summary: "Summary"
+    },
+    
+    // Case Detail
+    caseDetail: {
+      needHelp: "Need Help?",
+      helpText: "Have questions or need assistance? We're here to help!",
+      contactSupport: "Contact Support",
+      unauthorizedTitle: "Unauthorized Access",
+      unauthorizedText: "You don't have permission to view this case.",
+      goToDashboard: "Go to Dashboard",
+      caseNumber: "Case",
+      loadingCase: "Loading case details...",
+      images: "Images",
+      processAI: "Process with AI",
+      retryProcessing: "Retry Processing",
+      startingProcess: "Starting Process...",
+      processingTitle: "Processing in Progress",
+      processingDesc: "AI model is analyzing your images...",
+      downloadingImages: "Downloading images",
+      runningAnalysis: "Running AI analysis",
+      savingResults: "Saving results",
+      autoRefresh: "Auto-refreshing every 10 seconds...",
+      analysisComplete: "Analysis Complete",
+      aiResults: "AI Detection Results",
+      diseaseDetected: "Disease Detected",
+      processingTime: "Processing Time",
+      completed: "Completed",
+      processingFailed: "Processing Failed",
+      errorOccurred: "An error occurred during analysis",
+      errorDesc: "The AI model encountered an error while processing your images. Please try again.",
+      retry: "Retry Processing",
+      retrying: "Retrying...",
+      cropInfo: "Crop Information",
+      cropType: "Crop Type",
+      observation: "Observation",
+      caseStats: "Case Stats",
+      totalImages: "Total Images",
+      caseId: "Case ID",
+      actions: "Actions",
+      viewAllCases: "View All Cases",
+      refresh: "Refresh",
+      plan: "Plan",
+      daysLeft: "days left",
+      aiAnalyzing: "AI model is analyzing your images...",
+      runningAI: "Running AI analysis",
+      cropInformation: "Crop Information",
+      failedMessage: "The AI model encountered an error while processing your images. Please try again.",
+      status: "Status",
+      photos: "photos"
+    },
+    
+    // Edit Profile
+    editProfile: {
+      title: "Edit Profile",
+      personalInfo: "Personal Information",
+      name: "Full Name",
+      namePlaceholder: "Enter your name",
+      email: "Email Address",
+      userId: "User ID",
+      accountInfo: "Account Information",
+      accountCreated: "Account Created",
+      lastLogin: "Last Login",
+      updating: "Updating...",
+      saveChanges: "Save Changes",
+      profileUpdated: "Profile Updated!",
+      profileSuccess: "Your profile has been updated successfully.",
+      enterName: "Please enter your name",
+      needHelp: "Need Help?",
+      supportText: "Have questions or need assistance? We're here to help!",
+      contactSupport: "Contact Support",
+      loadingProfile: "Loading Profile...",
+      edit: "Edit",
+      save: "Save",
+      saving: "Saving...",
+      cancel: "Cancel",
+      nameHistory: "Name Change History",
+      from: "From",
+      to: "To",
+      noChanges: "No changes made",
+      nameTooShort: "Name must be at least 2 characters"
+    },
+    
+    // Manage Subscription
+    manageSubscription: {
+      title: "Manage Subscription",
+      loadingSubscription: "Loading Subscription...",
+      needHelp: "Need Help?",
+      helpText: "Have questions or need assistance? We're here to help!",
+      contactSupport: "Contact Support",
+      activePremiumSubscription: "Active Premium Subscription",
+      daysRemaining: "Days Remaining",
+      currentSubscriptionStatus: "Current Subscription Status",
+      currentPlan: "Current Plan",
+      plan: "Plan",
+      premiumPlan: "Premium Plan",
+      starterPlan: "Starter Plan",
+      activeSubscription: "Active Subscription",
+      status: "Status",
+      active: "Active",
+      days: "days",
+      startDate: "Start Date",
+      endDate: "End Date",
+      expiryDate: "Expiry Date",
+      noActiveSubscription: "No active subscription",
+      purchasePlanToStart: "Purchase a plan to get started",
+      extendYourPlan: "Extend Your Plan",
+      purchasePremiumPlan: "Purchase Premium Plan",
+      unlimitedAccess: "Unlimited access to all features",
+      selectDuration: "Select Duration (1-12 months)",
+      totalAmount: "Total Amount",
+      processing: "Processing...",
+      extendPlan: "Extend Plan",
+      purchasePlan: "Purchase Plan",
+      planFeatures: "Plan Features",
+      feature1: "AI-powered disease detection",
+      feature2: "Upload up to 5 images per case",
+      feature3: "Unlimited case registrations",
+      feature4: "24/7 support access",
+      feature5: "Historical case tracking",
+      transactionHistory: "Transaction History",
+      refresh: "Refresh",
+      refreshing: "Refreshing...",
+      dateTime: "Date & Time",
+      orderId: "Order ID",
+      transactionId: "Transaction ID",
+      months: "Months",
+      amount: "Amount",
+      paymentStatus: "Status",
+      noTransactions: "No transactions found",
+      planHistory: "Plan History",
+      newPlanPurchased: "New Plan Purchased",
+      planExtended: "Plan Extended",
+      expired: "EXPIRED",
+      duration: "Duration",
+      month: "month",
+      monthPlural: "months",
+      start: "Start",
+      end: "End",
+      daysRemainingLower: "days remaining",
+      noPlanHistory: "No plan history found",
+      purchaseFirstPlan: "Purchase your first plan to get started",
+      paymentSuccessful: "Payment Successful!",
+      paymentVerificationFailed: "Payment Verification Failed",
+      paymentCancelled: "Payment Cancelled",
+      failedToInitiatePayment: "Failed to Initiate Payment",
+      paymentId: "Payment ID",
+      subscriptionActivated: "✓ Your subscription has been activated successfully!",
+      noChargesMade: "No charges were made to your account.",
+      amountRefund: "If amount was deducted, it will be refunded within 5-7 business days.",
+      continue: "Continue",
+      close: "Close",
+      errorVerifyPayment: "Unable to verify payment. Please contact support.",
+      errorStartPayment: "Unable to start payment process. Please try again.",
+      errorCheckConnection: "Check your internet connection and try again.",
+      infoCancelledPayment: "You have cancelled the payment process."
+    },
+    
+    // Not Found
+    notFound: {
+      title: "404 - Page Not Found",
+      message: "Oops! The page you're looking for doesn't exist.",
+      subtitle: "The page may have been moved or deleted.",
+      goHome: "Go Home",
+      goToDashboard: "Go to Dashboard",
+      needHelp: "Need Help?",
+      supportText: "Have questions or need assistance? We're here to help!",
+      contactSupport: "Contact Support",
+      redirecting: "Auto-redirecting to dashboard",
+      in5Seconds: "in 5 seconds...",
+      quickLinks: "Quick Links",
+      registerCase: "Register Case",
+      manageCases: "Manage Cases",
+      editProfile: "Edit Profile",
+      subscription: "Subscription"
+    },
+    
+    // No Subscription (withSubscription HOC)
+    noSubscription: {
+      title: "No Active Subscription",
+      message: "You need an active subscription to access this feature.",
+      feature1: "AI-powered disease detection",
+      feature2: "Unlimited case registrations",
+      feature3: "Priority support",
+      contactAdmin: "Please contact the administrator to activate your subscription.",
+      email: "Email",
+      goToDashboard: "Go to Dashboard",
+      checking: "Checking subscription...",
+      getPremium: "Get Premium Access",
+      startingAt: "Starting at ₹9/month",
+      getSubscription: "Get Subscription",
+      backToDashboard: "Back to Dashboard"
+    }
+  },
+  
+  hi: {
+    // Common
+    veag: "VeAg",
+    loading: "लोड हो रहा है...",
+    logout: "लॉग आउट",
+    goBack: "वापस जाएं",
+    
+    // Landing Page
+    landing: {
+      getStarted: "शुरू करें",
+      hero: {
+        title: "AI-संचालित फसल रोग पहचान",
+        subtitle: "बुद्धिमान रोग पहचान से अपनी फसलों की रक्षा करें। छवियां अपलोड करें और तुरंत AI-संचालित निदान प्राप्त करें।",
+        cta: "पहचान शुरू करें",
+        learnMore: "और जानें"
+      },
+      features: {
+        title: "VeAg क्यों चुनें?",
+        subtitle: "उन्नत AI तकनीक कृषि विशेषज्ञता से मिलती है",
+        feature1: {
+          title: "AI-संचालित विश्लेषण",
+          description: "हमारा उन्नत AI मॉडल फसल छवियों का विश्लेषण करता है और उच्च सटीकता के साथ रोगों की पहचान करता है।"
+        },
+        feature2: {
+          title: "तत्काल परिणाम",
+          description: "दिनों के बजाय मिनटों में विस्तृत रोग पहचान परिणाम प्राप्त करें।"
+        },
+        feature3: {
+          title: "कई फसलें",
+          description: "चावल सहित विभिन्न फसलों के लिए समर्थन, और जल्द ही कई और आ रहे हैं।"
+        }
+      },
+      howItWorks: {
+        title: "यह कैसे काम करता है",
+        subtitle: "अपनी फसलों की रक्षा के लिए सरल प्रक्रिया",
+        step1: {
+          title: "साइन अप करें",
+          description: "सेकंड में Google के साथ अपना खाता बनाएं"
+        },
+        step2: {
+          title: "छवियां अपलोड करें",
+          description: "प्रभावित पौधों की तस्वीरें लें और 10 छवियों तक अपलोड करें"
+        },
+        step3: {
+          title: "AI विश्लेषण",
+          description: "हमारा AI मॉडल आपकी छवियों को संसाधित करता है और रोगों का पता लगाता है"
+        },
+        step4: {
+          title: "परिणाम प्राप्त करें",
+          description: "विस्तृत निदान और उपचार सिफारिशें प्राप्त करें (जल्द आ रहा है)"
+        }
+      },
+      faq: {
+        title: "अक्सर पूछे जाने वाले प्रश्न",
+        subtitle: "VeAg के बारे में आपको जो कुछ जानने की आवश्यकता है",
+        q1: "VeAg कौन सी फसलों का समर्थन करता है?",
+        a1: "VeAg चावल सहित विभिन्न फसलों का समर्थन करता है, और जल्द ही कई और आ रहे हैं।",
+        q2: "AI पहचान कितनी सटीक है?",
+        a2: "हमारा AI मॉडल हजारों छवियों पर प्रशिक्षित किया गया है और सामान्य फसल रोगों का पता लगाने में उच्च सटीकता प्राप्त करता है। हालांकि, हम महत्वपूर्ण निर्णयों के लिए कृषि विशेषज्ञों से परामर्श करने की सलाह देते हैं।",
+        q3: "मैं कितनी छवियां अपलोड कर सकता हूं?",
+        a3: "आप प्रति मामले 10 छवियां तक अपलोड कर सकते हैं। हम बेहतर विश्लेषण के लिए प्रभावित पौधे के कई कोण कैप्चर करने की सलाह देते हैं।",
+        q4: "विश्लेषण में कितना समय लगता है?",
+        a4: "छवियों की संख्या के आधार पर विश्लेषण में आम तौर पर 2-5 मिनट लगते हैं। आपको प्रसंस्करण स्थिति पर वास्तविक समय अपडेट प्राप्त होंगे।",
+        q5: "क्या मेरा डेटा सुरक्षित है?",
+        a5: "बिल्कुल! हम उद्योग-मानक एन्क्रिप्शन और सुरक्षित क्लाउड स्टोरेज का उपयोग करते हैं। आपका डेटा कभी भी तीसरे पक्ष के साथ साझा नहीं किया जाता है।",
+        q6: "आप कौन से भुगतान विधियां स्वीकार करते हैं?",
+        a6: "हम Razorpay के माध्यम से सभी प्रमुख भुगतान विधियां स्वीकार करते हैं, जिसमें क्रेडिट/डेबिट कार्ड, UPI और नेट बैंकिंग शामिल हैं।"
+      },
+      contact: {
+        title: "संपर्क करें",
+        subtitle: "प्रश्न हैं? हम मदद के लिए यहां हैं",
+        general: {
+          title: "सामान्य पूछताछ",
+          email: "sarthak@vacantvectors.com",
+          description: "समर्थन और सामान्य प्रश्नों के लिए"
+        },
+        payment: {
+          title: "भुगतान संबंधित",
+          email: "sarthak@vacantvectors.com",
+          description: "बिलिंग और सदस्यता प्रश्नों के लिए"
+        }
+      },
+      footer: {
+        tagline: "कृत्रिम बुद्धिमत्ता से फसलों की रक्षा",
+        rights: "सर्वाधिकार सुरक्षित"
+      }
+    },
+    
+    // Login Page
+    login: {
+      welcome: "VeAg में आपका स्वागत है",
+      subtitle: "AI-संचालित फसल रोग पहचान",
+      signInGoogle: "Google से साइन इन करें",
+      signingIn: "साइन इन हो रहा है...",
+      secureAccount: "हम आपके खाते को सुरक्षित रखने के लिए Google का उपयोग करते हैं",
+      errorSignIn: "Google से साइन इन करने में विफल। कृपया पुनः प्रयास करें।"
+    },
+    
+    // Dashboard
+    dashboard: {
+      title: "डैशबोर्ड",
+      welcome: "स्वागत है",
+      quickActions: "त्वरित क्रियाएं",
+      registerCase: "नया केस पंजीकृत करें",
+      registerDesc: "रोग पहचान के लिए चित्र अपलोड करें",
+      manageCases: "केस प्रबंधित करें",
+      manageDesc: "अपने केस देखें और ट्रैक करें",
+      editProfile: "प्रोफ़ाइल संपादित करें",
+      editDesc: "अपनी जानकारी अपडेट करें",
+      manageSubscription: "सदस्यता प्रबंधित करें",
+      manageDesc2: "अपनी योजना देखें और प्रबंधित करें",
+      recentCases: "हाल के केस",
+      viewAll: "सभी देखें",
+      case: "केस",
+      status: "स्थिति",
+      crop: "फसल",
+      date: "तारीख",
+      viewDetails: "विवरण देखें",
+      noCases: "कोई केस नहीं मिला",
+      noCasesDesc: "आपने अभी तक कोई केस पंजीकृत नहीं किया है। शुरू करने के लिए 'नया केस पंजीकृत करें' पर क्लिक करें।",
+      subscriptionStatus: "सदस्यता स्थिति",
+      active: "सक्रिय",
+      daysLeft: "दिन बचे",
+      needHelp: "मदद चाहिए?",
+      helpDesc: "क्या आपके कोई प्रश्न हैं या सहायता चाहिए? हम यहां मदद के लिए हैं!",
+      contactSupport: "सहायता से संपर्क करें"
+    },
+    
+    // Status
+    status: {
+      pending: "लंबित",
+      processing: "प्रसंस्करण",
+      completed: "पूर्ण",
+      failed: "विफल"
+    },
+    
+    // Register Case
+    registerCase: {
+      title: "नया केस पंजीकृत करें",
+      selectCrop: "फसल का प्रकार चुनें",
+      chooseCrop: "एक फसल चुनें",
+      uploadImages: "चित्र अपलोड करें",
+      uploadDesc: "प्रभावित पौधे की तस्वीरें अपलोड करें (अधिकतम 5 चित्र)",
+      dragDrop: "यहां चित्र खींचें और छोड़ें, या चुनने के लिए क्लिक करें",
+      imageCount: "चित्र चुने गए",
+      observation: "रोग अवलोकन (वैकल्पिक)",
+      observationPlaceholder: "पौधे के बारे में आप क्या देखते हैं वर्णन करें...",
+      submitting: "सबमिट हो रहा है...",
+      submitCase: "केस सबमिट करें",
+      enterDetails: "कृपया केस विवरण दर्ज करें",
+      selectCropFirst: "कृपया पहले फसल का प्रकार चुनें",
+      uploadImagesFirst: "कृपया कम से कम एक चित्र अपलोड करें",
+      caseRegistered: "केस सफलतापूर्वक पंजीकृत!",
+      caseId: "केस आईडी",
+      goToCases: "मेरे केस पर जाएं",
+      goToDashboard: "डैशबोर्ड पर जाएं",
+      needHelp: "मदद चाहिए?",
+      supportText: "क्या आपके कोई प्रश्न हैं या सहायता चाहिए? हम यहां मदद के लिए हैं!",
+      contactSupport: "सहायता से संपर्क करें",
+      activeSubscription: "सक्रिय प्रीमियम सदस्यता",
+      daysRemaining: "दिन शेष",
+      loadingCrops: "फसलें लोड हो रही हैं...",
+      empty: "खाली",
+      addPhotos: "फोटो जोड़ें",
+      maxImages: "अधिकतम 10 चित्र",
+      diseaseObservation: "रोग अवलोकन (वैकल्पिक)",
+      selectCropMessage: "शुरू करने के लिए कृपया फसल का प्रकार चुनें",
+      submittingCase: "केस सबमिट हो रहा है",
+      successTitle: "सफल!",
+      successMessage: "आपका केस सफलतापूर्वक पंजीकृत हो गया है",
+      crop: "फसल",
+      uploadedImages: "अपलोड किए गए चित्र",
+      viewAllCases: "सभी केस देखें",
+      submissionFailed: "सबमिशन विफल",
+      tryAgain: "पुनः प्रयास करें",
+      captureNow: "अभी कैप्चर करें",
+      uploadFiles: "फाइलें अपलोड करें",
+      cancel: "रद्द करें",
+      capturePhoto: "फोटो कैप्चर करें",
+      capture: "कैप्चर करें",
+      closeCamera: "कैमरा बंद करें",
+      maxImagesAlert: "अधिकतम 10 चित्र अपलोड किए जा सकते हैं",
+      cameraError: "कैमरे तक पहुंचने में असमर्थ। कृपया अनुमतियां जांचें।",
+      uploadingCloud: "क्लाउड स्टोरेज में अपलोड हो रहा है...",
+      caseCreated: "केस सफलतापूर्वक बनाया गया!"
+    },
+    
+    // Manage Cases
+    manageCases: {
+      title: "मेरे केस",
+      allCases: "सभी केस",
+      search: "केस आईडी या फसल से खोजें",
+      filter: "स्थिति के अनुसार फ़िल्टर करें",
+      all: "सभी",
+      totalCases: "कुल केस",
+      noCases: "कोई केस नहीं मिला",
+      tryDifferent: "एक अलग खोज शब्द या फ़िल्टर आज़माएं",
+      loadingCases: "केस लोड हो रहे हैं...",
+      error: "केस लोड करने में त्रुटि",
+      tryAgain: "पुनः प्रयास करें",
+      noCasesYet: "अभी तक कोई केस नहीं",
+      registerFirst: "आपने अभी तक कोई केस पंजीकृत नहीं किया है। अपना पहला केस पंजीकृत करके शुरू करें!",
+      registerCase: "नया केस पंजीकृत करें",
+      viewCase: "केस देखें",
+      needHelp: "मदद चाहिए?",
+      supportText: "क्या आपके कोई प्रश्न हैं या सहायता चाहिए? हम यहां मदद के लिए हैं!",
+      contactSupport: "सहायता से संपर्क करें",
+      subtitle: "अपने सभी पंजीकृत केस देखें और प्रबंधित करें",
+      newCase: "नया केस",
+      activeSubscription: "सक्रिय प्रीमियम सदस्यता",
+      daysRemaining: "दिन शेष",
+      retry: "पुनः प्रयास करें",
+      noCasesMessage: "आपने अभी तक कोई केस पंजीकृत नहीं किया है। अपना पहला केस पंजीकृत करके शुरू करें!",
+      viewDetails: "विवरण देखें",
+      summary: "सारांश"
+    },
+    
+    // Case Detail
+    caseDetail: {
+      needHelp: "मदद चाहिए?",
+      helpText: "क्या आपके कोई प्रश्न हैं या सहायता चाहिए? हम यहां मदद के लिए हैं!",
+      contactSupport: "सहायता से संपर्क करें",
+      unauthorizedTitle: "अनधिकृत पहुंच",
+      unauthorizedText: "आपके पास इस केस को देखने की अनुमति नहीं है।",
+      goToDashboard: "डैशबोर्ड पर जाएं",
+      caseNumber: "केस",
+      loadingCase: "केस विवरण लोड हो रहा है...",
+      images: "चित्र",
+      processAI: "AI से प्रोसेस करें",
+      retryProcessing: "प्रोसेसिंग पुनः प्रयास करें",
+      startingProcess: "प्रोसेस शुरू हो रहा है...",
+      processingTitle: "प्रोसेसिंग जारी है",
+      processingDesc: "AI मॉडल आपके चित्रों का विश्लेषण कर रहा है...",
+      downloadingImages: "चित्र डाउनलोड हो रहे हैं",
+      runningAnalysis: "AI विश्लेषण चल रहा है",
+      savingResults: "परिणाम सहेजे जा रहे हैं",
+      autoRefresh: "हर 10 सेकंड में स्वतः रिफ्रेश हो रहा है...",
+      analysisComplete: "विश्लेषण पूर्ण",
+      aiResults: "AI पहचान परिणाम",
+      diseaseDetected: "रोग का पता चला",
+      processingTime: "प्रोसेसिंग समय",
+      completed: "पूर्ण",
+      processingFailed: "प्रोसेसिंग विफल",
+      errorOccurred: "विश्लेषण के दौरान एक त्रुटि हुई",
+      errorDesc: "आपकी छवियों को संसाधित करते समय AI मॉडल में एक त्रुटि आई। कृपया पुनः प्रयास करें।",
+      retry: "प्रोसेसिंग पुनः प्रयास करें",
+      retrying: "पुनः प्रयास हो रहा है...",
+      cropInfo: "फसल की जानकारी",
+      cropType: "फसल का प्रकार",
+      observation: "अवलोकन",
+      caseStats: "केस आंकड़े",
+      totalImages: "कुल चित्र",
+      caseId: "केस आईडी",
+      actions: "क्रियाएं",
+      viewAllCases: "सभी केस देखें",
+      refresh: "रिफ्रेश करें",
+      plan: "योजना",
+      daysLeft: "दिन बचे",
+      aiAnalyzing: "AI मॉडल आपके चित्रों का विश्लेषण कर रहा है...",
+      runningAI: "AI विश्लेषण चल रहा है",
+      cropInformation: "फसल की जानकारी",
+      failedMessage: "आपकी छवियों को संसाधित करते समय AI मॉडल में एक त्रुटि आई। कृपया पुनः प्रयास करें।",
+      status: "स्थिति",
+      photos: "चित्र"
+    },
+    
+    // Edit Profile
+    editProfile: {
+      title: "प्रोफ़ाइल संपादित करें",
+      personalInfo: "व्यक्तिगत जानकारी",
+      name: "पूरा नाम",
+      namePlaceholder: "अपना नाम दर्ज करें",
+      email: "ईमेल पता",
+      userId: "उपयोगकर्ता आईडी",
+      accountInfo: "खाता जानकारी",
+      accountCreated: "खाता बनाया गया",
+      lastLogin: "अंतिम लॉगिन",
+      updating: "अपडेट हो रहा है...",
+      saveChanges: "परिवर्तन सहेजें",
+      profileUpdated: "प्रोफ़ाइल अपडेट हो गई!",
+      profileSuccess: "आपकी प्रोफ़ाइल सफलतापूर्वक अपडेट हो गई है।",
+      enterName: "कृपया अपना नाम दर्ज करें",
+      needHelp: "मदद चाहिए?",
+      supportText: "क्या आपके कोई प्रश्न हैं या सहायता चाहिए? हम यहां मदद के लिए हैं!",
+      contactSupport: "सहायता से संपर्क करें",
+      loadingProfile: "प्रोफ़ाइल लोड हो रहा है...",
+      edit: "संपादित करें",
+      save: "सहेजें",
+      saving: "सहेजा जा रहा है...",
+      cancel: "रद्द करें",
+      nameHistory: "नाम परिवर्तन इतिहास",
+      from: "से",
+      to: "तक",
+      noChanges: "कोई परिवर्तन नहीं किया गया",
+      nameTooShort: "नाम कम से कम 2 वर्णों का होना चाहिए"
+    },
+    
+    // Manage Subscription
+    manageSubscription: {
+      title: "सदस्यता प्रबंधित करें",
+      loadingSubscription: "सदस्यता लोड हो रही है...",
+      needHelp: "मदद चाहिए?",
+      helpText: "क्या आपके कोई प्रश्न हैं या सहायता चाहिए? हम यहां मदद के लिए हैं!",
+      contactSupport: "सहायता से संपर्क करें",
+      activePremiumSubscription: "सक्रिय प्रीमियम सदस्यता",
+      daysRemaining: "शेष दिन",
+      currentSubscriptionStatus: "वर्तमान सदस्यता स्थिति",
+      currentPlan: "वर्तमान योजना",
+      plan: "योजना",
+      premiumPlan: "प्रीमियम योजना",
+      starterPlan: "स्टार्टर योजना",
+      activeSubscription: "सक्रिय सदस्यता",
+      status: "स्थिति",
+      active: "सक्रिय",
+      days: "दिन",
+      startDate: "प्रारंभ तिथि",
+      endDate: "समाप्ति तिथि",
+      expiryDate: "समाप्ति तिथि",
+      noActiveSubscription: "कोई सक्रिय सदस्यता नहीं",
+      purchasePlanToStart: "शुरू करने के लिए एक योजना खरीदें",
+      extendYourPlan: "अपनी योजना बढ़ाएं",
+      purchasePremiumPlan: "प्रीमियम योजना खरीदें",
+      unlimitedAccess: "सभी सुविधाओं तक असीमित पहुंच",
+      selectDuration: "अवधि चुनें (1-12 महीने)",
+      totalAmount: "कुल राशि",
+      processing: "प्रोसेस हो रहा है...",
+      extendPlan: "योजना बढ़ाएं",
+      purchasePlan: "योजना खरीदें",
+      planFeatures: "योजना सुविधाएं",
+      feature1: "AI-संचालित रोग पहचान",
+      feature2: "प्रति केस 5 चित्र तक अपलोड करें",
+      feature3: "असीमित केस पंजीकरण",
+      feature4: "24/7 सहायता पहुंच",
+      feature5: "ऐतिहासिक केस ट्रैकिंग",
+      transactionHistory: "लेनदेन इतिहास",
+      refresh: "रिफ्रेश करें",
+      refreshing: "रिफ्रेश हो रहा है...",
+      dateTime: "दिनांक और समय",
+      orderId: "ऑर्डर आईडी",
+      transactionId: "लेनदेन आईडी",
+      months: "महीने",
+      amount: "राशि",
+      paymentStatus: "स्थिति",
+      noTransactions: "कोई लेनदेन नहीं मिला",
+      planHistory: "योजना इतिहास",
+      newPlanPurchased: "नई योजना खरीदी गई",
+      planExtended: "योजना बढ़ाई गई",
+      expired: "समाप्त",
+      duration: "अवधि",
+      month: "महीना",
+      monthPlural: "महीने",
+      start: "शुरुआत",
+      end: "समाप्ति",
+      daysRemainingLower: "दिन शेष",
+      noPlanHistory: "कोई योजना इतिहास नहीं मिला",
+      purchaseFirstPlan: "शुरू करने के लिए अपनी पहली योजना खरीदें",
+      paymentSuccessful: "भुगतान सफल!",
+      paymentVerificationFailed: "भुगतान सत्यापन विफल",
+      paymentCancelled: "भुगतान रद्द",
+      failedToInitiatePayment: "भुगतान शुरू करने में विफल",
+      paymentId: "भुगतान आईडी",
+      subscriptionActivated: "✓ आपकी सदस्यता सफलतापूर्वक सक्रिय कर दी गई है!",
+      noChargesMade: "आपके खाते से कोई शुल्क नहीं लिया गया।",
+      amountRefund: "यदि राशि कट ली गई है, तो इसे 5-7 व्यावसायिक दिनों में वापस कर दिया जाएगा।",
+      continue: "जारी रखें",
+      close: "बंद करें",
+      errorVerifyPayment: "भुगतान सत्यापित नहीं कर सके। कृपया सहायता से संपर्क करें।",
+      errorStartPayment: "भुगतान प्रक्रिया शुरू नहीं कर सके। कृपया पुनः प्रयास करें।",
+      errorCheckConnection: "अपना इंटरनेट कनेक्शन जांचें और पुनः प्रयास करें।",
+      infoCancelledPayment: "आपने भुगतान प्रक्रिया रद्द कर दी है।"
+    },
+    
+    // Not Found
+    notFound: {
+      title: "404 - पृष्ठ नहीं मिला",
+      message: "उफ़! आप जो पृष्ठ खोज रहे हैं वह मौजूद नहीं है।",
+      subtitle: "पृष्ठ को स्थानांतरित या हटा दिया गया हो सकता है।",
+      goHome: "होम पर जाएं",
+      goToDashboard: "डैशबोर्ड पर जाएं",
+      needHelp: "मदद चाहिए?",
+      supportText: "क्या आपके कोई प्रश्न हैं या सहायता चाहिए? हम यहां मदद के लिए हैं!",
+      contactSupport: "सहायता से संपर्क करें",
+      redirecting: "डैशबोर्ड पर स्वतः रीडायरेक्ट हो रहा है",
+      in5Seconds: "5 सेकंड में...",
+      quickLinks: "त्वरित लिंक",
+      registerCase: "केस पंजीकृत करें",
+      manageCases: "केस प्रबंधित करें",
+      editProfile: "प्रोफ़ाइल संपादित करें",
+      subscription: "सदस्यता"
+    },
+    
+    // No Subscription
+    noSubscription: {
+      title: "कोई सक्रिय सदस्यता नहीं",
+      message: "इस सुविधा तक पहुंचने के लिए आपको एक सक्रिय सदस्यता की आवश्यकता है।",
+      feature1: "AI-संचालित रोग पहचान",
+      feature2: "असीमित केस पंजीकरण",
+      feature3: "प्राथमिकता सहायता",
+      contactAdmin: "कृपया अपनी सदस्यता सक्रिय करने के लिए व्यवस्थापक से संपर्क करें।",
+      email: "ईमेल",
+      goToDashboard: "डैशबोर्ड पर जाएं",
+      checking: "सदस्यता जांच रहे हैं...",
+      getPremium: "प्रीमियम एक्सेस प्राप्त करें",
+      startingAt: "₹9/माह से शुरू",
+      getSubscription: "सदस्यता प्राप्त करें",
+      backToDashboard: "डैशबोर्ड पर वापस जाएं"
+    }
+  },
+  
+  bn: {
+    // Common
+    veag: "VeAg",
+    loading: "লোড হচ্ছে...",
+    logout: "লগ আউট",
+    goBack: "ফিরে যান",
+    
+    // Landing Page
+    landing: {
+      getStarted: "শুরু করুন",
+      hero: {
+        title: "AI-চালিত ফসল রোগ সনাক্তকরণ",
+        subtitle: "বুদ্ধিমান রোগ সনাক্তকরণের মাধ্যমে আপনার ফসল রক্ষা করুন। ছবি আপলোড করুন এবং তাৎক্ষণিক AI-চালিত রোগ নির্ণয় পান।",
+        cta: "সনাক্তকরণ শুরু করুন",
+        learnMore: "আরও জানুন"
+      },
+      features: {
+        title: "কেন VeAg বেছে নেবেন?",
+        subtitle: "উন্নত AI প্রযুক্তি কৃষি দক্ষতার সাথে মিলিত",
+        feature1: {
+          title: "AI-চালিত বিশ্লেষণ",
+          description: "আমাদের উন্নত AI মডেল ফসলের ছবি বিশ্লেষণ করে এবং উচ্চ নির্ভুলতার সাথে রোগ সনাক্ত করে।"
+        },
+        feature2: {
+          title: "তাৎক্ষণিক ফলাফল",
+          description: "দিনের পরিবর্তে মিনিটের মধ্যে বিস্তারিত রোগ সনাক্তকরণ ফলাফল পান।"
+        },
+        feature3: {
+          title: "একাধিক ফসল",
+          description: "চাল সহ বিভিন্ন ফসলের জন্য সমর্থন, এবং শীঘ্রই আরও অনেক কিছু আসছে।"
+        }
+      },
+      howItWorks: {
+        title: "এটা কিভাবে কাজ করে",
+        subtitle: "আপনার ফসল রক্ষার জন্য সহজ প্রক্রিয়া",
+        step1: {
+          title: "সাইন আপ করুন",
+          description: "সেকেন্ডের মধ্যে Google এর সাথে আপনার অ্যাকাউন্ট তৈরি করুন"
+        },
+        step2: {
+          title: "ছবি আপলোড করুন",
+          description: "আক্রান্ত গাছের ছবি তুলুন এবং 10টি ছবি পর্যন্ত আপলোড করুন"
+        },
+        step3: {
+          title: "AI বিশ্লেষণ",
+          description: "আমাদের AI মডেল আপনার ছবি প্রক্রিয়া করে এবং রোগ সনাক্ত করে"
+        },
+        step4: {
+          title: "ফলাফল পান",
+          description: "বিস্তারিত রোগ নির্ণয় এবং চিকিৎসা সুপারিশ পান (শীঘ্রই আসছে)"
+        }
+      },
+      faq: {
+        title: "প্রায়শই জিজ্ঞাসিত প্রশ্ন",
+        subtitle: "VeAg সম্পর্কে আপনার যা জানা দরকার",
+        q1: "VeAg কোন ফসল সমর্থন করে?",
+        a1: "VeAg বর্তমানে চাল এবং আরও অনেক কিছু সহ একাধিক ফসল সমর্থন করে। আমরা ক্রমাগত আমাদের ডেটাবেসে নতুন ফসল যোগ করছি।",
+        q2: "AI সনাক্তকরণ কতটা নির্ভুল?",
+        a2: "আমাদের AI মডেল হাজার হাজার ছবিতে প্রশিক্ষিত এবং সাধারণ ফসলের রোগ সনাক্ত করতে উচ্চ নির্ভুলতা অর্জন করে। তবে, আমরা গুরুত্বপূর্ণ সিদ্ধান্তের জন্য কৃষি বিশেষজ্ঞদের সাথে পরামর্শ করার পরামর্শ দিই।",
+        q3: "আমি কতগুলি ছবি আপলোড করতে পারি?",
+        a3: "আপনি প্রতি কেসে 10টি ছবি পর্যন্ত আপলোড করতে পারেন। আমরা ভাল বিশ্লেষণের জন্য আক্রান্ত গাছের একাধিক কোণ ক্যাপচার করার পরামর্শ দিই।",
+        q4: "বিশ্লেষণে কতক্ষণ সময় লাগে?",
+        a4: "ছবির সংখ্যার উপর নির্ভর করে বিশ্লেষণে সাধারণত 2-5 মিনিট সময় লাগে। আপনি প্রক্রিয়াকরণ অবস্থার উপর রিয়েল-টাইম আপডেট পাবেন।",
+        q5: "আমার ডেটা কি নিরাপদ?",
+        a5: "একদম! আমরা শিল্প-মান এনক্রিপশন এবং সুরক্ষিত ক্লাউড স্টোরেজ ব্যবহার করি। আপনার ডেটা কখনই তৃতীয় পক্ষের সাথে শেয়ার করা হয় না।",
+        q6: "আপনি কোন পেমেন্ট পদ্ধতি গ্রহণ করেন?",
+        a6: "আমরা Razorpay এর মাধ্যমে সমস্ত প্রধান পেমেন্ট পদ্ধতি গ্রহণ করি, যার মধ্যে ক্রেডিট/ডেবিট কার্ড, UPI এবং নেট ব্যাংকিং রয়েছে।"
+      },
+      contact: {
+        title: "যোগাযোগ করুন",
+        subtitle: "প্রশ্ন আছে? আমরা সাহায্য করতে এখানে আছি",
+        general: {
+          title: "সাধারণ অনুসন্ধান",
+          email: "sarthak@vacantvectors.com",
+          description: "সহায়তা এবং সাধারণ প্রশ্নের জন্য"
+        },
+        payment: {
+          title: "পেমেন্ট সম্পর্কিত",
+          email: "sarthak@vacantvectors.com",
+          description: "বিলিং এবং সাবস্ক্রিপশন প্রশ্নের জন্য"
+        }
+      },
+      footer: {
+        tagline: "কৃত্রিম বুদ্ধিমত্তা দিয়ে ফসল রক্ষা করা",
+        rights: "সমস্ত অধিকার সংরক্ষিত"
+      }
+    },
+    
+    // Login Page
+    login: {
+      welcome: "VeAg-এ স্বাগতম",
+      subtitle: "AI-চালিত ফসল রোগ সনাক্তকরণ",
+      signInGoogle: "Google দিয়ে সাইন ইন করুন",
+      signingIn: "সাইন ইন হচ্ছে...",
+      secureAccount: "আমরা আপনার অ্যাকাউন্ট সুরক্ষিত রাখতে Google ব্যবহার করি",
+      errorSignIn: "Google দিয়ে সাইন ইন করতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।"
+    },
+    
+    // Dashboard
+    dashboard: {
+      title: "ড্যাশবোর্ড",
+      welcome: "স্বাগতম",
+      quickActions: "দ্রুত ক্রিয়া",
+      registerCase: "নতুন কেস নিবন্ধন করুন",
+      registerDesc: "রোগ সনাক্তকরণের জন্য ছবি আপলোড করুন",
+      manageCases: "কেস পরিচালনা করুন",
+      manageDesc: "আপনার কেস দেখুন এবং ট্র্যাক করুন",
+      editProfile: "প্রোফাইল সম্পাদনা করুন",
+      editDesc: "আপনার তথ্য আপডেট করুন",
+      manageSubscription: "সাবস্ক্রিপশন পরিচালনা করুন",
+      manageDesc2: "আপনার পরিকল্পনা দেখুন এবং পরিচালনা করুন",
+      recentCases: "সাম্প্রতিক কেস",
+      viewAll: "সব দেখুন",
+      case: "কেস",
+      status: "স্থিতি",
+      crop: "ফসল",
+      date: "তারিখ",
+      viewDetails: "বিস্তারিত দেখুন",
+      noCases: "কোন কেস পাওয়া যায়নি",
+      noCasesDesc: "আপনি এখনও কোন কেস নিবন্ধন করেননি। শুরু করতে 'নতুন কেস নিবন্ধন করুন' ক্লিক করুন।",
+      subscriptionStatus: "সাবস্ক্রিপশন স্থিতি",
+      active: "সক্রিয়",
+      daysLeft: "দিন বাকি",
+      needHelp: "সাহায্য প্রয়োজন?",
+      helpDesc: "প্রশ্ন আছে বা সহায়তা প্রয়োজন? আমরা সাহায্য করতে এখানে আছি!",
+      contactSupport: "সাপোর্টে যোগাযোগ করুন"
+    },
+    
+    // Status
+    status: {
+      pending: "মুলতুবি",
+      processing: "প্রক্রিয়াকরণ",
+      completed: "সম্পন্ন",
+      failed: "ব্যর্থ"
+    },
+    
+    // Register Case
+    registerCase: {
+      title: "নতুন কেস নিবন্ধন করুন",
+      selectCrop: "ফসলের ধরন নির্বাচন করুন",
+      chooseCrop: "একটি ফসল নির্বাচন করুন",
+      uploadImages: "ছবি আপলোড করুন",
+      uploadDesc: "আক্রান্ত উদ্ভিদের ছবি আপলোড করুন (সর্বোচ্চ ৫টি ছবি)",
+      dragDrop: "এখানে ছবি টেনে আনুন এবং ছেড়ে দিন, বা নির্বাচন করতে ক্লিক করুন",
+      imageCount: "ছবি নির্বাচিত",
+      observation: "রোগ পর্যবেক্ষণ (ঐচ্ছিক)",
+      observationPlaceholder: "উদ্ভিদ সম্পর্কে আপনি কী পর্যবেক্ষণ করেন তা বর্ণনা করুন...",
+      submitting: "জমা দেওয়া হচ্ছে...",
+      submitCase: "কেস জমা দিন",
+      enterDetails: "অনুগ্রহ করে কেস বিবরণ লিখুন",
+      selectCropFirst: "অনুগ্রহ করে প্রথমে ফসলের ধরন নির্বাচন করুন",
+      uploadImagesFirst: "অনুগ্রহ করে কমপক্ষে একটি ছবি আপলোড করুন",
+      caseRegistered: "কেস সফলভাবে নিবন্ধিত!",
+      caseId: "কেস আইডি",
+      goToCases: "আমার কেসে যান",
+      goToDashboard: "ড্যাশবোর্ডে যান",
+      needHelp: "সাহায্য প্রয়োজন?",
+      supportText: "প্রশ্ন আছে বা সহায়তা প্রয়োজন? আমরা সাহায্য করতে এখানে আছি!",
+      contactSupport: "সাপোর্টে যোগাযোগ করুন",
+      activeSubscription: "সক্রিয় প্রিমিয়াম সাবস্ক্রিপশন",
+      daysRemaining: "দিন বাকি",
+      loadingCrops: "ফসল লোড হচ্ছে...",
+      empty: "খালি",
+      addPhotos: "ফটো যোগ করুন",
+      maxImages: "সর্বোচ্চ ১০টি ছবি",
+      diseaseObservation: "রোগ পর্যবেক্ষণ (ঐচ্ছিক)",
+      selectCropMessage: "শুরু করতে অনুগ্রহ করে ফসলের ধরন নির্বাচন করুন",
+      submittingCase: "কেস জমা দেওয়া হচ্ছে",
+      successTitle: "সফল!",
+      successMessage: "আপনার কেস সফলভাবে নিবন্ধিত হয়েছে",
+      crop: "ফসল",
+      uploadedImages: "আপলোড করা ছবি",
+      viewAllCases: "সব কেস দেখুন",
+      submissionFailed: "জমা দেওয়া ব্যর্থ হয়েছে",
+      tryAgain: "আবার চেষ্টা করুন",
+      captureNow: "এখনই ক্যাপচার করুন",
+      uploadFiles: "ফাইল আপলোড করুন",
+      cancel: "বাতিল করুন",
+      capturePhoto: "ফটো ক্যাপচার করুন",
+      capture: "ক্যাপচার করুন",
+      closeCamera: "ক্যামেরা বন্ধ করুন",
+      maxImagesAlert: "সর্বোচ্চ ১০টি ছবি আপলোড করা যাবে",
+      cameraError: "ক্যামেরা অ্যাক্সেস করতে অক্ষম। অনুগ্রহ করে অনুমতি পরীক্ষা করুন।",
+      uploadingCloud: "ক্লাউড স্টোরেজে আপলোড হচ্ছে...",
+      caseCreated: "কেস সফলভাবে তৈরি হয়েছে!"
+    },
+    
+    // Manage Cases
+    manageCases: {
+      title: "আমার কেস",
+      allCases: "সব কেস",
+      search: "কেস আইডি বা ফসল দ্বারা অনুসন্ধান করুন",
+      filter: "স্থিতি অনুযায়ী ফিল্টার করুন",
+      all: "সব",
+      totalCases: "মোট কেস",
+      noCases: "কোন কেস পাওয়া যায়নি",
+      tryDifferent: "একটি ভিন্ন অনুসন্ধান শব্দ বা ফিল্টার চেষ্টা করুন",
+      loadingCases: "কেস লোড হচ্ছে...",
+      error: "কেস লোড করতে ত্রুটি",
+      tryAgain: "আবার চেষ্টা করুন",
+      noCasesYet: "এখনও কোন কেস নেই",
+      registerFirst: "আপনি এখনও কোন কেস নিবন্ধন করেননি। আপনার প্রথম কেস নিবন্ধন করে শুরু করুন!",
+      registerCase: "নতুন কেস নিবন্ধন করুন",
+      viewCase: "কেস দেখুন",
+      needHelp: "সাহায্য প্রয়োজন?",
+      supportText: "প্রশ্ন আছে বা সহায়তা প্রয়োজন? আমরা সাহায্য করতে এখানে আছি!",
+      contactSupport: "সাপোর্টে যোগাযোগ করুন",
+      subtitle: "আপনার সমস্ত নিবন্ধিত কেস দেখুন এবং পরিচালনা করুন",
+      newCase: "নতুন কেস",
+      activeSubscription: "সক্রিয় প্রিমিয়াম সাবস্ক্রিপশন",
+      daysRemaining: "দিন অবশিষ্ট",
+      retry: "আবার চেষ্টা করুন",
+      noCasesMessage: "আপনি এখনও কোন কেস নিবন্ধন করেননি। আপনার প্রথম কেস নিবন্ধন করে শুরু করুন!",
+      viewDetails: "বিস্তারিত দেখুন",
+      summary: "সারাংশ"
+    },
+    
+    // Case Detail
+    caseDetail: {
+      needHelp: "সাহায্য প্রয়োজন?",
+      helpText: "প্রশ্ন আছে বা সহায়তা প্রয়োজন? আমরা সাহায্য করতে এখানে আছি!",
+      contactSupport: "সাপোর্টে যোগাযোগ করুন",
+      unauthorizedTitle: "অননুমোদিত প্রবেশ",
+      unauthorizedText: "এই কেস দেখার অনুমতি আপনার নেই।",
+      goToDashboard: "ড্যাশবোর্ডে যান",
+      caseNumber: "কেস",
+      loadingCase: "কেস বিবরণ লোড হচ্ছে...",
+      images: "ছবি",
+      processAI: "AI দিয়ে প্রসেস করুন",
+      retryProcessing: "প্রসেসিং পুনরায় চেষ্টা করুন",
+      startingProcess: "প্রসেস শুরু হচ্ছে...",
+      processingTitle: "প্রসেসিং চলছে",
+      processingDesc: "AI মডেল আপনার ছবি বিশ্লেষণ করছে...",
+      downloadingImages: "ছবি ডাউনলোড হচ্ছে",
+      runningAnalysis: "AI বিশ্লেষণ চলছে",
+      savingResults: "ফলাফল সংরক্ষণ করা হচ্ছে",
+      autoRefresh: "প্রতি ১০ সেকেন্ডে স্বয়ংক্রিয়ভাবে রিফ্রেশ হচ্ছে...",
+      analysisComplete: "বিশ্লেষণ সম্পন্ন",
+      aiResults: "AI সনাক্তকরণ ফলাফল",
+      diseaseDetected: "রোগ সনাক্ত করা হয়েছে",
+      processingTime: "প্রসেসিং সময়",
+      completed: "সম্পন্ন",
+      processingFailed: "প্রসেসিং ব্যর্থ",
+      errorOccurred: "বিশ্লেষণের সময় একটি ত্রুটি ঘটেছে",
+      errorDesc: "আপনার ছবি প্রসেস করার সময় AI মডেলে একটি ত্রুটি ঘটেছে। অনুগ্রহ করে আবার চেষ্টা করুন।",
+      retry: "প্রসেসিং পুনরায় চেষ্টা করুন",
+      retrying: "পুনরায় চেষ্টা হচ্ছে...",
+      cropInfo: "ফসলের তথ্য",
+      cropType: "ফসলের ধরন",
+      observation: "পর্যবেক্ষণ",
+      caseStats: "কেস পরিসংখ্যান",
+      totalImages: "মোট ছবি",
+      caseId: "কেস আইডি",
+      actions: "ক্রিয়া",
+      viewAllCases: "সব কেস দেখুন",
+      refresh: "রিফ্রেশ করুন",
+      plan: "পরিকল্পনা",
+      daysLeft: "দিন বাকি",
+      aiAnalyzing: "AI মডেল আপনার ছবি বিশ্লেষণ করছে...",
+      runningAI: "AI বিশ্লেষণ চলছে",
+      cropInformation: "ফসলের তথ্য",
+      failedMessage: "আপনার ছবি প্রসেস করার সময় AI মডেলে একটি ত্রুটি ঘটেছে। অনুগ্রহ করে আবার চেষ্টা করুন।",
+      status: "স্থিতি",
+      photos: "ছবি"
+    },
+    
+    // Edit Profile
+    editProfile: {
+      title: "প্রোফাইল সম্পাদনা করুন",
+      personalInfo: "ব্যক্তিগত তথ্য",
+      name: "পুরো নাম",
+      namePlaceholder: "আপনার নাম লিখুন",
+      email: "ইমেইল ঠিকানা",
+      userId: "ব্যবহারকারী আইডি",
+      accountInfo: "অ্যাকাউন্ট তথ্য",
+      accountCreated: "অ্যাকাউন্ট তৈরি",
+      lastLogin: "শেষ লগইন",
+      updating: "আপডেট হচ্ছে...",
+      saveChanges: "পরিবর্তন সংরক্ষণ করুন",
+      profileUpdated: "প্রোফাইল আপডেট হয়েছে!",
+      profileSuccess: "আপনার প্রোফাইল সফলভাবে আপডেট করা হয়েছে।",
+      enterName: "অনুগ্রহ করে আপনার নাম লিখুন",
+      needHelp: "সাহায্য প্রয়োজন?",
+      supportText: "প্রশ্ন আছে বা সহায়তা প্রয়োজন? আমরা সাহায্য করতে এখানে আছি!",
+      contactSupport: "সাপোর্টে যোগাযোগ করুন",
+      loadingProfile: "প্রোফাইল লোড হচ্ছে...",
+      edit: "সম্পাদনা করুন",
+      save: "সংরক্ষণ করুন",
+      saving: "সংরক্ষণ করা হচ্ছে...",
+      cancel: "বাতিল করুন",
+      nameHistory: "নাম পরিবর্তন ইতিহাস",
+      from: "থেকে",
+      to: "থেকে",
+      noChanges: "কোন পরিবর্তন করা হয়নি",
+      nameTooShort: "নাম কমপক্ষে ২টি অক্ষরের হতে হবে"
+    },
+    
+    // Manage Subscription
+    manageSubscription: {
+      title: "সাবস্ক্রিপশন পরিচালনা করুন",
+      loadingSubscription: "সাবস্ক্রিপশন লোড হচ্ছে...",
+      needHelp: "সাহায্য প্রয়োজন?",
+      helpText: "প্রশ্ন আছে বা সহায়তা প্রয়োজন? আমরা সাহায্য করতে এখানে আছি!",
+      contactSupport: "সাপোর্টে যোগাযোগ করুন",
+      activePremiumSubscription: "সক্রিয় প্রিমিয়াম সাবস্ক্রিপশন",
+      daysRemaining: "অবশিষ্ট দিন",
+      currentSubscriptionStatus: "বর্তমান সাবস্ক্রিপশন স্থিতি",
+      currentPlan: "বর্তমান পরিকল্পনা",
+      plan: "পরিকল্পনা",
+      premiumPlan: "প্রিমিয়াম পরিকল্পনা",
+      starterPlan: "স্টার্টার পরিকল্পনা",
+      activeSubscription: "সক্রিয় সাবস্ক্রিপশন",
+      status: "স্থিতি",
+      active: "সক্রিয়",
+      days: "দিন",
+      startDate: "শুরুর তারিখ",
+      endDate: "শেষ তারিখ",
+      expiryDate: "মেয়াদ শেষের তারিখ",
+      noActiveSubscription: "কোন সক্রিয় সাবস্ক্রিপশন নেই",
+      purchasePlanToStart: "শুরু করতে একটি পরিকল্পনা কিনুন",
+      extendYourPlan: "আপনার পরিকল্পনা বাড়ান",
+      purchasePremiumPlan: "প্রিমিয়াম পরিকল্পনা কিনুন",
+      unlimitedAccess: "সমস্ত বৈশিষ্ট্যে সীমাহীন প্রবেশাধিকার",
+      selectDuration: "সময়কাল নির্বাচন করুন (১-১২ মাস)",
+      totalAmount: "মোট পরিমাণ",
+      processing: "প্রসেসিং...",
+      extendPlan: "পরিকল্পনা বাড়ান",
+      purchasePlan: "পরিকল্পনা কিনুন",
+      planFeatures: "পরিকল্পনা বৈশিষ্ট্য",
+      feature1: "AI-চালিত রোগ সনাক্তকরণ",
+      feature2: "প্রতি কেসে ৫টি পর্যন্ত ছবি আপলোড করুন",
+      feature3: "সীমাহীন কেস নিবন্ধন",
+      feature4: "২৪/৭ সাপোর্ট অ্যাক্সেস",
+      feature5: "ঐতিহাসিক কেস ট্র্যাকিং",
+      transactionHistory: "লেনদেন ইতিহাস",
+      refresh: "রিফ্রেশ করুন",
+      refreshing: "রিফ্রেশ হচ্ছে...",
+      dateTime: "তারিখ ও সময়",
+      orderId: "অর্ডার আইডি",
+      transactionId: "লেনদেন আইডি",
+      months: "মাস",
+      amount: "পরিমাণ",
+      paymentStatus: "স্থিতি",
+      noTransactions: "কোন লেনদেন পাওয়া যায়নি",
+      planHistory: "পরিকল্পনা ইতিহাস",
+      newPlanPurchased: "নতুন পরিকল্পনা কেনা হয়েছে",
+      planExtended: "পরিকল্পনা বাড়ানো হয়েছে",
+      expired: "মেয়াদ উত্তীর্ণ",
+      duration: "সময়কাল",
+      month: "মাস",
+      monthPlural: "মাস",
+      start: "শুরু",
+      end: "শেষ",
+      daysRemainingLower: "দিন অবশিষ্ট",
+      noPlanHistory: "কোন পরিকল্পনা ইতিহাস পাওয়া যায়নি",
+      purchaseFirstPlan: "শুরু করতে আপনার প্রথম পরিকল্পনা কিনুন",
+      paymentSuccessful: "পেমেন্ট সফল!",
+      paymentVerificationFailed: "পেমেন্ট যাচাইকরণ ব্যর্থ",
+      paymentCancelled: "পেমেন্ট বাতিল",
+      failedToInitiatePayment: "পেমেন্ট শুরু করতে ব্যর্থ",
+      paymentId: "পেমেন্ট আইডি",
+      subscriptionActivated: "✓ আপনার সাবস্ক্রিপশন সফলভাবে সক্রিয় করা হয়েছে!",
+      noChargesMade: "আপনার অ্যাকাউন্ট থেকে কোন চার্জ করা হয়নি।",
+      amountRefund: "যদি পরিমাণ কাটা হয়ে থাকে, তা ৫-৭ কার্যদিবসের মধ্যে ফেরত দেওয়া হবে।",
+      continue: "চালিয়ে যান",
+      close: "বন্ধ করুন",
+      errorVerifyPayment: "পেমেন্ট যাচাই করতে অক্ষম। অনুগ্রহ করে সাপোর্টের সাথে যোগাযোগ করুন।",
+      errorStartPayment: "পেমেন্ট প্রক্রিয়া শুরু করতে অক্ষম। অনুগ্রহ করে আবার চেষ্টা করুন।",
+      errorCheckConnection: "আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন এবং আবার চেষ্টা করুন।",
+      infoCancelledPayment: "আপনি পেমেন্ট প্রক্রিয়া বাতিল করেছেন।"
+    },
+    
+    // Not Found
+    notFound: {
+      title: "৪০৪ - পৃষ্ঠা পাওয়া যায়নি",
+      message: "ওহো! আপনি যে পৃষ্ঠাটি খুঁজছেন তা বিদ্যমান নেই।",
+      subtitle: "পৃষ্ঠাটি স্থানান্তরিত বা মুছে ফেলা হতে পারে।",
+      goHome: "হোমে যান",
+      goToDashboard: "ড্যাশবোর্ডে যান",
+      needHelp: "সাহায্য প্রয়োজন?",
+      supportText: "প্রশ্ন আছে বা সহায়তা প্রয়োজন? আমরা সাহায্য করতে এখানে আছি!",
+      contactSupport: "সাপোর্টে যোগাযোগ করুন",
+      redirecting: "ড্যাশবোর্ডে স্বয়ংক্রিয়ভাবে রিডাইরেক্ট হচ্ছে",
+      in5Seconds: "৫ সেকেন্ডে...",
+      quickLinks: "দ্রুত লিঙ্ক",
+      registerCase: "কেস নিবন্ধন করুন",
+      manageCases: "কেস পরিচালনা করুন",
+      editProfile: "প্রোফাইল সম্পাদনা করুন",
+      subscription: "সাবস্ক্রিপশন"
+    },
+    
+    // No Subscription
+    noSubscription: {
+      title: "কোন সক্রিয় সাবস্ক্রিপশন নেই",
+      message: "এই বৈশিষ্ট্য অ্যাক্সেস করতে আপনার একটি সক্রিয় সাবস্ক্রিপশন প্রয়োজন।",
+      feature1: "AI-চালিত রোগ সনাক্তকরণ",
+      feature2: "সীমাহীন কেস নিবন্ধন",
+      feature3: "অগ্রাধিকার সাপোর্ট",
+      contactAdmin: "আপনার সাবস্ক্রিপশন সক্রিয় করতে অনুগ্রহ করে প্রশাসকের সাথে যোগাযোগ করুন।",
+      email: "ইমেইল",
+      goToDashboard: "ড্যাশবোর্ডে যান",
+      checking: "সাবস্ক্রিপশন যাচাই করা হচ্ছে...",
+      getPremium: "প্রিমিয়াম অ্যাক্সেস পান",
+      startingAt: "₹9/মাস থেকে শুরু",
+      getSubscription: "সাবস্ক্রিপশন পান",
+      backToDashboard: "ড্যাশবোর্ডে ফিরে যান"
+    }
+  }
+};
+
+// Helper function to get nested translation
+export const getTranslation = (lang, key) => {
+  const keys = key.split('.');
+  let value = translations[lang];
+  
+  for (const k of keys) {
+    if (value && typeof value === 'object') {
+      value = value[k];
+    } else {
+      return key; // Return key if translation not found
+    }
+  }
+  
+  return value || key;
+};

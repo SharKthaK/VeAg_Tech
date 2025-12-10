@@ -6,12 +6,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, HelpCircle, Upload, X, CheckCircle, XCircle, Loader, Camera } from 'lucide-react';
 import veagLogo from '../assets/veag_logo.svg';
 import withSubscription from '../components/withSubscription';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../utils/translations';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 const RegisterCase = ({ daysRemaining }) => {
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
+  const { language } = useLanguage();
+  const t = translations[language];
 
   // Form state
   const [selectedCrop, setSelectedCrop] = useState('');
@@ -66,7 +70,7 @@ const RegisterCase = ({ daysRemaining }) => {
     
     // Check if adding new images would exceed the limit
     if (uploadedImages.length + files.length > 10) {
-      alert('Maximum 10 images can be uploaded');
+      alert(t.registerCase.maxImagesAlert);
       return;
     }
     
@@ -101,7 +105,7 @@ const RegisterCase = ({ daysRemaining }) => {
       }, 100);
     } catch (error) {
       console.error('Error accessing camera:', error);
-      alert('Unable to access camera. Please check permissions.');
+      alert(t.registerCase.cameraError);
       setIsCapturing(false);
     }
   };
@@ -172,7 +176,7 @@ const RegisterCase = ({ daysRemaining }) => {
       }
 
       // Submit to backend
-      setProgressMessage('Uploading to cloud storage...');
+      setProgressMessage(t.registerCase.uploadingCloud);
       setUploadProgress(40);
 
       const response = await axios.post(`${API_BASE_URL}/cases`, {
@@ -183,7 +187,7 @@ const RegisterCase = ({ daysRemaining }) => {
       });
 
       setUploadProgress(100);
-      setProgressMessage('Case created successfully!');
+      setProgressMessage(t.registerCase.caseCreated);
       
       if (response.data.success) {
         setCreatedCase(response.data.case);
@@ -244,7 +248,7 @@ const RegisterCase = ({ daysRemaining }) => {
               transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
             />
           </div>
-          <p className="mt-6 text-white text-lg font-semibold">Loading...</p>
+          <p className="mt-6 text-white text-lg font-semibold">{t.loading}</p>
         </div>
       </div>
     );
@@ -300,6 +304,8 @@ const RegisterCase = ({ daysRemaining }) => {
               <img 
                 src={currentUser?.photoURL} 
                 alt={currentUser?.name}
+                crossOrigin="anonymous"
+                referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -316,7 +322,7 @@ const RegisterCase = ({ daysRemaining }) => {
           className="fixed top-20 right-6 z-50 bg-black/40 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 shadow-2xl w-80"
         >
           <div className="flex justify-between items-start mb-4">
-            <h3 className="text-xl font-bold text-white">Need Help?</h3>
+            <h3 className="text-xl font-bold text-white">{t.registerCase.needHelp}</h3>
             <button
               onClick={() => setShowSupport(false)}
               className="text-white/70 hover:text-white transition-colors"
@@ -325,13 +331,13 @@ const RegisterCase = ({ daysRemaining }) => {
             </button>
           </div>
           <p className="text-white/90 mb-4">
-            Have questions or need assistance? We're here to help!
+            {t.registerCase.supportText}
           </p>
           <a
             href="mailto:sarthak@vacantvectors.com"
             className="block w-full bg-white/20 hover:bg-white/30 text-white text-center py-3 rounded-xl transition-colors border border-white/30"
           >
-            Contact Support
+            {t.registerCase.contactSupport}
           </a>
         </motion.div>
       )}
@@ -345,7 +351,7 @@ const RegisterCase = ({ daysRemaining }) => {
               <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
               <span className="font-semibold flex items-center gap-2">
                 <CheckCircle className="w-5 h-5" />
-                Active Subscription: {daysRemaining} days remaining
+                {t.registerCase.activeSubscription}: {daysRemaining} {t.registerCase.daysRemaining}
               </span>
             </div>
           </div>
@@ -353,12 +359,12 @@ const RegisterCase = ({ daysRemaining }) => {
 
         {/* Register Case Form */}
         <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-8">
-          <h2 className="text-3xl font-bold text-white mb-6">Register New Case</h2>
+          <h2 className="text-3xl font-bold text-white mb-6">{t.registerCase.title}</h2>
           
           {/* Crop Selection Dropdown */}
           <div className="mb-8">
             <label className="block text-white font-semibold mb-3 text-lg">
-              Select Crop <span className="text-red-400">*</span>
+              {t.registerCase.selectCrop} <span className="text-red-400">*</span>
             </label>
             {loadingCrops ? (
               <div className="flex items-center gap-3 px-4 py-3 bg-white/10 backdrop-blur-xl border border-white/30 rounded-lg">
@@ -369,7 +375,7 @@ const RegisterCase = ({ daysRemaining }) => {
                     transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                   />
                 </div>
-                <span className="text-white/70">Loading crops...</span>
+                <span className="text-white/70">{t.registerCase.loadingCrops}</span>
               </div>
             ) : (
               <select
@@ -395,7 +401,7 @@ const RegisterCase = ({ daysRemaining }) => {
                 {/* Left Column: Image Upload */}
                 <div className="flex flex-col items-center space-y-4">
                   <h3 className="text-lg font-semibold text-white self-start">
-                    Upload Plant Images <span className="text-red-400">*</span>
+                    {t.registerCase.uploadImages} <span className="text-red-400">*</span>
                     <span className="text-sm text-white/70 ml-2">({uploadedImages.length}/10)</span>
                   </h3>
                   
@@ -417,7 +423,7 @@ const RegisterCase = ({ daysRemaining }) => {
                       <div className="flex justify-center gap-2 w-full">
                         {Array(3).fill(null).map((_, index) => (
                           <div key={index} className="w-20 h-20 border-2 border-white/30 rounded-lg bg-white/10 backdrop-blur-xl flex items-center justify-center">
-                            <span className="text-white/50 text-xs">Empty</span>
+                            <span className="text-white/50 text-xs">{t.registerCase.empty}</span>
                           </div>
                         ))}
                       </div>
@@ -431,8 +437,8 @@ const RegisterCase = ({ daysRemaining }) => {
                     className="w-full h-48 border-2 border-white/40 rounded-lg flex flex-col items-center justify-center text-white cursor-pointer hover:bg-white/10 transition-colors backdrop-blur-xl disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Upload className="h-12 w-12" />
-                    <span className="mt-2 text-lg font-semibold">Add Photos</span>
-                    <span className="text-sm text-white/70 mt-1">(Max 10 images)</span>
+                    <span className="mt-2 text-lg font-semibold">{t.registerCase.addPhotos}</span>
+                    <span className="text-sm text-white/70 mt-1">{t.registerCase.maxImages}</span>
                   </button>
                   <input 
                     ref={fileInputRef}
@@ -448,12 +454,12 @@ const RegisterCase = ({ daysRemaining }) => {
                 {/* Right Column: Symptom Description */}
                 <div className="flex flex-col h-full">
                   <h3 className="text-lg font-semibold text-white mb-4">
-                    Disease Observation (Optional)
+                    {t.registerCase.diseaseObservation}
                   </h3>
                   <textarea
                     value={symptomDescription}
                     onChange={(e) => setSymptomDescription(e.target.value)}
-                    placeholder="Describe any symptoms or problems you've observed in your crop..."
+                    placeholder={t.registerCase.observationPlaceholder}
                     className="w-full flex-grow px-4 py-3 bg-white/10 backdrop-blur-xl border border-white/30 rounded-lg text-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 resize-none"
                     rows="10"
                   />
@@ -472,7 +478,7 @@ const RegisterCase = ({ daysRemaining }) => {
                       : 'bg-white/10 text-white/50 cursor-not-allowed border border-white/20'
                   }`}
                 >
-                  Submit Case
+                  {t.registerCase.submitCase}
                 </button>
               </div>
             </>
@@ -481,7 +487,7 @@ const RegisterCase = ({ daysRemaining }) => {
           {/* Message when no crop selected */}
           {!selectedCrop && !loadingCrops && (
             <div className="text-center py-12 text-white/70">
-              <p className="text-lg">Please select a crop to continue</p>
+              <p className="text-lg">{t.registerCase.selectCropMessage}</p>
             </div>
           )}
         </div>
@@ -507,7 +513,7 @@ const RegisterCase = ({ daysRemaining }) => {
                     transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
                   />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">Submitting Case</h3>
+                <h3 className="text-xl font-bold text-white mb-2">{t.registerCase.submittingCase}</h3>
                 <p className="text-white/70 mb-4 text-center">{progressMessage}</p>
                 <div className="w-full bg-white/10 backdrop-blur-xl rounded-full h-2.5 mb-2">
                   <motion.div 
@@ -549,19 +555,19 @@ const RegisterCase = ({ daysRemaining }) => {
                     <CheckCircle className="w-12 h-12 text-green-400" />
                   </div>
                 </motion.div>
-                <h2 className="text-3xl font-bold text-white mt-4 mb-2">Case Submitted Successfully!</h2>
-                <p className="text-lg text-white/70">Your case has been registered</p>
+                <h2 className="text-3xl font-bold text-white mt-4 mb-2">{t.registerCase.successTitle}</h2>
+                <p className="text-lg text-white/70">{t.registerCase.successMessage}</p>
               </div>
 
               {/* Case Details */}
               <div className="bg-white/10 backdrop-blur-xl rounded-lg p-6 mb-6 border border-white/30">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-semibold text-white/70">Case ID</label>
+                    <label className="text-sm font-semibold text-white/70">{t.registerCase.caseId}</label>
                     <p className="text-xl font-bold text-green-400">{createdCase.caseId}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-white/70">Crop</label>
+                    <label className="text-sm font-semibold text-white/70">{t.registerCase.crop}</label>
                     <p className="text-lg font-semibold text-white">
                       {createdCase.cropName
                         ? createdCase.cropName.charAt(0).toUpperCase() + createdCase.cropName.slice(1)
@@ -571,7 +577,7 @@ const RegisterCase = ({ daysRemaining }) => {
                   </div>
                   {createdCase.diseaseObservation && (
                     <div className="md:col-span-2">
-                      <label className="text-sm font-semibold text-white/70">Disease Observation</label>
+                      <label className="text-sm font-semibold text-white/70">{t.registerCase.diseaseObservation}</label>
                       <p className="text-white/90 mt-1">{createdCase.diseaseObservation}</p>
                     </div>
                   )}
@@ -581,7 +587,7 @@ const RegisterCase = ({ daysRemaining }) => {
               {/* Uploaded Images */}
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-white mb-3">
-                  Uploaded Images ({createdCase.images.length})
+                  {t.registerCase.uploadedImages} ({createdCase.images.length})
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {createdCase.images.map((image, index) => (
@@ -603,13 +609,13 @@ const RegisterCase = ({ daysRemaining }) => {
                   onClick={() => navigate('/dashboard')}
                   className="flex-1 px-6 py-3 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl"
                 >
-                  Go to Dashboard
+                  {t.registerCase.goToDashboard}
                 </button>
                 <button
                   onClick={() => navigate('/manage-cases')}
                   className="flex-1 px-6 py-3 bg-green-600/80 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors border border-green-400/50 backdrop-blur-xl"
                 >
-                  View All Cases
+                  {t.registerCase.viewAllCases}
                 </button>
               </div>
             </motion.div>
@@ -636,13 +642,13 @@ const RegisterCase = ({ daysRemaining }) => {
                 <div className="w-20 h-20 rounded-full bg-red-600/20 border-2 border-red-400/50 flex items-center justify-center mb-4 backdrop-blur-xl">
                   <XCircle className="w-12 h-12 text-red-400" />
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-2">Submission Failed</h2>
+                <h2 className="text-2xl font-bold text-white mb-2">{t.registerCase.submissionFailed}</h2>
                 <p className="text-white/70 text-center mb-6">{submissionError}</p>
                 <button
                   onClick={() => setSubmissionError(null)}
                   className="px-6 py-3 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl"
                 >
-                  Try Again
+                  {t.registerCase.tryAgain}
                 </button>
               </div>
             </motion.div>
@@ -667,27 +673,27 @@ const RegisterCase = ({ daysRemaining }) => {
               className="bg-black/40 backdrop-blur-2xl border border-white/40 rounded-2xl p-8 max-w-md w-full shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-2xl font-bold text-white mb-6 text-center">Add Photos</h3>
+              <h3 className="text-2xl font-bold text-white mb-6 text-center">{t.registerCase.addPhotos}</h3>
               <div className="space-y-4">
                 <button
                   onClick={handleCaptureNow}
                   className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-green-600/80 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors border border-green-400/50 backdrop-blur-xl"
                 >
                   <Camera className="w-6 h-6" />
-                  Capture Now
+                  {t.registerCase.captureNow}
                 </button>
                 <button
                   onClick={handleUploadFiles}
                   className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl"
                 >
                   <Upload className="w-6 h-6" />
-                  Upload Files
+                  {t.registerCase.uploadFiles}
                 </button>
                 <button
                   onClick={() => setShowCaptureModal(false)}
                   className="w-full px-6 py-3 bg-transparent text-white/70 font-semibold rounded-lg hover:text-white transition-colors"
                 >
-                  Cancel
+                  {t.registerCase.cancel}
                 </button>
               </div>
             </motion.div>
@@ -710,7 +716,7 @@ const RegisterCase = ({ daysRemaining }) => {
               exit={{ scale: 0.9 }}
               className="bg-black/60 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 max-w-2xl w-full shadow-2xl"
             >
-              <h3 className="text-2xl font-bold text-white mb-4 text-center">Capture Photo</h3>
+              <h3 className="text-2xl font-bold text-white mb-4 text-center">{t.registerCase.capturePhoto}</h3>
               
               {/* Video Preview */}
               <div className="relative mb-4 rounded-lg overflow-hidden bg-black">
@@ -731,13 +737,13 @@ const RegisterCase = ({ daysRemaining }) => {
                   className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-600/80 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors border border-green-400/50 backdrop-blur-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-600/80"
                 >
                   <Camera className="w-5 h-5" />
-                  Capture {uploadedImages.length >= 10 ? '(10/10)' : `(${uploadedImages.length}/10)`}
+                  {t.registerCase.capture} {uploadedImages.length >= 10 ? '(10/10)' : `(${uploadedImages.length}/10)`}
                 </button>
                 <button
                   onClick={stopCamera}
                   className="flex-1 px-6 py-3 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl"
                 >
-                  Close Camera
+                  {t.registerCase.closeCamera}
                 </button>
               </div>
             </motion.div>

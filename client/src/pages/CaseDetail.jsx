@@ -6,6 +6,8 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, HelpCircle, RefreshCw, CheckCircle, XCircle, Zap, Lock } from 'lucide-react';
 import veagLogo from '../assets/veag_logo.svg';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../utils/translations';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
@@ -13,6 +15,8 @@ const CaseDetail = ({ daysRemaining }) => {
   const navigate = useNavigate();
   const { caseId } = useParams();
   const { currentUser, logout } = useAuth();
+  const { language } = useLanguage();
+  const t = translations[language];
   const [caseData, setCaseData] = useState(null);
   const [caseResult, setCaseResult] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -127,10 +131,10 @@ const CaseDetail = ({ daysRemaining }) => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      pending: { bg: 'bg-yellow-600/80 border-yellow-400/50', text: 'text-white', label: 'Pending' },
-      processing: { bg: 'bg-blue-600/80 border-blue-400/50', text: 'text-white', label: 'Processing' },
-      completed: { bg: 'bg-green-600/80 border-green-400/50', text: 'text-white', label: 'Completed' },
-      failed: { bg: 'bg-red-600/80 border-red-400/50', text: 'text-white', label: 'Failed' }
+      pending: { bg: 'bg-yellow-600/80 border-yellow-400/50', text: 'text-white', label: t.status.pending },
+      processing: { bg: 'bg-blue-600/80 border-blue-400/50', text: 'text-white', label: t.status.processing },
+      completed: { bg: 'bg-green-600/80 border-green-400/50', text: 'text-white', label: t.status.completed },
+      failed: { bg: 'bg-red-600/80 border-red-400/50', text: 'text-white', label: t.status.failed }
     };
 
     const config = statusConfig[status] || statusConfig.pending;
@@ -200,7 +204,7 @@ const CaseDetail = ({ daysRemaining }) => {
                   transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                 />
               </div>
-              <p className="text-white font-semibold text-lg">Loading case details...</p>
+              <p className="text-white font-semibold text-lg">{t.caseDetail.loadingCase}</p>
             </div>
           </div>
         </div>
@@ -227,16 +231,16 @@ const CaseDetail = ({ daysRemaining }) => {
               <Lock className="w-12 h-12 text-red-400" />
             </div>
             <div>
-              <h2 className="text-3xl font-bold text-white mb-2">Unauthorized Access</h2>
+              <h2 className="text-3xl font-bold text-white mb-2">{t.caseDetail.unauthorizedTitle}</h2>
               <p className="text-white/80 text-lg mb-6">
-                You don't have permission to view this case.
+                {t.caseDetail.unauthorizedMessage}
               </p>
             </div>
             <button
               onClick={() => navigate('/dashboard')}
               className="w-full px-8 py-3 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl"
             >
-              Go to Dashboard
+              {t.caseDetail.goToDashboard}
             </button>
           </div>
         </div>
@@ -294,16 +298,15 @@ const CaseDetail = ({ daysRemaining }) => {
               >
                 <HelpCircle className="w-6 h-6 text-white" />
               </button>
-              {/* <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold border-2 border-white">
-                {currentUser?.name?.charAt(0).toUpperCase() || 'U'}
-              </div> */}
               <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white">
-              <img 
-                src={currentUser?.photoURL} 
-                alt={currentUser?.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
+                <img 
+                  src={currentUser?.photoURL} 
+                  alt={currentUser?.name}
+                  crossOrigin="anonymous"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -318,7 +321,7 @@ const CaseDetail = ({ daysRemaining }) => {
           className="fixed top-20 right-6 z-50 bg-black/40 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 shadow-2xl w-80"
         >
           <div className="flex justify-between items-start mb-4">
-            <h3 className="text-xl font-bold text-white">Need Help?</h3>
+            <h3 className="text-xl font-bold text-white">{t.caseDetail.needHelp}</h3>
             <button
               onClick={() => setShowSupport(false)}
               className="text-white/70 hover:text-white transition-colors"
@@ -327,13 +330,13 @@ const CaseDetail = ({ daysRemaining }) => {
             </button>
           </div>
           <p className="text-white/90 mb-4">
-            Have questions or need assistance? We're here to help!
+            {t.caseDetail.supportText}
           </p>
           <a
             href="mailto:sarthak@vacantvectors.com"
             className="block w-full bg-white/20 hover:bg-white/30 text-white text-center py-3 rounded-xl transition-colors border border-white/30"
           >
-            Contact Support
+            {t.caseDetail.contactSupport}
           </a>
         </motion.div>
       )}
@@ -345,7 +348,7 @@ const CaseDetail = ({ daysRemaining }) => {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h1 className="text-3xl font-bold text-white mb-2">
-                Case #{caseData.caseId}
+                {t.caseDetail.caseNumber} #{caseData.caseId}
               </h1>
               <p className="text-white/70">{formatDate(caseData.createdAt)}</p>
             </div>
@@ -357,11 +360,11 @@ const CaseDetail = ({ daysRemaining }) => {
                 title="Refresh case status"
               >
                 <RefreshCw className="w-4 h-4" />
-                Refresh
+                {t.caseDetail.refresh}
               </button>
               <div className="bg-green-600/80 border border-green-400/50 backdrop-blur-xl px-4 py-2 rounded-lg">
                 <span className="text-sm text-white font-semibold">
-                  Plan: {daysRemaining} days left
+                  {t.caseDetail.plan}: {daysRemaining} {t.caseDetail.daysLeft}
                 </span>
               </div>
             </div>
@@ -372,7 +375,7 @@ const CaseDetail = ({ daysRemaining }) => {
           {/* Left Column - Images */}
           <div className="lg:col-span-2">
             <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6">
-              <h2 className="text-2xl font-bold text-white mb-4">Images</h2>
+              <h2 className="text-2xl font-bold text-white mb-4">{t.caseDetail.images}</h2>
               
               {/* Main Image Display */}
               {selectedImage && (
@@ -427,12 +430,12 @@ const CaseDetail = ({ daysRemaining }) => {
                           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                         />
                       </div>
-                      <span>Starting Process...</span>
+                      <span>{t.caseDetail.startingProcess}</span>
                     </>
                   ) : (
                     <>
                       <Zap className="w-6 h-6" />
-                      <span>{caseData.status === 'failed' ? 'Retry Processing' : 'Process with AI'}</span>
+                      <span>{caseData.status === 'failed' ? t.caseDetail.retryProcessing : t.caseDetail.processAI}</span>
                     </>
                   )}
                 </button>
@@ -456,26 +459,26 @@ const CaseDetail = ({ daysRemaining }) => {
                     />
                   </div>
                   <div>
-                    <h4 className="font-bold text-white">Processing in Progress</h4>
-                    <p className="text-sm text-white/80">AI model is analyzing your images...</p>
+                    <h4 className="font-bold text-white">{t.caseDetail.processingTitle}</h4>
+                    <p className="text-sm text-white/80">{t.caseDetail.aiAnalyzing}</p>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm text-white/90">
                     <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                    <span>Downloading images</span>
+                    <span>{t.caseDetail.downloadingImages}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-white/90">
                     <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                    <span>Running AI analysis</span>
+                    <span>{t.caseDetail.runningAI}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-white/90">
                     <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                    <span>Saving results</span>
+                    <span>{t.caseDetail.savingResults}</span>
                   </div>
                 </div>
                 <p className="text-xs text-white/70 mt-4">
-                  ⏱️ Auto-refreshing every 10 seconds...
+                  ⏱️ {t.caseDetail.autoRefresh}
                 </p>
               </div>
             )}
@@ -496,19 +499,19 @@ const CaseDetail = ({ daysRemaining }) => {
                     <CheckCircle className="w-7 h-7 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-white text-lg">Analysis Complete</h4>
-                    <p className="text-sm text-white/80">AI Detection Results</p>
+                    <h4 className="font-bold text-white text-lg">{t.caseDetail.analysisComplete}</h4>
+                    <p className="text-sm text-white/80">{t.caseDetail.aiResults}</p>
                   </div>
                 </div>
                 
                 <div className="bg-white/10 backdrop-blur-xl rounded-lg p-4 mb-4 border border-white/30">
-                  <h5 className="text-sm font-semibold text-white/70 mb-2">Disease Detected:</h5>
+                  <h5 className="text-sm font-semibold text-white/70 mb-2">{t.caseDetail.diseaseDetected}:</h5>
                   <p className="text-xl font-bold text-white">{caseResult.diseaseStatus}</p>
                 </div>
 
                 <div className="text-xs text-white/70 space-y-1">
-                  <p>⏱️ Processing Time: {(caseResult.processingTime / 1000).toFixed(2)}s</p>
-                  <p>📅 Completed: {formatDate(caseResult.processedAt)}</p>
+                  <p>⏱️ {t.caseDetail.processingTime}: {(caseResult.processingTime / 1000).toFixed(2)}s</p>
+                  <p>📅 {t.caseDetail.completed}: {formatDate(caseResult.processedAt)}</p>
                 </div>
               </div>
             )}
@@ -521,19 +524,19 @@ const CaseDetail = ({ daysRemaining }) => {
                     <XCircle className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-white">Processing Failed</h4>
-                    <p className="text-sm text-white/80">An error occurred during analysis</p>
+                    <h4 className="font-bold text-white">{t.caseDetail.processingFailed}</h4>
+                    <p className="text-sm text-white/80">{t.caseDetail.errorOccurred}</p>
                   </div>
                 </div>
                 <p className="text-sm text-white/90 mb-4">
-                  The AI model encountered an error while processing your images. Please try again.
+                  {t.caseDetail.failedMessage}
                 </p>
                 <button
                   onClick={handleProcessCase}
                   disabled={processing}
                   className="w-full px-4 py-2 bg-red-500/80 text-white font-semibold rounded-lg hover:bg-red-500 disabled:opacity-50 transition-colors border border-red-400/50 backdrop-blur-xl"
                 >
-                  {processing ? 'Retrying...' : 'Retry Processing'}
+                  {processing ? t.caseDetail.retrying : t.caseDetail.retryProcessing}
                 </button>
               </div>
             )}
@@ -543,13 +546,13 @@ const CaseDetail = ({ daysRemaining }) => {
           <div className="lg:col-span-1 space-y-6">
             {/* Crop Information */}
             <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6">
-              <h3 className="text-xl font-bold text-white mb-4">Crop Information</h3>
+              <h3 className="text-xl font-bold text-white mb-4">{t.caseDetail.cropInformation}</h3>
               <div className="flex items-center gap-3 p-4 bg-green-600/20 border border-green-400/30 backdrop-blur-xl rounded-lg">
                 <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
                 </svg>
                 <div>
-                  <p className="text-sm text-white/70">Crop Type</p>
+                  <p className="text-sm text-white/70">{t.caseDetail.cropType}</p>
                   <p className="text-lg font-bold text-white capitalize">{caseData.cropName}</p>
                 </div>
               </div>
@@ -558,25 +561,25 @@ const CaseDetail = ({ daysRemaining }) => {
             {/* Disease Observation */}
             {caseData.diseaseObservation && (
               <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6">
-                <h3 className="text-xl font-bold text-white mb-4">Observation</h3>
+                <h3 className="text-xl font-bold text-white mb-4">{t.caseDetail.observation}</h3>
                 <p className="text-white/90 leading-relaxed">{caseData.diseaseObservation}</p>
               </div>
             )}
 
             {/* Case Statistics */}
             <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6">
-              <h3 className="text-xl font-bold text-white mb-4">Case Stats</h3>
+              <h3 className="text-xl font-bold text-white mb-4">{t.caseDetail.caseStats}</h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center py-2 border-b border-white/20">
-                  <span className="text-white/70">Total Images</span>
+                  <span className="text-white/70">{t.caseDetail.totalImages}</span>
                   <span className="font-semibold text-white">{caseData.images.length}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-white/20">
-                  <span className="text-white/70">Status</span>
+                  <span className="text-white/70">{t.caseDetail.status}</span>
                   <span className="font-semibold text-white capitalize">{caseData.status}</span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-white/70">Case ID</span>
+                  <span className="text-white/70">{t.caseDetail.caseId}</span>
                   <span className="font-semibold text-white">{caseData.caseId}</span>
                 </div>
               </div>
@@ -584,19 +587,19 @@ const CaseDetail = ({ daysRemaining }) => {
 
             {/* Actions */}
             <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6">
-              <h3 className="text-xl font-bold text-white mb-4">Actions</h3>
+              <h3 className="text-xl font-bold text-white mb-4">{t.caseDetail.actions}</h3>
               <div className="space-y-3">
                 <button
                   onClick={() => navigate('/manage-cases')}
                   className="w-full px-4 py-3 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl"
                 >
-                  View All Cases
+                  {t.caseDetail.viewAllCases}
                 </button>
                 <button
                   onClick={() => navigate('/dashboard')}
                   className="w-full px-4 py-3 bg-green-600/80 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors border border-green-400/50 backdrop-blur-xl"
                 >
-                  Go to Dashboard
+                  {t.caseDetail.goToDashboard}
                 </button>
               </div>
             </div>

@@ -4,10 +4,14 @@ import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
 import { Home, FileText, FolderOpen, HelpCircle } from 'lucide-react';
 import veagLogo from '../assets/veag_logo.svg';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../utils/translations';
 
 const NotFound = () => {
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
+  const { language } = useLanguage();
+  const t = translations[language];
   const [showSupport, setShowSupport] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
 
@@ -55,7 +59,7 @@ const NotFound = () => {
               transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
             />
           </div>
-          <p className="mt-6 text-white text-lg font-semibold">Loading...</p>
+          <p className="mt-6 text-white text-lg font-semibold">{t.loading}</p>
         </div>
       </div>
     );
@@ -106,6 +110,8 @@ const NotFound = () => {
                 <img 
                   src={currentUser?.photoURL} 
                   alt={currentUser?.name}
+                  crossOrigin="anonymous"
+                  referrerPolicy="no-referrer"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -123,7 +129,7 @@ const NotFound = () => {
           className="fixed top-20 right-6 z-50 bg-black/40 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 shadow-2xl w-80"
         >
           <div className="flex justify-between items-start mb-4">
-            <h3 className="text-xl font-bold text-white">Need Help?</h3>
+            <h3 className="text-xl font-bold text-white">{t.notFound.needHelp}</h3>
             <button
               onClick={() => setShowSupport(false)}
               className="text-white/70 hover:text-white transition-colors"
@@ -132,13 +138,13 @@ const NotFound = () => {
             </button>
           </div>
           <p className="text-white/90 mb-4">
-            Have questions or need assistance? We're here to help!
+            {t.notFound.supportText}
           </p>
           <a
             href="mailto:sarthak@vacantvectors.com"
             className="block w-full bg-white/20 hover:bg-white/30 text-white text-center py-3 rounded-xl transition-colors border border-white/30"
           >
-            Contact Support
+            {t.notFound.contactSupport}
           </a>
         </motion.div>
       )}
@@ -160,19 +166,19 @@ const NotFound = () => {
 
             {/* Error Message */}
             <div>
-              <h1 className="text-4xl font-bold text-white mb-3">Page Not Found</h1>
+              <h1 className="text-4xl font-bold text-white mb-3">{t.notFound.title}</h1>
               <p className="text-lg text-white/90 mb-2">
-                Oops! The page you're looking for doesn't exist.
+                {t.notFound.message}
               </p>
               <p className="text-sm text-white/70">
-                It might have been moved or deleted, or you may have typed the URL incorrectly.
+                {t.notFound.subtitle}
               </p>
             </div>
 
             {/* Auto-redirect Notice */}
             <div className="bg-orange-500/20 border-2 border-orange-400/50 backdrop-blur-xl rounded-lg p-4 w-full">
               <p className="text-white text-sm">
-                <span className="font-semibold">Redirecting to Dashboard</span> in 5 seconds...
+                <span className="font-semibold">{t.notFound.redirecting}</span> {t.notFound.in5Seconds}
               </p>
             </div>
 
@@ -180,29 +186,29 @@ const NotFound = () => {
             <div className="flex flex-col sm:flex-row gap-4 w-full">
               <button
                 onClick={() => navigate('/dashboard')}
-                className="flex-1 px-8 py-3 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl"
+                className="flex-1 px-8 py-3 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl flex items-center justify-center gap-2"
               >
-                <Home className="w-5 h-5 inline mr-2" />
-                Go to Dashboard
+                <Home className="w-5 h-5" />
+                {t.notFound.goHome}
               </button>
               <button
                 onClick={() => navigate(-1)}
                 className="flex-1 px-8 py-3 border-2 border-white/40 text-white font-semibold rounded-lg hover:bg-white/10 transition-colors backdrop-blur-xl"
               >
-                Go Back
+                {t.goBack}
               </button>
             </div>
 
             {/* Helpful Links */}
             <div className="pt-6 border-t border-white/20 w-full">
-              <p className="text-sm text-white/70 mb-3">Quick Links:</p>
+              <p className="text-sm text-white/70 mb-3">{t.notFound.quickLinks}:</p>
               <div className="flex flex-wrap justify-center gap-3">
                 <button
                   onClick={() => navigate('/register-case')}
                   className="text-sm text-white hover:text-white/80 font-semibold transition-colors flex items-center gap-1"
                 >
                   <FileText className="w-4 h-4" />
-                  Register Case
+                  {t.notFound.registerCase}
                 </button>
                 <span className="text-white/40">|</span>
                 <button
@@ -210,21 +216,21 @@ const NotFound = () => {
                   className="text-sm text-white hover:text-white/80 font-semibold transition-colors flex items-center gap-1"
                 >
                   <FolderOpen className="w-4 h-4" />
-                  Manage Cases
+                  {t.notFound.manageCases}
                 </button>
                 <span className="text-white/40">|</span>
                 <button
                   onClick={() => navigate('/edit-profile')}
                   className="text-sm text-white hover:text-white/80 font-semibold transition-colors"
                 >
-                    Edit Profile
+                    {t.notFound.editProfile}
                 </button>
                 <span className="text-white/40">|</span>
                 <button
                   onClick={() => navigate('/manage-subscription')}
                   className="text-sm text-white hover:text-white/80 font-semibold transition-colors"
                 >
-                  Subscription
+                  {t.notFound.subscription}
                 </button>
               </div>
             </div>
