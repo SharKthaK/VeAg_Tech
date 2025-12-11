@@ -486,13 +486,13 @@ const CaseDetail = ({ daysRemaining }) => {
             {/* Disease Detection Result */}
             {caseData.status === 'completed' && caseResult && (
               <div className={`mt-6 border-2 backdrop-blur-2xl rounded-lg p-6 ${
-                caseResult.diseaseStatus.toLowerCase() === 'normal' 
+                caseResult.diseaseStatus.toLowerCase() === 'healthy rice leaf' 
                   ? 'bg-green-600/20 border-green-400/50' 
                   : 'bg-gradient-to-br from-red-600/20 to-orange-600/20 border-red-400/50'
               }`}>
                 <div className="flex items-center gap-3 mb-4">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border ${
-                    caseResult.diseaseStatus.toLowerCase() === 'normal'
+                    caseResult.diseaseStatus.toLowerCase() === 'healthy rice leaf'
                       ? 'bg-green-500/80 border-green-400/50'
                       : 'bg-gradient-to-br from-red-500/80 to-orange-500/80 border-red-400/50'
                   }`}>
