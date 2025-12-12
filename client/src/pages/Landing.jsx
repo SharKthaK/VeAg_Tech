@@ -922,34 +922,60 @@ const Landing = () => {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <img src={veagLogo} alt="VeAg" className="w-10 h-10" />
-              <div>
-                <div className="text-2xl font-bold">VeAg</div>
-                <div className="text-sm text-gray-400">
-                  {t.landing.footer?.tagline || 'Protecting crops with AI'}
+          <div className="grid md:grid-cols-3 gap-8 mb-8">
+            {/* Brand Section */}
+            <div className="flex flex-col items-center md:items-start gap-3">
+              <div className="flex items-center gap-3">
+                <img src={veagLogo} alt="VeAg" className="w-10 h-10 border border-white/100 rounded-3xl" />
+                <div>
+                  <div className="text-2xl font-bold">VeAg</div>
+                  <div className="text-sm text-gray-400">
+                    {t.landing.footer?.tagline || 'Protecting crops with AI'}
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-6">
-              <button onClick={() => scrollToSection(featuresRef)} className="text-gray-400 hover:text-white transition-colors">
-                {t.landing.features?.title || 'Features'}
-              </button>
-              <button onClick={() => scrollToSection(howItWorksRef)} className="text-gray-400 hover:text-white transition-colors">
-                {t.landing.howItWorks?.title || 'How It Works'}
-              </button>
-              <button onClick={() => scrollToSection(faqRef)} className="text-gray-400 hover:text-white transition-colors">
-                FAQ
-              </button>
-              <button onClick={() => scrollToSection(contactRef)} className="text-gray-400 hover:text-white transition-colors">
-                {t.landing.contact?.title || 'Contact'}
-              </button>
+            {/* Quick Links */}
+            <div className="text-center md:text-left">
+              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+              <div className="flex flex-col gap-2">
+                <button onClick={() => scrollToSection(featuresRef)} className="text-gray-400 hover:text-white transition-colors text-left">
+                  {t.landing.features?.title || 'Features'}
+                </button>
+                <button onClick={() => scrollToSection(howItWorksRef)} className="text-gray-400 hover:text-white transition-colors text-left">
+                  {t.landing.howItWorks?.title || 'How It Works'}
+                </button>
+                <button onClick={() => scrollToSection(faqRef)} className="text-gray-400 hover:text-white transition-colors text-left">
+                  FAQ
+                </button>
+                <button onClick={() => scrollToSection(contactRef)} className="text-gray-400 hover:text-white transition-colors text-left">
+                  {t.landing.contact?.title || 'Contact'}
+                </button>
+              </div>
+            </div>
+
+            {/* Legal Links */}
+            <div className="text-center md:text-left">
+              <h3 className="text-lg font-semibold mb-4">Policies</h3>
+              <div className="flex flex-col gap-2">
+                <button onClick={() => navigate('/terms-and-conditions')} className="text-gray-400 hover:text-white transition-colors text-left">
+                  Terms and Conditions
+                </button>
+                <button onClick={() => navigate('/privacy-policy')} className="text-gray-400 hover:text-white transition-colors text-left">
+                  Privacy Policy
+                </button>
+                <button onClick={() => navigate('/return-refund-cancellation')} className="text-gray-400 hover:text-white transition-colors text-left">
+                  Return/Refund/Cancellation
+                </button>
+                <button onClick={() => navigate('/shipping-and-delivery')} className="text-gray-400 hover:text-white transition-colors text-left">
+                  Shipping & Delivery
+                </button>
+              </div>
             </div>
           </div>
 
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+          <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
             <p>© {new Date().getFullYear()} VeAg. {t.landing.footer?.rights || 'All rights reserved'}</p>
             <p className="text-sm text-gray-500 mt-2">Version 3.3.3</p>
           </div>

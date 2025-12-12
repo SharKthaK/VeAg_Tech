@@ -11,6 +11,10 @@ import CaseDetail from './pages/CaseDetail';
 import EditProfile from './pages/EditProfile';
 import ManageSubscription from './pages/ManageSubscription';
 import NotFound from './pages/NotFound';
+import TermsAndConditions from './pages/TermsAndConditions';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import ReturnRefundCancellation from './pages/ReturnRefundCancellation';
+import ShippingAndDelivery from './pages/ShippingAndDelivery';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
@@ -67,6 +71,11 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
+      {/* Policy Pages - Outside Protected Route */}
+      <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/return-refund-cancellation" element={<ReturnRefundCancellation />} />
+      <Route path="/shipping-and-delivery" element={<ShippingAndDelivery />} />
       {/* Catch-all route for 404 */}
       <Route path="*" element={<NotFound />} />
     </Routes>
