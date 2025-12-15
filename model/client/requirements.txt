@@ -1,0 +1,9 @@
+gradio>=4.26.0
+torch
+torchvision
+timm
+pandas
+pillow
+numpy
+python-dotenv
+matplotlib
