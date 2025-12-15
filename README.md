@@ -28,7 +28,7 @@
 
 ## 🎯 Project Overview
 
-VeAg is a **final year project** by **Vacant Vectors** team, demonstrating the practical application of:
+VeAg is a **final year project** by **Sarthak Chakraborty** , demonstrating the practical application of:
 - Deep Learning in Agriculture
 - Full-Stack Web Development
 - Cloud Computing & DevOps
