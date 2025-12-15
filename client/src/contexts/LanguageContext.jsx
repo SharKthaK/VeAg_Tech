@@ -19,7 +19,7 @@ export const LanguageProvider = ({ children }) => {
       const saved = localStorage.getItem(LANGUAGE_KEY);
       return saved || 'en';
     } catch (error) {
-      console.error('Error reading language preference:', error);
+      // console.error('Error reading language preference:', error);
       return 'en';
     }
   });
@@ -30,7 +30,7 @@ export const LanguageProvider = ({ children }) => {
       localStorage.setItem(LANGUAGE_KEY, lang);
       setLanguage(lang);
     } catch (error) {
-      console.error('Error saving language preference:', error);
+      // console.error('Error saving language preference:', error);
     }
   };
 

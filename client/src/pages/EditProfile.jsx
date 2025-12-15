@@ -41,7 +41,7 @@ const EditProfile = () => {
       );
       setNameHistory(response.data.history);
     } catch (error) {
-      console.error('Error fetching name history:', error);
+      // console.error('Error fetching name history:', error);
     }
   };
 
@@ -78,7 +78,7 @@ const EditProfile = () => {
       // Refresh name history
       fetchNameHistory();
     } catch (error) {
-      console.error('Error updating name:', error);
+      // console.error('Error updating name:', error);
       setMessage('Failed to update name. Please try again.');
     } finally {
       setLoading(false);

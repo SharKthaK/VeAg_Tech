@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
         }
       }
     } catch (error) {
-      console.error('Error reading cached user:', error);
+      // console.error('Error reading cached user:', error);
     }
     return null;
   };
@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
       };
       localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
     } catch (error) {
-      console.error('Error caching user:', error);
+      // console.error('Error caching user:', error);
     }
   };
 
@@ -95,7 +95,7 @@ export const AuthProvider = ({ children }) => {
       
       return userWithId;
     } catch (error) {
-      console.error('Error signing in with Google:', error);
+      // console.error('Error signing in with Google:', error);
       throw error;
     }
   };
@@ -107,7 +107,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem(CACHE_KEY);
       setCurrentUser(null);
     } catch (error) {
-      console.error('Error signing out:', error);
+      // console.error('Error signing out:', error);
       throw error;
     }
   };
@@ -158,7 +158,7 @@ export const AuthProvider = ({ children }) => {
           cacheUser(userWithId);
           setCurrentUser(userWithId);
         } catch (error) {
-          console.error('Error fetching user data:', error);
+          // console.error('Error fetching user data:', error);
         }
       } else {
         setCurrentUser(null);

@@ -31,7 +31,7 @@ export const withSubscription = (Component) => {
             `${API_BASE_URL}/subscriptions/${currentUser.userId}/active`
           );
 
-          console.log('Subscription response:', response.data);
+          // console.log('Subscription response:', response.data);
 
           const hasActivePlan = response.data.hasActivePlan;
           const days = response.data.subscription?.daysRemaining || 0;
@@ -42,9 +42,9 @@ export const withSubscription = (Component) => {
           setHasActiveSubscription(isActive);
           setDaysRemaining(days); // Always set the days value
           
-          console.log('Has active plan:', hasActivePlan, 'Days:', days, 'Is Active:', isActive);
+          // console.log('Has active plan:', hasActivePlan, 'Days:', days, 'Is Active:', isActive);
         } catch (error) {
-          console.error('Error checking subscription:', error);
+          // console.error('Error checking subscription:', error);
           setHasActiveSubscription(false);
           setDaysRemaining(0);
         } finally {
@@ -144,7 +144,7 @@ export const withSubscription = (Component) => {
       );
     }
 
-    console.log('withSubscription - Rendering component with daysRemaining:', daysRemaining);
+    // console.log('withSubscription - Rendering component with daysRemaining:', daysRemaining);
     return <Component {...props} daysRemaining={daysRemaining} />;
   };
 };

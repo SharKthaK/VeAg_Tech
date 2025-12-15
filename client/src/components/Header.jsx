@@ -43,11 +43,11 @@ const Header = () => {
                   referrerPolicy="no-referrer"
                   className={`w-10 h-10 rounded-full border-2 border-white object-cover transition-opacity duration-200 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                   onLoad={() => {
-                    console.log('Image loaded successfully:', currentUser.photoURL);
+                    // console.log('Image loaded successfully:', currentUser.photoURL);
                     setImageLoaded(true);
                   }}
                   onError={(e) => {
-                    console.error('Image failed to load:', currentUser.photoURL, e);
+                    // console.error('Image failed to load:', currentUser.photoURL, e);
                     setImageError(true);
                   }}
                 />
