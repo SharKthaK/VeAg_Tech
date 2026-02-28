@@ -18,4 +18,10 @@ router.post('/:caseId/process', caseController.processCase);
 // Get case result
 router.get('/:caseId/result', caseController.getCaseResult);
 
+// Get all treatment info for a case
+router.get('/:caseId/treatment-info', caseController.getTreatmentInfo);
+
+// Generate specific treatment info (treatment, causes, prevention)
+router.post('/:caseId/treatment-info/:type', caseController.generateTreatmentInfo);
+
 export default router;

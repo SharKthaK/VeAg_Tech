@@ -263,7 +263,23 @@ export const translations = {
       cropInformation: "Crop Information",
       failedMessage: "The AI model encountered an error while processing your images. Please try again.",
       status: "Status",
-      photos: "photos"
+      photos: "photos",
+      // Treatment & Insights
+      treatmentInsights: "Treatment & Insights",
+      treatmentInsightsDesc: "AI-powered recommendations for",
+      getTreatment: "Get Treatment",
+      getCauses: "Causes",
+      getPrevention: "Prevention",
+      treatmentTitle: "Treatment Guide",
+      causesTitle: "Disease Causes",
+      preventionTitle: "Prevention Strategies",
+      generatingTreatment: "Generating treatment guide...",
+      generatingCauses: "Analyzing disease causes...",
+      generatingPrevention: "Generating prevention strategies...",
+      treatmentError: "Failed to generate treatment",
+      causesError: "Failed to analyze causes",
+      preventionError: "Failed to generate prevention",
+      retryGenerate: "Retry"
     },
     
     // Edit Profile
@@ -672,7 +688,23 @@ export const translations = {
       cropInformation: "फसल की जानकारी",
       failedMessage: "आपकी छवियों को संसाधित करते समय AI मॉडल में एक त्रुटि आई। कृपया पुनः प्रयास करें।",
       status: "स्थिति",
-      photos: "चित्र"
+      photos: "चित्र",
+      // Treatment & Insights
+      treatmentInsights: "उपचार और जानकारी",
+      treatmentInsightsDesc: "AI-संचालित सिफारिशें",
+      getTreatment: "उपचार प्राप्त करें",
+      getCauses: "कारण",
+      getPrevention: "रोकथाम",
+      treatmentTitle: "उपचार गाइड",
+      causesTitle: "रोग के कारण",
+      preventionTitle: "रोकथाम रणनीतियाँ",
+      generatingTreatment: "उपचार गाइड तैयार हो रहा है...",
+      generatingCauses: "रोग के कारणों का विश्लेषण हो रहा है...",
+      generatingPrevention: "रोकथाम रणनीतियाँ तैयार हो रही हैं...",
+      treatmentError: "उपचार तैयार करने में विफल",
+      causesError: "कारणों का विश्लेषण करने में विफल",
+      preventionError: "रोकथाम तैयार करने में विफल",
+      retryGenerate: "पुनः प्रयास करें"
     },
     
     // Edit Profile
@@ -1081,7 +1113,23 @@ export const translations = {
       cropInformation: "ফসলের তথ্য",
       failedMessage: "আপনার ছবি প্রসেস করার সময় AI মডেলে একটি ত্রুটি ঘটেছে। অনুগ্রহ করে আবার চেষ্টা করুন।",
       status: "স্থিতি",
-      photos: "ছবি"
+      photos: "ছবি",
+      // Treatment & Insights
+      treatmentInsights: "চিকিৎসা ও তথ্য",
+      treatmentInsightsDesc: "AI-চালিত সুপারিশ",
+      getTreatment: "চিকিৎসা পান",
+      getCauses: "কারণসমূহ",
+      getPrevention: "প্রতিরোধ",
+      treatmentTitle: "চিকিৎসা গাইড",
+      causesTitle: "রোগের কারণ",
+      preventionTitle: "প্রতিরোধ কৌশল",
+      generatingTreatment: "চিকিৎসা গাইড তৈরি হচ্ছে...",
+      generatingCauses: "রোগের কারণ বিশ্লেষণ হচ্ছে...",
+      generatingPrevention: "প্রতিরোধ কৌশল তৈরি হচ্ছে...",
+      treatmentError: "চিকিৎসা তৈরি করতে ব্যর্থ",
+      causesError: "কারণ বিশ্লেষণ করতে ব্যর্থ",
+      preventionError: "প্রতিরোধ তৈরি করতে ব্যর্থ",
+      retryGenerate: "পুনরায় চেষ্টা করুন"
     },
     
     // Edit Profile

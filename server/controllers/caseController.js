@@ -1,7 +1,9 @@
 import Case from '../models/Case.js';
 import CaseResult from '../models/CaseResult.js';
+import TreatmentInfo from '../models/TreatmentInfo.js';
 import cloudinary from '../config/cloudinary.js';
 import gradioService from '../services/gradioService.js';
+import geminiService from '../services/geminiService.js';
 import { Readable } from 'stream';
 
 // Generate unique numeric case ID
@@ -264,6 +266,101 @@ export const getCaseResult = async (req, res) => {
     res.status(500).json({ 
       success: false,
       error: 'Failed to fetch result'
+    });
+  }
+};
+
+// Get all treatment info for a case
+export const getTreatmentInfo = async (req, res) => {
+  try {
+    const { caseId } = req.params;
+
+    const treatments = await TreatmentInfo.find({ caseId });
+    const treatmentMap = {};
+    treatments.forEach(item => {
+      treatmentMap[item.type] = item;
+    });
+
+    res.json({ success: true, treatments: treatmentMap });
+  } catch (error) {
+    console.error('Error fetching treatment info:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch treatment info' });
+  }
+};
+
+// Generate treatment info for a case via Gemini AI
+export const generateTreatmentInfo = async (req, res) => {
+  try {
+    const { caseId, type } = req.params;
+
+    // Validate type
+    if (!['treatment', 'causes', 'prevention'].includes(type)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid type. Must be treatment, causes, or prevention'
+      });
+    }
+
+    // Find the case
+    const caseData = await Case.findOne({ caseId });
+    if (!caseData) {
+      return res.status(404).json({ success: false, error: 'Case not found' });
+    }
+
+    if (caseData.status !== 'completed') {
+      return res.status(400).json({
+        success: false,
+        error: 'Case analysis must be completed before generating treatment info'
+      });
+    }
+
+    // Find the case result
+    const caseResult = await CaseResult.findOne({ caseId });
+    if (!caseResult) {
+      return res.status(404).json({ success: false, error: 'Case result not found' });
+    }
+
+    const diseaseName = caseResult.diseaseStatus;
+
+    // Check if it's a healthy detection
+    if (diseaseName.toLowerCase().includes('healthy')) {
+      return res.status(400).json({
+        success: false,
+        error: 'Treatment info is not available for healthy crops'
+      });
+    }
+
+    // Check if already exists in DB
+    const existing = await TreatmentInfo.findOne({ caseId, type });
+    if (existing) {
+      return res.json({ success: true, treatmentInfo: existing });
+    }
+
+    // Generate with Gemini AI
+    const result = await geminiService.generateContent(diseaseName, type);
+
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        error: result.error || 'Failed to generate content from AI'
+      });
+    }
+
+    // Save to database
+    const treatmentInfo = await TreatmentInfo.create({
+      caseId,
+      userId: caseData.userId,
+      diseaseName,
+      type,
+      content: result.content
+    });
+
+    res.json({ success: true, treatmentInfo });
+  } catch (error) {
+    console.error('Error generating treatment info:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to generate treatment info'
     });
   }
 };

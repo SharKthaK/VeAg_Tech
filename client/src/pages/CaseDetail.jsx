@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import withSubscription from '../components/withSubscription';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, HelpCircle, RefreshCw, CheckCircle, XCircle, Zap, Lock } from 'lucide-react';
+import { ArrowLeft, HelpCircle, RefreshCw, CheckCircle, XCircle, Zap, Lock, Pill, AlertTriangle, Shield, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
 import veagLogo from '../assets/veag_logo.svg';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../utils/translations';
@@ -27,6 +27,24 @@ const CaseDetail = ({ daysRemaining }) => {
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [showSupport, setShowSupport] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
+
+  // Treatment system state
+  const [treatmentData, setTreatmentData] = useState({
+    treatment: null,
+    causes: null,
+    prevention: null
+  });
+  const [treatmentLoading, setTreatmentLoading] = useState({
+    treatment: false,
+    causes: false,
+    prevention: false
+  });
+  const [treatmentError, setTreatmentError] = useState({
+    treatment: null,
+    causes: null,
+    prevention: null
+  });
+  const [activeTab, setActiveTab] = useState(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setPageLoading(false), 800);
@@ -81,6 +99,159 @@ const CaseDetail = ({ daysRemaining }) => {
   useEffect(() => {
     fetchCaseDetail();
   }, [caseId, currentUser]);
+
+  // Fetch existing treatment info when case is completed with disease
+  useEffect(() => {
+    if (caseData?.status === 'completed' && caseResult && !caseResult.diseaseStatus.toLowerCase().includes('healthy')) {
+      fetchExistingTreatments();
+    }
+  }, [caseData?.status, caseResult]);
+
+  const fetchExistingTreatments = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/cases/${caseId}/treatment-info`);
+      if (response.data.success && response.data.treatments) {
+        setTreatmentData(prev => ({
+          ...prev,
+          ...response.data.treatments
+        }));
+      }
+    } catch (err) {
+      // Silent fail - treatments will be generated on demand
+      console.error('Error fetching existing treatments:', err);
+    }
+  };
+
+  const generateTreatment = async (type) => {
+    setActiveTab(type);
+    setTreatmentLoading(prev => ({ ...prev, [type]: true }));
+    setTreatmentError(prev => ({ ...prev, [type]: null }));
+
+    try {
+      const response = await axios.post(`${API_BASE_URL}/cases/${caseId}/treatment-info/${type}`);
+      if (response.data.success) {
+        setTreatmentData(prev => ({ ...prev, [type]: response.data.treatmentInfo }));
+      }
+    } catch (err) {
+      console.error(`Error generating ${type}:`, err);
+      setTreatmentError(prev => ({
+        ...prev,
+        [type]: err.response?.data?.error || `Failed to generate ${type} information. Please try again.`
+      }));
+    } finally {
+      setTreatmentLoading(prev => ({ ...prev, [type]: false }));
+    }
+  };
+
+  const retryTreatment = (type) => {
+    generateTreatment(type);
+  };
+
+  // Simple markdown renderer for Gemini responses
+  const renderMarkdown = (text) => {
+    if (!text) return null;
+    
+    const lines = text.split('\n');
+    const elements = [];
+    let listItems = [];
+    let listType = null;
+
+    const flushList = () => {
+      if (listItems.length > 0) {
+        if (listType === 'ordered') {
+          elements.push(
+            <ol key={`ol-${elements.length}`} className="list-decimal list-inside space-y-1.5 ml-2 mb-3">
+              {listItems.map((item, i) => (
+                <li key={i} className="text-white/90 text-sm leading-relaxed">{renderInline(item)}</li>
+              ))}
+            </ol>
+          );
+        } else {
+          elements.push(
+            <ul key={`ul-${elements.length}`} className="space-y-1.5 ml-2 mb-3">
+              {listItems.map((item, i) => (
+                <li key={i} className="text-white/90 text-sm leading-relaxed flex items-start gap-2">
+                  <span className="text-violet-400 mt-1 flex-shrink-0">•</span>
+                  <span>{renderInline(item)}</span>
+                </li>
+              ))}
+            </ul>
+          );
+        }
+        listItems = [];
+        listType = null;
+      }
+    };
+
+    const renderInline = (text) => {
+      // Handle **bold** text
+      const parts = text.split(/\*\*(.*?)\*\*/g);
+      return parts.map((part, i) => 
+        i % 2 === 1 ? <strong key={i} className="text-white font-semibold">{part}</strong> : part
+      );
+    };
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      
+      if (!line) {
+        flushList();
+        continue;
+      }
+
+      // Headings
+      if (line.startsWith('## ')) {
+        flushList();
+        elements.push(
+          <h3 key={`h-${i}`} className="text-base font-bold text-violet-300 mt-4 mb-2 flex items-center gap-2">
+            <div className="w-1.5 h-1.5 bg-violet-400 rounded-full flex-shrink-0"></div>
+            {line.replace('## ', '')}
+          </h3>
+        );
+        continue;
+      }
+
+      if (line.startsWith('# ')) {
+        flushList();
+        elements.push(
+          <h2 key={`h1-${i}`} className="text-lg font-bold text-white mt-3 mb-2">{line.replace('# ', '')}</h2>
+        );
+        continue;
+      }
+
+      // Bullet points
+      if (line.startsWith('- ') || line.startsWith('* ')) {
+        if (listType !== 'unordered') flushList();
+        listType = 'unordered';
+        listItems.push(line.replace(/^[-*]\s/, ''));
+        continue;
+      }
+
+      // Numbered lists
+      const numberedMatch = line.match(/^\d+[.)]\s(.+)/);
+      if (numberedMatch) {
+        if (listType !== 'ordered') flushList();
+        listType = 'ordered';
+        listItems.push(numberedMatch[1]);
+        continue;
+      }
+
+      // Regular paragraph
+      flushList();
+      elements.push(
+        <p key={`p-${i}`} className="text-white/90 text-sm leading-relaxed mb-2">{renderInline(line)}</p>
+      );
+    }
+
+    flushList();
+    return elements;
+  };
+
+  const isDiseaseDetected = () => {
+    return caseData?.status === 'completed' && 
+           caseResult && 
+           !caseResult.diseaseStatus.toLowerCase().includes('healthy');
+  };
 
   // Auto-refresh when processing
   useEffect(() => {
@@ -514,6 +685,397 @@ const CaseDetail = ({ daysRemaining }) => {
                   <p>📅 {t.caseDetail.completed}: {formatDate(caseResult.processedAt)}</p>
                 </div>
               </div>
+            )}
+
+            {/* Treatment & Insights Section - Only when disease detected (not healthy) */}
+            {isDiseaseDetected() && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mt-6"
+              >
+                <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl overflow-hidden">
+                  {/* Section Header */}
+                  <div className="p-5 border-b border-white/20">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500/80 to-blue-500/80 flex items-center justify-center border border-purple-400/50 backdrop-blur-xl">
+                        <Pill className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-white">{t.caseDetail.treatmentInsights || 'Treatment & Insights'}</h3>
+                        <p className="text-sm text-white/70">{t.caseDetail.treatmentInsightsDesc || 'AI-powered treatment recommendations for'} <span className="text-orange-300 font-semibold">{caseResult.diseaseStatus}</span></p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Three Action Buttons */}
+                  <div className="p-4 grid grid-cols-3 gap-3">
+                    {/* Treatment Button */}
+                    <button
+                      onClick={() => {
+                        if (activeTab === 'treatment') {
+                          setActiveTab(null);
+                        } else if (treatmentData.treatment || treatmentLoading.treatment || treatmentError.treatment) {
+                          setActiveTab('treatment');
+                        } else {
+                          generateTreatment('treatment');
+                        }
+                      }}
+                      disabled={false}
+                      className={`relative flex flex-col items-center gap-2 p-4 rounded-xl transition-all duration-300 border backdrop-blur-xl ${
+                        activeTab === 'treatment'
+                          ? 'bg-gradient-to-br from-green-500/30 to-emerald-500/30 border-green-400/60 shadow-lg shadow-green-500/20'
+                          : treatmentData.treatment
+                            ? 'bg-green-600/20 border-green-400/40 hover:bg-green-600/30'
+                            : 'bg-white/10 border-white/30 hover:bg-white/20 hover:border-green-400/40'
+                      } ${treatmentLoading.treatment ? 'cursor-wait' : ''}`}
+                    >
+                      {treatmentLoading.treatment ? (
+                        <div className="relative w-8 h-8">
+                          <motion.div
+                            className="absolute inset-0 border-3 border-transparent border-t-green-400 rounded-full"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          />
+                          <motion.div
+                            className="absolute inset-1.5 border-2 border-transparent border-t-white rounded-full"
+                            animate={{ rotate: -360 }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                          />
+                        </div>
+                      ) : (
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                          treatmentData.treatment ? 'bg-green-500/80' : 'bg-white/20'
+                        }`}>
+                          <Pill className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+                      <span className="text-xs sm:text-sm font-semibold text-white text-center leading-tight">
+                        {t.caseDetail.getTreatment || 'Get Treatment'}
+                      </span>
+                      {treatmentData.treatment && (
+                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center border-2 border-green-400">
+                          <CheckCircle className="w-3 h-3 text-white" />
+                        </div>
+                      )}
+                    </button>
+
+                    {/* Causes Button */}
+                    <button
+                      onClick={() => {
+                        if (activeTab === 'causes') {
+                          setActiveTab(null);
+                        } else if (treatmentData.causes || treatmentLoading.causes || treatmentError.causes) {
+                          setActiveTab('causes');
+                        } else {
+                          generateTreatment('causes');
+                        }
+                      }}
+                      disabled={false}
+                      className={`relative flex flex-col items-center gap-2 p-4 rounded-xl transition-all duration-300 border backdrop-blur-xl ${
+                        activeTab === 'causes'
+                          ? 'bg-gradient-to-br from-amber-500/30 to-orange-500/30 border-amber-400/60 shadow-lg shadow-amber-500/20'
+                          : treatmentData.causes
+                            ? 'bg-amber-600/20 border-amber-400/40 hover:bg-amber-600/30'
+                            : 'bg-white/10 border-white/30 hover:bg-white/20 hover:border-amber-400/40'
+                      } ${treatmentLoading.causes ? 'cursor-wait' : ''}`}
+                    >
+                      {treatmentLoading.causes ? (
+                        <div className="relative w-8 h-8">
+                          <motion.div
+                            className="absolute inset-0 border-3 border-transparent border-t-amber-400 rounded-full"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          />
+                          <motion.div
+                            className="absolute inset-1.5 border-2 border-transparent border-t-white rounded-full"
+                            animate={{ rotate: -360 }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                          />
+                        </div>
+                      ) : (
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                          treatmentData.causes ? 'bg-amber-500/80' : 'bg-white/20'
+                        }`}>
+                          <AlertTriangle className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+                      <span className="text-xs sm:text-sm font-semibold text-white text-center leading-tight">
+                        {t.caseDetail.getCauses || 'Causes'}
+                      </span>
+                      {treatmentData.causes && (
+                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center border-2 border-amber-400">
+                          <CheckCircle className="w-3 h-3 text-white" />
+                        </div>
+                      )}
+                    </button>
+
+                    {/* Prevention Button */}
+                    <button
+                      onClick={() => {
+                        if (activeTab === 'prevention') {
+                          setActiveTab(null);
+                        } else if (treatmentData.prevention || treatmentLoading.prevention || treatmentError.prevention) {
+                          setActiveTab('prevention');
+                        } else {
+                          generateTreatment('prevention');
+                        }
+                      }}
+                      disabled={false}
+                      className={`relative flex flex-col items-center gap-2 p-4 rounded-xl transition-all duration-300 border backdrop-blur-xl ${
+                        activeTab === 'prevention'
+                          ? 'bg-gradient-to-br from-blue-500/30 to-cyan-500/30 border-blue-400/60 shadow-lg shadow-blue-500/20'
+                          : treatmentData.prevention
+                            ? 'bg-blue-600/20 border-blue-400/40 hover:bg-blue-600/30'
+                            : 'bg-white/10 border-white/30 hover:bg-white/20 hover:border-blue-400/40'
+                      } ${treatmentLoading.prevention ? 'cursor-wait' : ''}`}
+                    >
+                      {treatmentLoading.prevention ? (
+                        <div className="relative w-8 h-8">
+                          <motion.div
+                            className="absolute inset-0 border-3 border-transparent border-t-blue-400 rounded-full"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          />
+                          <motion.div
+                            className="absolute inset-1.5 border-2 border-transparent border-t-white rounded-full"
+                            animate={{ rotate: -360 }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                          />
+                        </div>
+                      ) : (
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                          treatmentData.prevention ? 'bg-blue-500/80' : 'bg-white/20'
+                        }`}>
+                          <Shield className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+                      <span className="text-xs sm:text-sm font-semibold text-white text-center leading-tight">
+                        {t.caseDetail.getPrevention || 'Prevention'}
+                      </span>
+                      {treatmentData.prevention && (
+                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-blue-400">
+                          <CheckCircle className="w-3 h-3 text-white" />
+                        </div>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Content Area */}
+                  <AnimatePresence mode="wait">
+                    {/* Treatment Content */}
+                    {activeTab === 'treatment' && (
+                      <motion.div
+                        key="treatment-content"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-5 pb-5">
+                          <div className="bg-gradient-to-br from-green-600/10 to-emerald-600/10 border border-green-400/30 rounded-xl p-5 backdrop-blur-xl">
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center gap-2">
+                                <Pill className="w-5 h-5 text-green-400" />
+                                <h4 className="font-bold text-green-300">{t.caseDetail.treatmentTitle || 'Treatment Guide'}</h4>
+                              </div>
+                              <button
+                                onClick={() => setActiveTab(null)}
+                                className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                              >
+                                <ChevronUp className="w-4 h-4 text-white/70" />
+                              </button>
+                            </div>
+                            {treatmentLoading.treatment ? (
+                              <div className="flex flex-col items-center gap-3 py-8">
+                                <div className="relative w-12 h-12">
+                                  <motion.div
+                                    className="absolute inset-0 border-4 border-transparent border-t-green-400 rounded-full"
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                  />
+                                  <motion.div
+                                    className="absolute inset-2 border-3 border-transparent border-t-white rounded-full"
+                                    animate={{ rotate: -360 }}
+                                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                                  />
+                                  <motion.div
+                                    className="absolute inset-4 border-2 border-transparent border-t-green-300 rounded-full"
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                  />
+                                </div>
+                                <p className="text-sm text-white/80">{t.caseDetail.generatingTreatment || 'Generating treatment guide...'}</p>
+                              </div>
+                            ) : treatmentError.treatment ? (
+                              <div className="bg-red-600/20 border border-red-400/40 rounded-lg p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <XCircle className="w-5 h-5 text-red-400" />
+                                  <span className="text-red-300 font-semibold text-sm">{t.caseDetail.treatmentError || 'Failed to generate'}</span>
+                                </div>
+                                {/* <p className="text-white/80 text-sm mb-3">{treatmentError.treatment}</p> */}
+                                <button
+                                  onClick={() => retryTreatment('treatment')}
+                                  className="flex items-center gap-2 px-4 py-2 bg-red-500/80 hover:bg-red-500 text-white text-sm font-semibold rounded-lg transition-colors border border-red-400/50"
+                                >
+                                  <RotateCcw className="w-4 h-4" />
+                                  {t.caseDetail.retryGenerate || 'Retry'}
+                                </button>
+                              </div>
+                            ) : treatmentData.treatment ? (
+                              <div className="max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                                {renderMarkdown(treatmentData.treatment.content)}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Causes Content */}
+                    {activeTab === 'causes' && (
+                      <motion.div
+                        key="causes-content"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-5 pb-5">
+                          <div className="bg-gradient-to-br from-amber-600/10 to-orange-600/10 border border-amber-400/30 rounded-xl p-5 backdrop-blur-xl">
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center gap-2">
+                                <AlertTriangle className="w-5 h-5 text-amber-400" />
+                                <h4 className="font-bold text-amber-300">{t.caseDetail.causesTitle || 'Disease Causes'}</h4>
+                              </div>
+                              <button
+                                onClick={() => setActiveTab(null)}
+                                className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                              >
+                                <ChevronUp className="w-4 h-4 text-white/70" />
+                              </button>
+                            </div>
+                            {treatmentLoading.causes ? (
+                              <div className="flex flex-col items-center gap-3 py-8">
+                                <div className="relative w-12 h-12">
+                                  <motion.div
+                                    className="absolute inset-0 border-4 border-transparent border-t-amber-400 rounded-full"
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                  />
+                                  <motion.div
+                                    className="absolute inset-2 border-3 border-transparent border-t-white rounded-full"
+                                    animate={{ rotate: -360 }}
+                                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                                  />
+                                  <motion.div
+                                    className="absolute inset-4 border-2 border-transparent border-t-amber-300 rounded-full"
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                  />
+                                </div>
+                                <p className="text-sm text-white/80">{t.caseDetail.generatingCauses || 'Analyzing disease causes...'}</p>
+                              </div>
+                            ) : treatmentError.causes ? (
+                              <div className="bg-red-600/20 border border-red-400/40 rounded-lg p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <XCircle className="w-5 h-5 text-red-400" />
+                                  <span className="text-red-300 font-semibold text-sm">{t.caseDetail.causesError || 'Failed to generate'}</span>
+                                </div>
+                                {/* <p className="text-white/80 text-sm mb-3">{treatmentError.causes}</p> */}
+                                <button
+                                  onClick={() => retryTreatment('causes')}
+                                  className="flex items-center gap-2 px-4 py-2 bg-red-500/80 hover:bg-red-500 text-white text-sm font-semibold rounded-lg transition-colors border border-red-400/50"
+                                >
+                                  <RotateCcw className="w-4 h-4" />
+                                  {t.caseDetail.retryGenerate || 'Retry'}
+                                </button>
+                              </div>
+                            ) : treatmentData.causes ? (
+                              <div className="max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                                {renderMarkdown(treatmentData.causes.content)}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Prevention Content */}
+                    {activeTab === 'prevention' && (
+                      <motion.div
+                        key="prevention-content"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-5 pb-5">
+                          <div className="bg-gradient-to-br from-blue-600/10 to-cyan-600/10 border border-blue-400/30 rounded-xl p-5 backdrop-blur-xl">
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center gap-2">
+                                <Shield className="w-5 h-5 text-blue-400" />
+                                <h4 className="font-bold text-blue-300">{t.caseDetail.preventionTitle || 'Prevention Strategies'}</h4>
+                              </div>
+                              <button
+                                onClick={() => setActiveTab(null)}
+                                className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                              >
+                                <ChevronUp className="w-4 h-4 text-white/70" />
+                              </button>
+                            </div>
+                            {treatmentLoading.prevention ? (
+                              <div className="flex flex-col items-center gap-3 py-8">
+                                <div className="relative w-12 h-12">
+                                  <motion.div
+                                    className="absolute inset-0 border-4 border-transparent border-t-blue-400 rounded-full"
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                  />
+                                  <motion.div
+                                    className="absolute inset-2 border-3 border-transparent border-t-white rounded-full"
+                                    animate={{ rotate: -360 }}
+                                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                                  />
+                                  <motion.div
+                                    className="absolute inset-4 border-2 border-transparent border-t-blue-300 rounded-full"
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                  />
+                                </div>
+                                <p className="text-sm text-white/80">{t.caseDetail.generatingPrevention || 'Generating prevention strategies...'}</p>
+                              </div>
+                            ) : treatmentError.prevention ? (
+                              <div className="bg-red-600/20 border border-red-400/40 rounded-lg p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <XCircle className="w-5 h-5 text-red-400" />
+                                  <span className="text-red-300 font-semibold text-sm">{t.caseDetail.preventionError || 'Failed to generate'}</span>
+                                </div>
+                                {/* <p className="text-white/80 text-sm mb-3">{treatmentError.prevention}</p> */}
+                                <button
+                                  onClick={() => retryTreatment('prevention')}
+                                  className="flex items-center gap-2 px-4 py-2 bg-red-500/80 hover:bg-red-500 text-white text-sm font-semibold rounded-lg transition-colors border border-red-400/50"
+                                >
+                                  <RotateCcw className="w-4 h-4" />
+                                  {t.caseDetail.retryGenerate || 'Retry'}
+                                </button>
+                              </div>
+                            ) : treatmentData.prevention ? (
+                              <div className="max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                                {renderMarkdown(treatmentData.prevention.content)}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
             )}
 
             {/* Error Display */}
