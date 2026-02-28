@@ -118,7 +118,7 @@ const CaseDetail = ({ daysRemaining }) => {
       }
     } catch (err) {
       // Silent fail - treatments will be generated on demand
-      console.error('Error fetching existing treatments:', err);
+      // console.error('Error fetching existing treatments:', err);
     }
   };
 
@@ -133,7 +133,7 @@ const CaseDetail = ({ daysRemaining }) => {
         setTreatmentData(prev => ({ ...prev, [type]: response.data.treatmentInfo }));
       }
     } catch (err) {
-      console.error(`Error generating ${type}:`, err);
+      // console.error(`Error generating ${type}:`, err);
       setTreatmentError(prev => ({
         ...prev,
         [type]: err.response?.data?.error || `Failed to generate ${type} information. Please try again.`
