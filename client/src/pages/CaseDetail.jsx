@@ -63,7 +63,7 @@ const CaseDetail = ({ daysRemaining }) => {
       
       // Security check: Verify case belongs to current user
       if (response.data.case.userId !== currentUser.userId) {
-        console.warn('Unauthorized access attempt to case:', caseId);
+        // console.warn('Unauthorized access attempt to case:', caseId);
         setUnauthorized(true);
       } else {
         setCaseData(response.data.case);
@@ -75,7 +75,7 @@ const CaseDetail = ({ daysRemaining }) => {
             const resultResponse = await axios.get(`${API_BASE_URL}/cases/${caseId}/result`);
             setCaseResult(resultResponse.data.result);
           } catch (err) {
-            console.error('Error fetching result:', err);
+            // console.error('Error fetching result:', err);
           }
         }
 
@@ -87,7 +87,7 @@ const CaseDetail = ({ daysRemaining }) => {
         }
       }
     } catch (err) {
-      console.error('Error fetching case:', err);
+      // console.error('Error fetching case:', err);
       if (err.response?.status === 404) {
         setUnauthorized(true);
       }
@@ -278,7 +278,7 @@ const CaseDetail = ({ daysRemaining }) => {
         fetchCaseDetail();
       }
     } catch (err) {
-      console.error('Error processing case:', err);
+      // console.error('Error processing case:', err);
       setProcessingError(err.response?.data?.error || 'Failed to start processing');
     } finally {
       setProcessing(false);

@@ -38,7 +38,7 @@ const Dashboard = () => {
       await signOut();
       navigate('/');
     } catch (error) {
-      console.error('Failed to logout:', error);
+      // console.error('Failed to logout:', error);
     }
   };
 

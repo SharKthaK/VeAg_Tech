@@ -30,20 +30,20 @@ const ManageCases = ({ daysRemaining }) => {
   useEffect(() => {
     const fetchCases = async () => {
       if (!currentUser?.userId) {
-        console.log('No currentUser.userId available yet');
+        // console.log('No currentUser.userId available yet');
         setLoading(false);
         return;
       }
 
       try {
-        console.log('Fetching cases for user:', currentUser.userId);
+        // console.log('Fetching cases for user:', currentUser.userId);
         setLoading(true);
         const response = await axios.get(`${API_BASE_URL}/cases/user/${currentUser.userId}`);
-        console.log('Cases response:', response.data);
+        // console.log('Cases response:', response.data);
         setCases(response.data.cases || []);
         setError(null);
       } catch (err) {
-        console.error('Error fetching cases:', err);
+        // console.error('Error fetching cases:', err);
         setError(err.response?.data?.error || 'Failed to load cases. Please try again.');
       } finally {
         setLoading(false);

@@ -85,7 +85,7 @@ function ManageSubscription() {
       setActiveSubscription(response.data.subscription);
       setDaysRemaining(response.data.subscription?.daysRemaining || 0);
     } catch (error) {
-      console.error('Error fetching active subscription:', error);
+      // console.error('Error fetching active subscription:', error);
     }
   };
 
@@ -94,7 +94,7 @@ function ManageSubscription() {
       const response = await axios.get(`${API_BASE_URL}/subscriptions/${currentUser.userId}/transactions`);
       setTransactions(response.data.transactions);
     } catch (error) {
-      console.error('Error fetching transactions:', error);
+      // console.error('Error fetching transactions:', error);
     } finally {
       setLoadingHistory(false);
     }
@@ -105,7 +105,7 @@ function ManageSubscription() {
       const response = await axios.get(`${API_BASE_URL}/subscriptions/${currentUser.userId}/history`);
       setSubscriptionHistory(response.data.subscriptions);
     } catch (error) {
-      console.error('Error fetching subscription history:', error);
+      // console.error('Error fetching subscription history:', error);
     }
   };
 
@@ -168,7 +168,7 @@ function ManageSubscription() {
               setSelectedMonths(1);
             }
           } catch (error) {
-            console.error('Payment verification failed:', error);
+            // console.error('Payment verification failed:', error);
             setPaymentNotification({
               show: true,
               type: 'failed',
@@ -198,7 +198,7 @@ function ManageSubscription() {
                 error: { description: 'Payment cancelled by user' }
               });
             } catch (err) {
-              console.error('Error logging cancellation:', err);
+              // console.error('Error logging cancellation:', err);
             }
             setPaymentNotification({
               show: true,
@@ -217,7 +217,7 @@ function ManageSubscription() {
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (error) {
-      console.error('Error initiating payment:', error);
+      // console.error('Error initiating payment:', error);
       setPaymentNotification({
         show: true,
         type: 'failed',

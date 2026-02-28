@@ -42,7 +42,7 @@ const RegisterCase = ({ daysRemaining }) => {
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  console.log('RegisterCase - daysRemaining:', daysRemaining);
+  // console.log('RegisterCase - daysRemaining:', daysRemaining);
 
   // Page loading
   useEffect(() => {
@@ -56,7 +56,7 @@ const RegisterCase = ({ daysRemaining }) => {
         const response = await axios.get(`${API_BASE_URL}/crops`);
         setCrops(response.data.crops);
       } catch (error) {
-        console.error('Error fetching crops:', error);
+        // console.error('Error fetching crops:', error);
       } finally {
         setLoadingCrops(false);
       }
@@ -104,7 +104,7 @@ const RegisterCase = ({ daysRemaining }) => {
         }
       }, 100);
     } catch (error) {
-      console.error('Error accessing camera:', error);
+      // console.error('Error accessing camera:', error);
       alert(t.registerCase.cameraError);
       setIsCapturing(false);
     }
@@ -196,7 +196,7 @@ const RegisterCase = ({ daysRemaining }) => {
         throw new Error(response.data.error || 'Failed to create case');
       }
     } catch (error) {
-      console.error('Error submitting case:', error);
+      // console.error('Error submitting case:', error);
       setSubmissionError(error.response?.data?.error || error.message || 'Failed to create case. Please try again.');
       setUploadProgress(0);
       setProgressMessage('');

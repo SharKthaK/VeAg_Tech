@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![VeAg Logo](client/src/assets/logo.png)
+![VeAg Logo](client/src/assets/veag_logo.svg)
 
 **Empowering Agriculture with Artificial Intelligence**
 

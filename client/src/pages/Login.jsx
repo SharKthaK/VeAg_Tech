@@ -110,7 +110,7 @@ const Login = () => {
       navigate('/dashboard');
     } catch (error) {
       setError(t.login.errorSignIn || 'Failed to sign in with Google. Please try again.');
-      console.error(error);
+      // console.error(error);
     } finally {
       setLoading(false);
     }
