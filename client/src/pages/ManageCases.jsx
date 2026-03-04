@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import withSubscription from '../components/withSubscription';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, HelpCircle, FileText, Loader } from 'lucide-react';
+import { ArrowLeft, HelpCircle, FileText, Loader, Search } from 'lucide-react';
 import veagLogo from '../assets/veag_logo.svg';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../utils/translations';
@@ -21,6 +21,8 @@ const ManageCases = ({ daysRemaining }) => {
   const [error, setError] = useState(null);
   const [showSupport, setShowSupport] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortOrder, setSortOrder] = useState('latest');
 
   useEffect(() => {
     const timer = setTimeout(() => setPageLoading(false), 800);
@@ -85,6 +87,14 @@ const ManageCases = ({ daysRemaining }) => {
       </span>
     );
   };
+
+  const filteredCases = cases
+    .filter(c => searchQuery.trim() === '' || String(c.caseId).includes(searchQuery.trim()))
+    .sort((a, b) =>
+      sortOrder === 'latest'
+        ? new Date(b.createdAt) - new Date(a.createdAt)
+        : new Date(a.createdAt) - new Date(b.createdAt)
+    );
 
   if (pageLoading) {
     return (
@@ -217,6 +227,42 @@ const ManageCases = ({ daysRemaining }) => {
           </button>
         </div>
 
+        {/* Search & Sort Bar */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search by Case ID..."
+              className="w-full pl-10 pr-4 py-2.5 bg-black/30 backdrop-blur-2xl border border-white/40 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-white/70 transition-colors"
+            />
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSortOrder('latest')}
+              className={`px-4 py-2.5 rounded-xl font-semibold text-sm border backdrop-blur-xl transition-colors ${
+                sortOrder === 'latest'
+                  ? 'bg-white/30 border-white/60 text-white'
+                  : 'bg-black/30 border-white/30 text-white/70 hover:bg-white/20'
+              }`}
+            >
+              Latest
+            </button>
+            <button
+              onClick={() => setSortOrder('oldest')}
+              className={`px-4 py-2.5 rounded-xl font-semibold text-sm border backdrop-blur-xl transition-colors ${
+                sortOrder === 'oldest'
+                  ? 'bg-white/30 border-white/60 text-white'
+                  : 'bg-black/30 border-white/30 text-white/70 hover:bg-white/20'
+              }`}
+            >
+              Oldest
+            </button>
+          </div>
+        </div>
+
         {/* Subscription Status Banner */}
         {daysRemaining && daysRemaining > 0 && (
           <div className="bg-green-600/80 border border-green-400/50 backdrop-blur-xl rounded-lg p-4 mb-6 flex items-center justify-between">
@@ -294,11 +340,23 @@ const ManageCases = ({ daysRemaining }) => {
           </div>
         )}
 
+        {/* No Results State */}
+        {!loading && !error && cases.length > 0 && filteredCases.length === 0 && (
+          <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl p-12 text-center shadow-2xl mb-6">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center backdrop-blur-xl">
+                <Search className="w-8 h-8 text-white/60" />
+              </div>
+              <p className="text-white font-semibold text-lg">No cases found for Case ID &quot;{searchQuery}&quot;</p>
+            </div>
+          </div>
+        )}
+
         {/* Cases Grid */}
-        {!loading && !error && cases.length > 0 && (
+        {!loading && !error && filteredCases.length > 0 && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {cases.map((caseItem) => (
+              {filteredCases.map((caseItem) => (
                 <motion.div
                   key={caseItem._id}
                   whileHover={{ scale: 1.02 }}
@@ -372,24 +430,24 @@ const ManageCases = ({ daysRemaining }) => {
               <h3 className="text-lg font-semibold text-white mb-4">{t.manageCases.summary}</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center">
-                  <p className="text-3xl font-bold text-green-400">{cases.length}</p>
+                  <p className="text-3xl font-bold text-green-400">{filteredCases.length}</p>
                   <p className="text-sm text-white/70">{t.manageCases.totalCases}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-3xl font-bold text-yellow-400">
-                    {cases.filter(c => c.status === 'pending').length}
+                    {filteredCases.filter(c => c.status === 'pending').length}
                   </p>
                   <p className="text-sm text-white/70">{t.status.pending}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-3xl font-bold text-blue-400">
-                    {cases.filter(c => c.status === 'processing').length}
+                    {filteredCases.filter(c => c.status === 'processing').length}
                   </p>
                   <p className="text-sm text-white/70">{t.status.processing}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-3xl font-bold text-green-400">
-                    {cases.filter(c => c.status === 'completed').length}
+                    {filteredCases.filter(c => c.status === 'completed').length}
                   </p>
                   <p className="text-sm text-white/70">{t.status.completed}</p>
                 </div>

@@ -279,7 +279,8 @@ export const translations = {
       treatmentError: "Failed to generate treatment",
       causesError: "Failed to analyze causes",
       preventionError: "Failed to generate prevention",
-      retryGenerate: "Retry"
+      retryGenerate: "Retry",
+      generatedOn: "Generated on"
     },
     
     // Edit Profile
@@ -704,7 +705,8 @@ export const translations = {
       treatmentError: "उपचार तैयार करने में विफल",
       causesError: "कारणों का विश्लेषण करने में विफल",
       preventionError: "रोकथाम तैयार करने में विफल",
-      retryGenerate: "पुनः प्रयास करें"
+      retryGenerate: "पुनः प्रयास करें",
+      generatedOn: "उत्पन्न किया गया"
     },
     
     // Edit Profile
@@ -1129,7 +1131,8 @@ export const translations = {
       treatmentError: "চিকিৎসা তৈরি করতে ব্যর্থ",
       causesError: "কারণ বিশ্লেষণ করতে ব্যর্থ",
       preventionError: "প্রতিরোধ তৈরি করতে ব্যর্থ",
-      retryGenerate: "পুনরায় চেষ্টা করুন"
+      retryGenerate: "পুনরায় চেষ্টা করুন",
+      generatedOn: "উৎপন্ন হয়েছে"
     },
     
     // Edit Profile

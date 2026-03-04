@@ -4,8 +4,9 @@ import { useAuth } from '../contexts/AuthContext';
 import withSubscription from '../components/withSubscription';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, HelpCircle, RefreshCw, CheckCircle, XCircle, Zap, Lock, Pill, AlertTriangle, Shield, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
+import { ArrowLeft, HelpCircle, RefreshCw, CheckCircle, XCircle, Zap, Lock, Pill, AlertTriangle, Shield, ChevronDown, ChevronUp, RotateCcw, Download, Clock } from 'lucide-react';
 import veagLogo from '../assets/veag_logo.svg';
+import veagLogoPng from '../assets/veag_logo.png';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../utils/translations';
 
@@ -45,6 +46,9 @@ const CaseDetail = ({ daysRemaining }) => {
     prevention: null
   });
   const [activeTab, setActiveTab] = useState(null);
+  const [reportGenerating, setReportGenerating] = useState(false);
+
+  const allSectionsFetched = !!(treatmentData.treatment && treatmentData.causes && treatmentData.prevention);
 
   useEffect(() => {
     const timer = setTimeout(() => setPageLoading(false), 800);
@@ -247,6 +251,318 @@ const CaseDetail = ({ daysRemaining }) => {
     return elements;
   };
 
+  // Strip markdown for PDF rendering
+  const stripMarkdownForPDF = (text) => {
+    if (!text) return [];
+    const lines = [];
+    text.split('\n').forEach(line => {
+      const trimmed = line.trim();
+      if (!trimmed) { lines.push({ type: 'empty', text: '' }); return; }
+      if (trimmed.startsWith('## ')) {
+        lines.push({ type: 'h2', text: trimmed.replace(/^##\s+/, '').replace(/\*\*(.*?)\*\*/g, '$1') });
+      } else if (trimmed.startsWith('# ')) {
+        lines.push({ type: 'h1', text: trimmed.replace(/^#\s+/, '').replace(/\*\*(.*?)\*\*/g, '$1') });
+      } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+        lines.push({ type: 'bullet', text: trimmed.replace(/^[-*]\s+/, '').replace(/\*\*(.*?)\*\*/g, '$1') });
+      } else {
+        const numMatch = trimmed.match(/^(\d+)[.)]\s(.+)/);
+        if (numMatch) {
+          lines.push({ type: 'numbered', text: `${numMatch[1]}. ${numMatch[2].replace(/\*\*(.*?)\*\*/g, '$1')}` });
+        } else {
+          lines.push({ type: 'text', text: trimmed.replace(/\*\*(.*?)\*\*/g, '$1') });
+        }
+      }
+    });
+    return lines;
+  };
+
+  const generateReport = async () => {
+    setReportGenerating(true);
+    try {
+      const { jsPDF } = await import('jspdf');
+
+      // Load PNG logo as base64 via canvas
+      const loadImageBase64 = (src) => new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          canvas.getContext('2d').drawImage(img, 0, 0);
+          resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = () => resolve(null);
+        img.src = src;
+      });
+      const logoBase64 = await loadImageBase64(veagLogoPng);
+
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const ml = 18;
+      const mr = 18;
+      const contentW = pageW - ml - mr;
+      let y = 0;
+
+      const checkPageBreak = (needed = 20) => {
+        if (y + needed > pageH - 18) {
+          doc.addPage();
+          doc.setFillColor(20, 83, 45);
+          doc.rect(0, 0, pageW, 10, 'F');
+          doc.setFillColor(52, 211, 153);
+          doc.rect(0, 9, pageW, 1.5, 'F');
+          doc.setTextColor(167, 243, 208);
+          doc.setFontSize(7);
+          doc.setFont('helvetica', 'bold');
+          doc.text('VeAg Disease Analysis Report', ml, 7);
+          doc.text(`Case #${caseData.caseId}`, pageW - mr, 7, { align: 'right' });
+          y = 18;
+        }
+      };
+
+      // ── HEADER ──────────────────────────────────────────────
+      doc.setFillColor(20, 83, 45);
+      doc.rect(0, 0, pageW, 52, 'F');
+      doc.setFillColor(52, 211, 153);
+      doc.rect(0, 49, pageW, 3, 'F');
+
+      // Logo circle — raised to align with VeAg heading baseline (y=20)
+      doc.setFillColor(255, 255, 255);
+      doc.circle(ml + 9, 20, 9, 'F');
+      if (logoBase64) {
+        // PNG centered inside the white circle: 16×16mm box, top-left at (ml+1, 12)
+        doc.addImage(logoBase64, 'PNG', ml + 1, 12, 16, 16);
+      }
+
+      // VeAg name
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(26);
+      doc.setFont('helvetica', 'bold');
+      doc.text('VeAg', ml + 23, 20);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(167, 243, 208);
+      doc.text('Agricultural Disease Intelligence Platform', ml + 23, 28);
+
+      // Right side
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Disease Analysis Report', pageW - mr, 20, { align: 'right' });
+      const dlDate = new Date().toLocaleString('en-IN', {
+        day: '2-digit', month: 'long', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(167, 243, 208);
+      doc.text(`Downloaded: ${dlDate}`, pageW - mr, 28, { align: 'right' });
+
+      y = 60;
+
+      // ── INFO CARDS ROW ───────────────────────────────────────
+      const halfW = (contentW - 6) / 2;
+
+      // LEFT CARD — User Info
+      doc.setFillColor(240, 253, 244);
+      doc.setDrawColor(134, 239, 172);
+      doc.setLineWidth(0.5);
+      doc.roundedRect(ml, y, halfW, 30, 3, 3, 'FD');
+      doc.setFillColor(22, 163, 74);
+      doc.roundedRect(ml, y, 3.5, 30, 1.5, 1.5, 'F');
+      doc.setTextColor(22, 101, 52);
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica', 'bold');
+      doc.text('USER INFORMATION', ml + 7, y + 9);
+      doc.setFontSize(9.5);
+      doc.setTextColor(15, 23, 42);
+      doc.text(currentUser?.name || 'N/A', ml + 7, y + 17);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(100, 116, 139);
+      doc.text(currentUser?.email || 'N/A', ml + 7, y + 24);
+
+      // RIGHT CARD — Case Info
+      const rx = ml + halfW + 6;
+      doc.setFillColor(239, 246, 255);
+      doc.setDrawColor(147, 197, 253);
+      doc.setLineWidth(0.5);
+      doc.roundedRect(rx, y, halfW, 30, 3, 3, 'FD');
+      doc.setFillColor(37, 99, 235);
+      doc.roundedRect(rx, y, 3.5, 30, 1.5, 1.5, 'F');
+      doc.setTextColor(29, 78, 216);
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica', 'bold');
+      doc.text('CASE INFORMATION', rx + 7, y + 9);
+      doc.setFontSize(9.5);
+      doc.setTextColor(15, 23, 42);
+      doc.text(`Case ID: #${caseData.caseId}`, rx + 7, y + 17);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(100, 116, 139);
+      doc.text(`Generated: ${formatDate(caseResult.processedAt)}`, rx + 7, y + 24);
+
+      y += 38;
+
+      // ── DISEASE BANNER ───────────────────────────────────────
+      doc.setFillColor(255, 247, 237);
+      doc.setDrawColor(251, 191, 36);
+      doc.setLineWidth(0.5);
+      doc.roundedRect(ml, y, contentW, 26, 3, 3, 'FD');
+      doc.setFillColor(217, 119, 6);
+      doc.roundedRect(ml, y, 4, 26, 2, 2, 'F');
+      doc.setTextColor(120, 53, 15);
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica', 'bold');
+      doc.text('DISEASE DETECTED', ml + 9, y + 9);
+      doc.setFontSize(13);
+      doc.setTextColor(180, 83, 9);
+      doc.text(caseResult.diseaseStatus, ml + 9, y + 20);
+      // Right sub-column — anchored to left so values never hit the right margin
+      const rightColX = ml + 100;
+      doc.setFontSize(7);
+      doc.setTextColor(120, 53, 15);
+      doc.setFont('helvetica', 'bold');
+      doc.text('PROCESSING TIME', rightColX, y + 8);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(180, 83, 9);
+      doc.text(`${(caseResult.processingTime / 1000).toFixed(2)}s`, rightColX, y + 14);
+      doc.setFontSize(7);
+      doc.setTextColor(120, 53, 15);
+      doc.setFont('helvetica', 'bold');
+      doc.text('CROP TYPE', rightColX, y + 19);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(180, 83, 9);
+      doc.text(caseData.cropName.charAt(0).toUpperCase() + caseData.cropName.slice(1), rightColX, y + 25);
+
+      y += 34;
+
+      // ── SECTION RENDERER ─────────────────────────────────────
+      const renderSection = (title, iconChar, content, colors, generatedAt) => {
+        const { headerBg, headerText, h2Color, bulletDot } = colors;
+        checkPageBreak(22);
+
+        // Section header bar
+        doc.setFillColor(...headerBg);
+        doc.roundedRect(ml, y, contentW, 13, 2, 2, 'F');
+        // Icon circle
+        doc.setFillColor(255, 255, 255);
+        doc.circle(ml + 8.5, y + 6.5, 4.5, 'F');
+        doc.setTextColor(...headerBg);
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.text(iconChar, ml + 8.5, y + 9.2, { align: 'center' });
+        doc.setTextColor(...headerText);
+        doc.setFontSize(11);
+        doc.text(title, ml + 17, y + 9);
+        // Generation timestamp — left-anchored after title to avoid right margin collision
+        if (generatedAt) {
+          const genLabel = `Generated: ${formatDate(generatedAt)}`;
+          doc.setFontSize(6.5);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(255, 255, 255);
+          doc.text(genLabel, ml + 130, y + 9);
+        }
+        y += 16;
+
+        const lines = stripMarkdownForPDF(content);
+        let emptyRun = 0;
+        lines.forEach(({ type, text }) => {
+          if (type === 'empty') {
+            emptyRun++;
+            if (emptyRun < 2) y += 2;
+            return;
+          }
+          emptyRun = 0;
+          checkPageBreak(14);
+
+          if (type === 'h1' || type === 'h2') {
+            y += 2;
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9.5);
+            doc.setTextColor(...h2Color);
+            const wrapped = doc.splitTextToSize(text, contentW - 14);
+            doc.text(wrapped, ml + 6, y);
+            const lw = doc.getTextWidth(wrapped[0].length > 30 ? wrapped[0].substring(0, 30) : wrapped[0]) + 2;
+            doc.setDrawColor(...h2Color);
+            doc.setLineWidth(0.3);
+            doc.line(ml + 6, y + 1.8, ml + 6 + Math.min(lw, contentW - 14), y + 1.8);
+            y += wrapped.length * 5.5 + 2;
+          } else if (type === 'bullet') {
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8.5);
+            doc.setTextColor(51, 65, 85);
+            const wrapped = doc.splitTextToSize(text, contentW - 20);
+            doc.setFillColor(...bulletDot);
+            doc.circle(ml + 9, y - 1.2, 1.2, 'F');
+            doc.text(wrapped, ml + 13, y);
+            y += wrapped.length * 5 + 1.5;
+          } else if (type === 'numbered') {
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8.5);
+            doc.setTextColor(51, 65, 85);
+            const wrapped = doc.splitTextToSize(text, contentW - 14);
+            doc.text(wrapped, ml + 6, y);
+            y += wrapped.length * 5 + 1.5;
+          } else {
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8.5);
+            doc.setTextColor(51, 65, 85);
+            const wrapped = doc.splitTextToSize(text, contentW - 6);
+            doc.text(wrapped, ml + 4, y);
+            y += wrapped.length * 5 + 1.5;
+          }
+        });
+        y += 10;
+      };
+
+      // ── RENDER ALL THREE SECTIONS ────────────────────────────
+      renderSection(
+        'Treatment Guide', 'Rx', treatmentData.treatment.content,
+        { headerBg: [22, 163, 74], headerText: [255, 255, 255], h2Color: [15, 107, 50], bulletDot: [34, 197, 94] },
+        treatmentData.treatment.generatedAt || treatmentData.treatment.createdAt
+      );
+      renderSection(
+        'Disease Causes', '!', treatmentData.causes.content,
+        { headerBg: [217, 119, 6], headerText: [255, 255, 255], h2Color: [154, 78, 3], bulletDot: [245, 158, 11] },
+        treatmentData.causes.generatedAt || treatmentData.causes.createdAt
+      );
+      renderSection(
+        'Prevention Strategies', '+', treatmentData.prevention.content,
+        { headerBg: [37, 99, 235], headerText: [255, 255, 255], h2Color: [23, 64, 178], bulletDot: [59, 130, 246] },
+        treatmentData.prevention.generatedAt || treatmentData.prevention.createdAt
+      );
+
+      // ── FOOTER on every page ─────────────────────────────────
+      const totalPages = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        const ph = doc.internal.pageSize.getHeight();
+        doc.setFillColor(240, 253, 244);
+        doc.rect(0, ph - 12, pageW, 12, 'F');
+        doc.setDrawColor(134, 239, 172);
+        doc.setLineWidth(0.4);
+        doc.line(0, ph - 12, pageW, ph - 12);
+        doc.setTextColor(100, 116, 139);
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'normal');
+        doc.text('This report is generated by VeAg AI platform. For agricultural advisory purposes only.', ml, ph - 5);
+        doc.text(`Page ${i} of ${totalPages}`, pageW - mr, ph - 5, { align: 'right' });
+      }
+
+      // Save
+      const safeDate = new Date().toISOString().slice(0, 10);
+      doc.save(`VeAg_Report_${caseData.caseId}_${safeDate}.pdf`);
+    } catch (err) {
+      // console.error('Error generating report:', err);
+    } finally {
+      setReportGenerating(false);
+    }
+  };
+
   const isDiseaseDetected = () => {
     return caseData?.status === 'completed' && 
            caseResult && 
@@ -297,6 +613,18 @@ const CaseDetail = ({ daysRemaining }) => {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
+    });
+  };
+
+  const formatDateWithSeconds = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
     });
   };
 
@@ -925,8 +1253,18 @@ const CaseDetail = ({ daysRemaining }) => {
                                 </button>
                               </div>
                             ) : treatmentData.treatment ? (
-                              <div className="max-h-96 overflow-y-auto pr-2 custom-scrollbar">
-                                {renderMarkdown(treatmentData.treatment.content)}
+                              <div>
+                                <div className="max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                                  {renderMarkdown(treatmentData.treatment.content)}
+                                </div>
+                                {(treatmentData.treatment.generatedAt || treatmentData.treatment.createdAt) && (
+                                  <div className="mt-3 pt-3 border-t border-green-400/20 flex items-center gap-1.5">
+                                    <Clock className="w-3 h-3 text-green-400/70 flex-shrink-0" />
+                                    <span className="text-xs text-green-300/70">
+                                      {t.caseDetail.generatedOn || 'Generated on'} {formatDateWithSeconds(treatmentData.treatment.generatedAt || treatmentData.treatment.createdAt)}
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                             ) : null}
                           </div>
@@ -995,8 +1333,18 @@ const CaseDetail = ({ daysRemaining }) => {
                                 </button>
                               </div>
                             ) : treatmentData.causes ? (
-                              <div className="max-h-96 overflow-y-auto pr-2 custom-scrollbar">
-                                {renderMarkdown(treatmentData.causes.content)}
+                              <div>
+                                <div className="max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                                  {renderMarkdown(treatmentData.causes.content)}
+                                </div>
+                                {(treatmentData.causes.generatedAt || treatmentData.causes.createdAt) && (
+                                  <div className="mt-3 pt-3 border-t border-amber-400/20 flex items-center gap-1.5">
+                                    <Clock className="w-3 h-3 text-amber-400/70 flex-shrink-0" />
+                                    <span className="text-xs text-amber-300/70">
+                                      {t.caseDetail.generatedOn || 'Generated on'} {formatDateWithSeconds(treatmentData.causes.generatedAt || treatmentData.causes.createdAt)}
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                             ) : null}
                           </div>
@@ -1065,8 +1413,18 @@ const CaseDetail = ({ daysRemaining }) => {
                                 </button>
                               </div>
                             ) : treatmentData.prevention ? (
-                              <div className="max-h-96 overflow-y-auto pr-2 custom-scrollbar">
-                                {renderMarkdown(treatmentData.prevention.content)}
+                              <div>
+                                <div className="max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                                  {renderMarkdown(treatmentData.prevention.content)}
+                                </div>
+                                {(treatmentData.prevention.generatedAt || treatmentData.prevention.createdAt) && (
+                                  <div className="mt-3 pt-3 border-t border-blue-400/20 flex items-center gap-1.5">
+                                    <Clock className="w-3 h-3 text-blue-400/70 flex-shrink-0" />
+                                    <span className="text-xs text-blue-300/70">
+                                      {t.caseDetail.generatedOn || 'Generated on'} {formatDateWithSeconds(treatmentData.prevention.generatedAt || treatmentData.prevention.createdAt)}
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                             ) : null}
                           </div>
@@ -1074,6 +1432,48 @@ const CaseDetail = ({ daysRemaining }) => {
                       </motion.div>
                     )}
                   </AnimatePresence>
+
+                  {/* Save Report Button */}
+                  <div className="px-4 pb-4 pt-7">
+                    <div className="relative">
+                      {!allSectionsFetched && (
+                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full mb-1 px-3 py-1.5 backdrop-blur-xl border border-white/20 rounded-lg text-xs text-white/80 whitespace-nowrap pointer-events-none z-10">
+                          Generate all 3 sections to unlock the report
+                        </div>
+                      )}
+                      <button
+                        onClick={generateReport}
+                        disabled={!allSectionsFetched || reportGenerating}
+                        className={`w-full flex items-center justify-center gap-3 px-6 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 border backdrop-blur-xl ${
+                          allSectionsFetched && !reportGenerating
+                            ? 'bg-gradient-to-r from-emerald-600 to-green-500 border-emerald-400/60 text-white hover:from-emerald-500 hover:to-green-400 shadow-lg shadow-emerald-500/30 cursor-pointer active:scale-95'
+                            : reportGenerating
+                              ? 'bg-gradient-to-r from-emerald-700 to-green-600 border-emerald-500/50 text-white cursor-wait'
+                              : 'bg-white/5 border-white/15 text-white/35 cursor-not-allowed'
+                        }`}
+                      >
+                        {reportGenerating ? (
+                          <>
+                            <motion.div
+                              className="w-4 h-4 border-2 border-transparent border-t-white rounded-full"
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                            />
+                            <span>Generating Report...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Download className="w-4 h-4" />
+                            <span>Save Report</span>
+                            {allSectionsFetched && (
+                              <span className="ml-1 px-2 py-0.5 bg-white/20 rounded-full text-xs">PDF</span>
+                            )}
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
                 </div>
               </motion.div>
             )}
