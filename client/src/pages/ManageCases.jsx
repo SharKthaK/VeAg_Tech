@@ -355,6 +355,34 @@ const ManageCases = ({ daysRemaining }) => {
         {/* Cases Grid */}
         {!loading && !error && filteredCases.length > 0 && (
           <>
+            {/* Cases Summary */}
+              <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 shadow-2xl mb-8">
+                <h3 className="text-lg font-semibold text-white mb-4">{t.manageCases.summary}</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-green-400">{filteredCases.length}</p>
+                    <p className="text-sm text-white/70">{t.manageCases.totalCases}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-yellow-400">
+                      {filteredCases.filter(c => c.status === 'pending').length}
+                    </p>
+                    <p className="text-sm text-white/70">{t.status.pending}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-blue-400">
+                      {filteredCases.filter(c => c.status === 'processing').length}
+                    </p>
+                    <p className="text-sm text-white/70">{t.status.processing}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-green-400">
+                      {filteredCases.filter(c => c.status === 'completed').length}
+                    </p>
+                    <p className="text-sm text-white/70">{t.status.completed}</p>
+                  </div>
+                </div>
+              </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {filteredCases.map((caseItem) => (
                 <motion.div
@@ -425,34 +453,7 @@ const ManageCases = ({ daysRemaining }) => {
               ))}
             </div>
 
-            {/* Cases Summary */}
-            <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 shadow-2xl">
-              <h3 className="text-lg font-semibold text-white mb-4">{t.manageCases.summary}</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-green-400">{filteredCases.length}</p>
-                  <p className="text-sm text-white/70">{t.manageCases.totalCases}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-yellow-400">
-                    {filteredCases.filter(c => c.status === 'pending').length}
-                  </p>
-                  <p className="text-sm text-white/70">{t.status.pending}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-blue-400">
-                    {filteredCases.filter(c => c.status === 'processing').length}
-                  </p>
-                  <p className="text-sm text-white/70">{t.status.processing}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-green-400">
-                    {filteredCases.filter(c => c.status === 'completed').length}
-                  </p>
-                  <p className="text-sm text-white/70">{t.status.completed}</p>
-                </div>
-              </div>
-            </div>
+            
           </>
         )}
       </div>

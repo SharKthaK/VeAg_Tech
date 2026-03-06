@@ -27,7 +27,7 @@ const uploadToCloudinary = async (base64Image, caseId, index) => {
       publicId: result.public_id
     };
   } catch (error) {
-    console.error('Cloudinary upload error:', error);
+    // console.error('Cloudinary upload error:', error);
     throw new Error('Failed to upload image to Cloudinary');
   }
 };
@@ -72,7 +72,7 @@ export const createCase = async (req, res) => {
           try {
             await cloudinary.uploader.destroy(img.publicId);
           } catch (deleteError) {
-            console.error('Error deleting image:', deleteError);
+            // console.error('Error deleting image:', deleteError);
           }
         }
         throw new Error(`Failed to upload image ${i + 1}`);
@@ -97,7 +97,7 @@ export const createCase = async (req, res) => {
       case: newCase
     });
   } catch (error) {
-    console.error('Error creating case:', error);
+    // console.error('Error creating case:', error);
     res.status(500).json({ 
       success: false,
       error: error.message || 'Failed to create case'
@@ -118,7 +118,7 @@ export const getUserCases = async (req, res) => {
       cases
     });
   } catch (error) {
-    console.error('Error fetching user cases:', error);
+    // console.error('Error fetching user cases:', error);
     res.status(500).json({ 
       success: false,
       error: 'Failed to fetch cases'
@@ -145,7 +145,7 @@ export const getCaseById = async (req, res) => {
       case: caseData
     });
   } catch (error) {
-    console.error('Error fetching case:', error);
+    // console.error('Error fetching case:', error);
     res.status(500).json({ 
       success: false,
       error: 'Failed to fetch case'
@@ -219,23 +219,23 @@ export const processCase = async (req, res) => {
           caseData.status = 'completed';
           await caseData.save();
 
-          console.log(`Case ${caseId} processed successfully`);
+          // console.log(`Case ${caseId} processed successfully`);
         } else {
           // Update case status to failed with error
           caseData.status = 'failed';
           await caseData.save();
 
-          console.error(`Case ${caseId} processing failed:`, result.error);
+          // console.error(`Case ${caseId} processing failed:`, result.error);
         }
       } catch (error) {
-        console.error(`Background processing error for case ${caseId}:`, error);
+        // console.error(`Background processing error for case ${caseId}:`, error);
         caseData.status = 'failed';
         await caseData.save();
       }
     })();
 
   } catch (error) {
-    console.error('Error processing case:', error);
+    // console.error('Error processing case:', error);
     res.status(500).json({ 
       success: false,
       error: error.message || 'Failed to process case'
@@ -262,7 +262,7 @@ export const getCaseResult = async (req, res) => {
       result
     });
   } catch (error) {
-    console.error('Error fetching result:', error);
+    // console.error('Error fetching result:', error);
     res.status(500).json({ 
       success: false,
       error: 'Failed to fetch result'
@@ -283,7 +283,7 @@ export const getTreatmentInfo = async (req, res) => {
 
     res.json({ success: true, treatments: treatmentMap });
   } catch (error) {
-    console.error('Error fetching treatment info:', error);
+    // console.error('Error fetching treatment info:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch treatment info' });
   }
 };
@@ -357,7 +357,7 @@ export const generateTreatmentInfo = async (req, res) => {
 
     res.json({ success: true, treatmentInfo });
   } catch (error) {
-    console.error('Error generating treatment info:', error);
+    // console.error('Error generating treatment info:', error);
     res.status(500).json({
       success: false,
       error: error.message || 'Failed to generate treatment info'

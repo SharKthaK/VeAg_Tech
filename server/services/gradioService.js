@@ -21,9 +21,9 @@ class GradioService {
 
   async connect() {
     if (!this.client) {
-      console.log('Connecting to Gradio space:', GRADIO_SPACE_URL);
+      // console.log('Connecting to Gradio space:', GRADIO_SPACE_URL);
       this.client = await Client.connect(GRADIO_SPACE_URL);
-      console.log('Successfully connected to Gradio space');
+      // console.log('Successfully connected to Gradio space');
     }
     return this.client;
   }
@@ -41,10 +41,10 @@ class GradioService {
       try {
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
-          console.log('Cleaned up file:', filePath);
+          // console.log('Cleaned up file:', filePath);
         }
       } catch (error) {
-        console.error('Error cleaning up file:', filePath, error);
+        // console.error('Error cleaning up file:', filePath, error);
       }
     });
   }
@@ -56,7 +56,7 @@ class GradioService {
       await this.connect();
 
       // Download all images from Cloudinary to local temp
-      console.log('Downloading images from Cloudinary...');
+      // console.log('Downloading images from Cloudinary...');
       const fileHandles = [];
       for (let index = 0; index < images.length; index++) {
         const image = images[index];
@@ -66,7 +66,7 @@ class GradioService {
         fileHandles.push(handle_file(filePath));
       }
 
-      console.log('Running inference with Gradio API...');
+      // console.log('Running inference with Gradio API...');
       const result = await this.client.predict("/run_inference", {
         files: fileHandles,
         model_choice: "Best Overall",
@@ -74,7 +74,7 @@ class GradioService {
         mode: "weighted"
       });
 
-      console.log('Inference completed successfully');
+      // console.log('Inference completed successfully');
 
       // Clean up downloaded files
       this.cleanupFiles(downloadedFiles);
@@ -88,7 +88,7 @@ class GradioService {
         fullResponse: result.data
       };
     } catch (error) {
-      console.error('Error processing case with Gradio:', error);
+      // console.error('Error processing case with Gradio:', error);
       
       // Clean up files even on error
       this.cleanupFiles(downloadedFiles);

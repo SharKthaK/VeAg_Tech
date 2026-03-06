@@ -67,7 +67,7 @@ export const authenticateUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error in authenticateUser:', error);
+    // console.error('Error in authenticateUser:', error);
     res.status(500).json({ 
       message: 'Server error during authentication',
       error: error.message 
@@ -98,7 +98,7 @@ export const getUserById = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error in getUserById:', error);
+    // console.error('Error in getUserById:', error);
     res.status(500).json({ 
       message: 'Server error',
       error: error.message 
@@ -129,7 +129,7 @@ export const getUserByEmail = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error in getUserByEmail:', error);
+    // console.error('Error in getUserByEmail:', error);
     res.status(500).json({ 
       message: 'Server error',
       error: error.message 
@@ -177,7 +177,7 @@ export const updateUserProfile = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error in updateUserProfile:', error);
+    // console.error('Error in updateUserProfile:', error);
     res.status(500).json({ 
       message: 'Server error',
       error: error.message 
@@ -197,7 +197,7 @@ export const getNameHistory = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error in getNameHistory:', error);
+    // console.error('Error in getNameHistory:', error);
     res.status(500).json({ 
       message: 'Server error',
       error: error.message 

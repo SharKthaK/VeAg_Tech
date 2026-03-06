@@ -129,6 +129,9 @@ const AskVeAg = ({ isOpen, onClose, caseId, userId, diseaseName, t }) => {
   const inputRef = useRef(null);
   const bottomRef = useRef(null);
   const errorTimerRef = useRef(null);
+  const pollingTimerRef = useRef(null);
+  const isFirstLoadRef = useRef(true);
+  const forceScrollRef = useRef(false); // set true when user sends a message
 
   // Show error toast
   const showError = useCallback((msg) => {
@@ -140,24 +143,56 @@ const AskVeAg = ({ isOpen, onClose, caseId, userId, diseaseName, t }) => {
   // Load initial messages
   useEffect(() => {
     if (isOpen && caseId) {
+      isFirstLoadRef.current = true;
       loadMessages();
     }
     return () => {
       if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+      if (pollingTimerRef.current) clearTimeout(pollingTimerRef.current);
     };
   }, [isOpen, caseId]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
     if (!loadingOlder && bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+      if (isFirstLoadRef.current) {
+        // Instant jump on initial open — no janky smooth-scroll over all loaded msgs
+        bottomRef.current.scrollIntoView({ behavior: 'auto' });
+        isFirstLoadRef.current = false;
+      } else if (forceScrollRef.current) {
+        // User just sent a message — always scroll to bottom regardless of position
+        bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+        forceScrollRef.current = false;
+      } else {
+        // Background update (poll, etc.) — only scroll if already near the bottom
+        const container = chatContainerRef.current;
+        const isNearBottom = !container ||
+          container.scrollHeight - container.scrollTop - container.clientHeight < 250;
+        if (isNearBottom) {
+          bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
     }
   }, [messages, loadingOlder]);
 
-  const loadMessages = async (before = null) => {
+  // Poll for pending AI responses when the popup is reopened mid-processing
+  useEffect(() => {
+    if (pollingTimerRef.current) clearTimeout(pollingTimerRef.current);
+    if (initialLoading || sending) return;
+    const hasPending = messages.some(
+      m => (m.status === 'analyzing' || m.status === 'sent') && !m.reply && !m._id.startsWith('temp-')
+    );
+    if (!hasPending) return;
+    pollingTimerRef.current = setTimeout(() => loadMessages(null, true), 2000);
+    return () => {
+      if (pollingTimerRef.current) clearTimeout(pollingTimerRef.current);
+    };
+  }, [messages, initialLoading, sending]);
+
+  const loadMessages = async (before = null, silent = false) => {
     try {
       if (before) setLoadingOlder(true);
-      else setInitialLoading(true);
+      else if (!silent) setInitialLoading(true);
 
       const params = { userId };
       if (before) params.before = before;
@@ -181,7 +216,7 @@ const AskVeAg = ({ isOpen, onClose, caseId, userId, diseaseName, t }) => {
         setHasMore(res.data.hasMore);
       }
     } catch (err) {
-      showError(t.caseDetail?.askVeAgError || 'Something went wrong');
+      if (!silent) showError(t.caseDetail?.askVeAgError || 'Something went wrong');
     } finally {
       setInitialLoading(false);
       setLoadingOlder(false);
@@ -225,6 +260,10 @@ const AskVeAg = ({ isOpen, onClose, caseId, userId, diseaseName, t }) => {
 
   const handleSend = async () => {
     if (sending) return;
+    const hasPendingAI = messages.some(
+      m => (m.status === 'analyzing' || m.status === 'sent') && !m.reply && !m._id.startsWith('temp-')
+    );
+    if (hasPendingAI) return;
     if (!validateInput(input)) return;
 
     if (!navigator.onLine) {
@@ -235,6 +274,7 @@ const AskVeAg = ({ isOpen, onClose, caseId, userId, diseaseName, t }) => {
     const text = input.trim();
     setInput('');
     setSending(true);
+    forceScrollRef.current = true; // always scroll down when user sends
 
     // Optimistic: add temporary message
     const tempId = `temp-${Date.now()}`;
@@ -270,20 +310,51 @@ const AskVeAg = ({ isOpen, onClose, caseId, userId, diseaseName, t }) => {
     }
   };
 
-  const handleRetry = async (messageId) => {
-    if (messageId.startsWith('temp-')) return;
+  const handleRetry = async (messageId, originalText = null) => {
+    // If the message never reached the server, re-send from scratch
+    if (messageId.startsWith('temp-')) {
+      if (!originalText) return;
+      const newTempId = `temp-${Date.now()}`;
+      setMessages(prev => [
+        ...prev.filter(m => m._id !== messageId),
+        { _id: newTempId, caseId, userId, message: originalText, reply: null, status: 'sending', createdAt: new Date().toISOString() }
+      ]);
+      setSending(true);
+      try {
+        const res = await axios.post(`${API_BASE_URL}/ask/${caseId}/messages`, { userId, message: originalText });
+        if (res.data.success) {
+          setMessages(prev => prev.map(m => m._id === newTempId ? res.data.message : m));
+        } else {
+          setMessages(prev => prev.map(m => m._id === newTempId ? { ...m, status: 'failed' } : m));
+          showError(res.data.error || t.caseDetail?.askVeAgError || 'Something went wrong');
+        }
+      } catch (err) {
+        setMessages(prev => prev.map(m => m._id === newTempId ? { ...m, status: 'failed' } : m));
+        showError(err.response?.data?.error || t.caseDetail?.askVeAgError || 'Something went wrong');
+      } finally {
+        setSending(false);
+        setTimeout(() => inputRef.current?.focus(), 100);
+      }
+      return;
+    }
 
+    // Message was saved to DB but AI response failed – use retry endpoint
+    setSending(true);
     setMessages(prev => prev.map(m => m._id === messageId ? { ...m, status: 'analyzing' } : m));
 
     try {
       const res = await axios.post(`${API_BASE_URL}/ask/messages/${messageId}/retry`, { userId });
       if (res.data.success) {
         setMessages(prev => prev.map(m => m._id === messageId ? res.data.message : m));
+      } else {
+        setMessages(prev => prev.map(m => m._id === messageId ? { ...m, status: 'failed' } : m));
+        showError(res.data.error || t.caseDetail?.askVeAgError || 'Something went wrong');
       }
     } catch (err) {
       setMessages(prev => prev.map(m => m._id === messageId ? { ...m, status: 'failed' } : m));
       showError(t.caseDetail?.askVeAgError || 'Something went wrong');
     } finally {
+      setSending(false);
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   };
@@ -413,6 +484,11 @@ const AskVeAg = ({ isOpen, onClose, caseId, userId, diseaseName, t }) => {
     { id: 'sys-4', text: t.caseDetail?.askVeAgPrivacy || "I'm not a conversational chatbot — I don't retain memory between questions. Each answer is independent, to protect your privacy." },
   ];
 
+  // Derived: AI is still processing a previous message (survives page reload)
+  const isAiProcessing = !sending && messages.some(
+    m => (m.status === 'analyzing' || m.status === 'sent') && !m.reply && !m._id.startsWith('temp-')
+  );
+
   if (!isOpen) return null;
 
   return (
@@ -463,6 +539,31 @@ const AskVeAg = ({ isOpen, onClose, caseId, userId, diseaseName, t }) => {
               </button>
             </div>
 
+            {/* Loading Older Indicator — sticky above the scroll area so it's always visible */}
+            <AnimatePresence>
+              {loadingOlder && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex items-center justify-center py-2 border-b border-white/10"
+                  style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(8px)' }}
+                >
+                  <div className="flex items-center gap-2 px-4 py-1.5 rounded-full"
+                    style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)' }}
+                  >
+                    <motion.div
+                      className="w-3.5 h-3.5 border-2 border-transparent border-t-green-400 rounded-full"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                    />
+                    <span className="text-xs text-green-300/70">{t.caseDetail?.askVeAgLoadingOlder || 'Loading older messages...'}</span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Chat Messages Area */}
             <div
               ref={chatContainerRef}
@@ -470,19 +571,6 @@ const AskVeAg = ({ isOpen, onClose, caseId, userId, diseaseName, t }) => {
               className="flex-1 overflow-y-auto px-4 py-3 space-y-2 custom-scrollbar"
               style={{ scrollBehavior: 'auto' }}
             >
-              {/* Loading Older Indicator */}
-              {loadingOlder && (
-                <div className="flex items-center justify-center py-3">
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
-                    <motion.div
-                      className="w-4 h-4 border-2 border-transparent border-t-green-400 rounded-full"
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                    />
-                    <span className="text-xs text-white/50">{t.caseDetail?.askVeAgLoadingOlder || 'Loading older messages...'}</span>
-                  </div>
-                </div>
-              )}
 
               {/* System Welcome Messages */}
               {systemMessages.map((sys) => (
@@ -552,7 +640,7 @@ const AskVeAg = ({ isOpen, onClose, caseId, userId, diseaseName, t }) => {
                           {msg.status === 'failed' && (
                             <button
                               onMouseDown={(e) => e.preventDefault()}
-                              onClick={() => handleRetry(msg._id)}
+                              onClick={() => handleRetry(msg._id, msg.message)}
                               className="p-1 rounded-full bg-red-500/20 hover:bg-red-500/30 transition-colors"
                               title={t.caseDetail?.askVeAgRetry || 'Retry'}
                             >
@@ -567,7 +655,7 @@ const AskVeAg = ({ isOpen, onClose, caseId, userId, diseaseName, t }) => {
                             <span className="text-[10px] text-red-400">{t.caseDetail?.askVeAgFailed || 'Failed to send'}</span>
                             <button
                               onMouseDown={(e) => e.preventDefault()}
-                              onClick={() => handleRetry(msg._id)}
+                              onClick={() => handleRetry(msg._id, msg.message)}
                               className="text-[10px] text-red-300 underline ml-1"
                             >
                               {t.caseDetail?.askVeAgRetry || 'Retry'}
@@ -578,7 +666,7 @@ const AskVeAg = ({ isOpen, onClose, caseId, userId, diseaseName, t }) => {
                     </div>
 
                     {/* AI Reply */}
-                    {msg.status === 'analyzing' && !msg.reply && (
+                    {(msg.status === 'sending' || msg.status === 'analyzing') && !msg.reply && (
                       <div className="flex justify-start mb-2">
                         <div className="max-w-[80%] px-4 py-3 rounded-2xl rounded-tl-md"
                           style={{
@@ -733,22 +821,22 @@ const AskVeAg = ({ isOpen, onClose, caseId, userId, diseaseName, t }) => {
                       e.target.style.height = 'auto';
                       e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
                     }}
-                    disabled={sending}
+                    disabled={sending || isAiProcessing}
                   />
                 </div>
 
                 {/* Send Button */}
                 <button
-                  onMouseDown={(e) => { e.preventDefault(); if (!sending && input.trim()) handleSend(); }}
-                  disabled={sending || !input.trim()}
+                  onMouseDown={(e) => { e.preventDefault(); if (!sending && !isAiProcessing && input.trim()) handleSend(); }}
+                  disabled={sending || isAiProcessing || !input.trim()}
                   className={`flex-shrink-0 p-2.5 rounded-xl transition-all duration-200 ${
-                    input.trim() && !sending
+                    input.trim() && !sending && !isAiProcessing
                       ? 'bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/30 hover:shadow-green-500/50 active:scale-95'
                       : 'bg-white/5 border border-white/10'
                   }`}
                   title={t.caseDetail?.askVeAgSend || 'Send'}
                 >
-                  {sending ? (
+                  {(sending || isAiProcessing) ? (
                     <motion.div
                       className="w-4 h-4 border-2 border-transparent border-t-white rounded-full"
                       animate={{ rotate: 360 }}

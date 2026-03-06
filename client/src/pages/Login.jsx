@@ -224,6 +224,10 @@ const Login = () => {
           <p className="text-center text-white/70 text-xs mt-6 drop-shadow-md">
             {t.login.secureAccount}
           </p>
+
+          <p className="text-center text-[0.7rem] text-white/40 mt-8 drop-shadow-md">
+            {t.login.informationUsage}
+          </p>
         </div>
       </motion.div>
     </div>

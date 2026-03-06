@@ -59,7 +59,7 @@ export const getActiveSubscription = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error fetching active subscription:', error);
+    // console.error('Error fetching active subscription:', error);
     res.status(500).json({ error: 'Failed to fetch subscription' });
   }
 };
@@ -80,7 +80,7 @@ export const getSubscriptionHistory = async (req, res) => {
 
     res.json({ subscriptions: history });
   } catch (error) {
-    console.error('Error fetching subscription history:', error);
+    // console.error('Error fetching subscription history:', error);
     res.status(500).json({ error: 'Failed to fetch subscription history' });
   }
 };
@@ -95,7 +95,7 @@ export const getTransactionHistory = async (req, res) => {
 
     res.json({ transactions });
   } catch (error) {
-    console.error('Error fetching transaction history:', error);
+    // console.error('Error fetching transaction history:', error);
     res.status(500).json({ error: 'Failed to fetch transaction history' });
   }
 };
@@ -157,7 +157,7 @@ export const createOrder = async (req, res) => {
       internalOrderId: orderId
     });
   } catch (error) {
-    console.error('Error creating order:', error);
+    // console.error('Error creating order:', error);
     res.status(500).json({ error: 'Failed to create order' });
   }
 };
@@ -270,7 +270,7 @@ export const verifyPayment = async (req, res) => {
       transaction: transaction.toObject()
     });
   } catch (error) {
-    console.error('Error verifying payment:', error);
+    // console.error('Error verifying payment:', error);
     
     // Try to update transaction status
     if (req.body.razorpay_order_id) {
@@ -302,7 +302,7 @@ export const handlePaymentFailure = async (req, res) => {
 
     res.json({ message: 'Payment failure recorded' });
   } catch (error) {
-    console.error('Error handling payment failure:', error);
+    // console.error('Error handling payment failure:', error);
     res.status(500).json({ error: 'Failed to record payment failure' });
   }
 };

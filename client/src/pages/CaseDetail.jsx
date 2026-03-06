@@ -1441,7 +1441,7 @@ const CaseDetail = ({ daysRemaining }) => {
                     <div className="relative">
                       {!allSectionsFetched && (
                         <div className="absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full mb-1 px-3 py-1.5 backdrop-blur-xl border border-white/20 rounded-lg text-xs text-white/80 whitespace-nowrap pointer-events-none z-10">
-                          Generate all 3 sections to unlock the report
+                          {t.generateReport.information || 'Please generate all the above 3 sections to enable report download and Ask VeAg'}
                         </div>
                       )}
                       <button
@@ -1462,12 +1462,12 @@ const CaseDetail = ({ daysRemaining }) => {
                               animate={{ rotate: 360 }}
                               transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
                             />
-                            <span>Generating Report...</span>
+                            <span>{t.generateReport.generatingReport || 'Generating Report...'}</span>
                           </>
                         ) : (
                           <>
                             <Download className="w-4 h-4" />
-                            <span>Save Report</span>
+                            <span>{t.generateReport.saveReport || 'Save Report'}</span>
                             {allSectionsFetched && (
                               <span className="ml-1 px-2 py-0.5 bg-white/20 rounded-full text-xs">PDF</span>
                             )}
@@ -1514,7 +1514,12 @@ const CaseDetail = ({ daysRemaining }) => {
               <h3 className="text-xl font-bold text-white mb-4">{t.caseDetail.cropInformation}</h3>
               <div className="flex items-center gap-3 p-4 bg-green-600/20 border border-green-400/30 backdrop-blur-xl rounded-lg">
                 <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth="2" 
+                    d="M12 21C12 10 20 4 20 4S10 4 10 14c0 4 2 7 2 7zm0 0C12 14 4 10 4 10s2 8 8 11z"
+                  />
                 </svg>
                 <div>
                   <p className="text-sm text-white/70">{t.caseDetail.cropType}</p>

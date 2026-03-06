@@ -249,6 +249,8 @@ function ManageSubscription() {
         return 'bg-red-500/20 text-red-100 border-red-400/50';
       case 'pending':
         return 'bg-yellow-500/20 text-yellow-100 border-yellow-400/50';
+      case 'created':
+        return 'bg-red-900/20 text-red-300 border-red-700/40';
       default:
         return 'bg-white/10 text-white/70 border-white/30';
     }
@@ -700,7 +702,7 @@ function ManageSubscription() {
                       <td className="px-4 py-3 text-sm font-semibold text-green-400">₹{transaction.amount}</td>
                       <td className="px-4 py-3">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusBadgeClass(transaction.status)}`}>
-                          {transaction.status.toUpperCase()}
+                          {transaction.status === 'created' ? 'FAILED' : transaction.status.toUpperCase()}
                         </span>
                       </td>
                     </tr>

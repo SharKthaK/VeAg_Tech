@@ -95,6 +95,7 @@ export const translations = {
       signInGoogle: "Sign In with Google",
       signingIn: "Signing in...",
       secureAccount: "We use Google to keep your account secure",
+      informationUsage: "By continuing, you agree to our 1) Terms and Conditions, 2) Privacy Policy, 3) Return, Refund & Cancellation Policy and 4) Shipping & Delivery Policy.",
       errorSignIn: "Failed to sign in with Google. Please try again."
     },
     
@@ -185,6 +186,13 @@ export const translations = {
       cameraError: "Unable to access camera. Please check permissions.",
       uploadingCloud: "Uploading to cloud storage...",
       caseCreated: "Case created successfully!"
+    },
+
+    // Report Download
+    generateReport: {
+      information: "Please generate all the above 3 sections to enable report download and Ask VeAg",
+      generatingReport: "Generating Report...",
+      saveReport: "Save Report"
     },
     
     // Manage Cases
@@ -549,6 +557,7 @@ export const translations = {
       signInGoogle: "Google से साइन इन करें",
       signingIn: "साइन इन हो रहा है...",
       secureAccount: "हम आपके खाते को सुरक्षित रखने के लिए Google का उपयोग करते हैं",
+      informationUsage: "जारी रखकर, आप हमारी 1) नियम और शर्तें, 2) गोपनीयता नीति, 3) वापसी, रिफंड और रद्द करने की नीति और 4) शिपिंग और डिलीवरी नीति से सहमत होते हैं।",
       errorSignIn: "Google से साइन इन करने में विफल। कृपया पुनः प्रयास करें।"
     },
     
@@ -639,6 +648,13 @@ export const translations = {
       cameraError: "कैमरे तक पहुंचने में असमर्थ। कृपया अनुमतियां जांचें।",
       uploadingCloud: "क्लाउड स्टोरेज में अपलोड हो रहा है...",
       caseCreated: "केस सफलतापूर्वक बनाया गया!"
+    },
+
+    // Report Download
+    generateReport: {
+      information: "रिपोर्ट डाउनलोड और Ask VeAg को सक्षम करने के लिए कृपया ऊपर दिए गए सभी 3 सेक्शन उत्पन्न करें।",
+      generatingReport: "रिपोर्ट तैयार हो रही है...",
+      saveReport: "रिपोर्ट सहेजें"
     },
     
     // Manage Cases
@@ -1003,6 +1019,7 @@ export const translations = {
       signInGoogle: "Google দিয়ে সাইন ইন করুন",
       signingIn: "সাইন ইন হচ্ছে...",
       secureAccount: "আমরা আপনার অ্যাকাউন্ট সুরক্ষিত রাখতে Google ব্যবহার করি",
+      informationUsage: "চালিয়ে যাওয়ার মাধ্যমে, আপনি আমাদের 1) নিয়ম ও শর্তাবলী, 2) গোপনীয়তা নীতি, 3) ফেরত, রিফান্ড এবং বাতিলকরণ নীতি এবং 4) শিপিং এবং ডেলিভারি নীতির সাথে সম্মত হন।",
       errorSignIn: "Google দিয়ে সাইন ইন করতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।"
     },
     
@@ -1123,6 +1140,13 @@ export const translations = {
       noCasesMessage: "আপনি এখনও কোন কেস নিবন্ধন করেননি। আপনার প্রথম কেস নিবন্ধন করে শুরু করুন!",
       viewDetails: "বিস্তারিত দেখুন",
       summary: "সারাংশ"
+    },
+
+    // Report Download
+    generateReport: {
+      information: "রিপোর্ট ডাউনলোড এবং Ask VeAg সক্ষম করতে অনুগ্রহ করে উপরের সমস্ত 3টি সেকশন তৈরি করুন।",
+      generatingReport: "রিপোর্ট প্রস্তুত হচ্ছে...",
+      saveReport: "রিপোর্ট সংরক্ষণ করুন"
     },
     
     // Case Detail

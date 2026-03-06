@@ -6,7 +6,7 @@ export const getAllCrops = async (req, res) => {
     const crops = await Crop.find({ isActive: true }).sort({ name: 1 });
     res.json({ crops });
   } catch (error) {
-    console.error('Error fetching crops:', error);
+    // console.error('Error fetching crops:', error);
     res.status(500).json({ error: 'Failed to fetch crops' });
   }
 };
@@ -34,7 +34,7 @@ export const seedCrops = async (req, res) => {
       crops: defaultCrops
     });
   } catch (error) {
-    console.error('Error seeding crops:', error);
+    // console.error('Error seeding crops:', error);
     res.status(500).json({ error: 'Failed to seed crops' });
   }
 };
