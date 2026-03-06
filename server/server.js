@@ -6,6 +6,7 @@ import userRoutes from './routes/userRoutes.js';
 import subscriptionRoutes from './routes/subscriptionRoutes.js';
 import cropRoutes from './routes/cropRoutes.js';
 import caseRoutes from './routes/caseRoutes.js';
+import askRoutes from './routes/askRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -26,6 +27,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/crops', cropRoutes);
 app.use('/api/cases', caseRoutes);
+app.use('/api/ask', askRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {

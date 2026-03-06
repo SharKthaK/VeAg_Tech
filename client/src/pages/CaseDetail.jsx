@@ -4,11 +4,12 @@ import { useAuth } from '../contexts/AuthContext';
 import withSubscription from '../components/withSubscription';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, HelpCircle, RefreshCw, CheckCircle, XCircle, Zap, Lock, Pill, AlertTriangle, Shield, ChevronDown, ChevronUp, RotateCcw, Download, Clock } from 'lucide-react';
+import { ArrowLeft, HelpCircle, RefreshCw, CheckCircle, XCircle, Zap, Lock, Pill, AlertTriangle, Shield, ChevronDown, ChevronUp, RotateCcw, Download, Clock, MessageCircle } from 'lucide-react';
 import veagLogo from '../assets/veag_logo.svg';
 import veagLogoPng from '../assets/veag_logo.png';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../utils/translations';
+import AskVeAg from '../components/AskVeAg';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
@@ -28,6 +29,7 @@ const CaseDetail = ({ daysRemaining }) => {
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [showSupport, setShowSupport] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
+  const [showAskVeAg, setShowAskVeAg] = useState(false);
 
   // Treatment system state
   const [treatmentData, setTreatmentData] = useState({
@@ -1033,6 +1035,7 @@ const CaseDetail = ({ daysRemaining }) => {
                       <div>
                         <h3 className="text-xl font-bold text-white">{t.caseDetail.treatmentInsights || 'Treatment & Insights'}</h3>
                         <p className="text-sm text-white/70">{t.caseDetail.treatmentInsightsDesc || 'AI-powered treatment recommendations for'} <span className="text-orange-300 font-semibold">{caseResult.diseaseStatus}</span></p>
+                        <p className="text-sm text-white/70">{t.caseDetail.treatmentInsightsInformation || 'Click on the buttons below to generate / view detailed treatment guide, disease causes, and prevention strategies.'}</p>
                       </div>
                     </div>
                   </div>
@@ -1551,6 +1554,16 @@ const CaseDetail = ({ daysRemaining }) => {
             <div className="bg-black/30 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-2xl p-6">
               <h3 className="text-xl font-bold text-white mb-4">{t.caseDetail.actions}</h3>
               <div className="space-y-3">
+                {/* Ask VeAg Button - only when disease detected and treatment completed */}
+                {allSectionsFetched && isDiseaseDetected() && (
+                  <button
+                    onClick={() => setShowAskVeAg(true)}
+                    className="w-full px-4 py-3 bg-gradient-to-r from-red-500/80 to-orange-600/80 text-white font-semibold rounded-lg hover:from-orange-500 hover:to-red-600 transition-all border border-green-400/50 backdrop-blur-xl flex items-center justify-center gap-2 shadow-lg shadow-green-500/20"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    {t.caseDetail.askVeAg || 'Ask VeAg'}
+                  </button>
+                )}
                 <button
                   onClick={() => navigate('/manage-cases')}
                   className="w-full px-4 py-3 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40 backdrop-blur-xl"
@@ -1568,6 +1581,16 @@ const CaseDetail = ({ daysRemaining }) => {
           </div>
         </div>
       </div>
+
+      {/* Ask VeAg Chat Window */}
+      <AskVeAg
+        isOpen={showAskVeAg}
+        onClose={() => setShowAskVeAg(false)}
+        caseId={caseId}
+        userId={currentUser?.userId}
+        diseaseName={caseResult?.diseaseStatus || ''}
+        t={t}
+      />
     </div>
   );
 };
