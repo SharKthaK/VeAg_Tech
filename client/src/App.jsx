@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
+import CookieConsent from './components/CookieConsent';
 import ProtectedRoute from './components/ProtectedRoute';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -178,6 +179,7 @@ function App() {
     <Router>
       <LanguageProvider>
         <AuthProvider>
+          <CookieConsent />
           <AppContent />
         </AuthProvider>
       </LanguageProvider>

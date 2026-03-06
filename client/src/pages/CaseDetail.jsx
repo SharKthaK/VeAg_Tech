@@ -106,10 +106,86 @@ const CaseDetail = ({ daysRemaining }) => {
     fetchCaseDetail();
   }, [caseId, currentUser]);
 
+  // --- localStorage helpers for persistent treatment button states ---
+  const TREATMENT_TYPES = ['treatment', 'causes', 'prevention'];
+
+  const saveTreatmentState = (type, state) => {
+    const key = `veag_treatment_${caseId}_${type}`;
+    if (state === 'completed') {
+      localStorage.removeItem(key);
+    } else {
+      localStorage.setItem(key, state); // 'started' | 'failed'
+    }
+  };
+
+  const getStoredTreatmentState = (type) =>
+    localStorage.getItem(`veag_treatment_${caseId}_${type}`);
+
+  // Poll DB every 5 s for types that were 'started' before a page reload
+  const pollForPendingTreatments = (pendingTypes) => {
+    if (!pendingTypes.length) return;
+    const MAX_ATTEMPTS = 24; // 24 × 5 s = 2 min
+    let attempts = 0;
+    let remaining = [...pendingTypes];
+
+    const poll = async () => {
+      if (!remaining.length) return;
+      attempts++;
+      try {
+        const response = await axios.get(`${API_BASE_URL}/cases/${caseId}/treatment-info`);
+        if (response.data.success && response.data.treatments) {
+          const done = [];
+          remaining.forEach(type => {
+            if (response.data.treatments[type]) {
+              setTreatmentData(prev => ({ ...prev, [type]: response.data.treatments[type] }));
+              setTreatmentLoading(prev => ({ ...prev, [type]: false }));
+              saveTreatmentState(type, 'completed');
+              done.push(type);
+            }
+          });
+          remaining = remaining.filter(t => !done.includes(t));
+        }
+      } catch (_) { /* keep polling */ }
+
+      if (!remaining.length) return;
+
+      if (attempts >= MAX_ATTEMPTS) {
+        remaining.forEach(type => {
+          setTreatmentLoading(prev => ({ ...prev, [type]: false }));
+          setTreatmentError(prev => ({ ...prev, [type]: 'Generation timed out. Please retry.' }));
+          saveTreatmentState(type, 'failed');
+        });
+        return;
+      }
+      setTimeout(poll, 5000);
+    };
+
+    setTimeout(poll, 3000); // first check after 3 s
+  };
+
   // Fetch existing treatment info when case is completed with disease
   useEffect(() => {
     if (caseData?.status === 'completed' && caseResult && !caseResult.diseaseStatus.toLowerCase().includes('healthy')) {
-      fetchExistingTreatments();
+      fetchExistingTreatments().then(fetched => {
+        // After loading DB data, restore any in-progress / failed states from localStorage
+        const pendingTypes = [];
+        TREATMENT_TYPES.forEach(type => {
+          if (fetched[type]) return; // already completed in DB
+          const stored = getStoredTreatmentState(type);
+          if (stored === 'started') {
+            setTreatmentLoading(prev => ({ ...prev, [type]: true }));
+            setActiveTab(prev => prev || type);
+            pendingTypes.push(type);
+          } else if (stored === 'failed') {
+            setTreatmentError(prev => ({
+              ...prev,
+              [type]: 'Generation failed. Please retry.'
+            }));
+            setActiveTab(prev => prev || type);
+          }
+        });
+        if (pendingTypes.length) pollForPendingTreatments(pendingTypes);
+      });
     }
   }, [caseData?.status, caseResult]);
 
@@ -117,33 +193,38 @@ const CaseDetail = ({ daysRemaining }) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/cases/${caseId}/treatment-info`);
       if (response.data.success && response.data.treatments) {
-        setTreatmentData(prev => ({
-          ...prev,
-          ...response.data.treatments
-        }));
+        const fetched = response.data.treatments;
+        setTreatmentData(prev => ({ ...prev, ...fetched }));
+        // Clear localStorage for any type now confirmed complete in DB
+        TREATMENT_TYPES.forEach(type => {
+          if (fetched[type]) saveTreatmentState(type, 'completed');
+        });
+        return fetched;
       }
-    } catch (err) {
+    } catch (_) {
       // Silent fail - treatments will be generated on demand
-      // console.error('Error fetching existing treatments:', err);
     }
+    return {};
   };
 
   const generateTreatment = async (type) => {
     setActiveTab(type);
     setTreatmentLoading(prev => ({ ...prev, [type]: true }));
     setTreatmentError(prev => ({ ...prev, [type]: null }));
+    saveTreatmentState(type, 'started'); // persist so reload shows loading spinner
 
     try {
       const response = await axios.post(`${API_BASE_URL}/cases/${caseId}/treatment-info/${type}`);
       if (response.data.success) {
         setTreatmentData(prev => ({ ...prev, [type]: response.data.treatmentInfo }));
+        saveTreatmentState(type, 'completed');
       }
     } catch (err) {
-      // console.error(`Error generating ${type}:`, err);
       setTreatmentError(prev => ({
         ...prev,
         [type]: err.response?.data?.error || `Failed to generate ${type} information. Please try again.`
       }));
+      saveTreatmentState(type, 'failed');
     } finally {
       setTreatmentLoading(prev => ({ ...prev, [type]: false }));
     }
